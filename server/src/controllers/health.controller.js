@@ -1,4 +1,5 @@
 import { env } from "../config/env.js";
+import { getDatabaseStatus } from "../db/client.js";
 
 export const getApiInfo = (req, res) => {
   res.status(200).json({
@@ -8,12 +9,19 @@ export const getApiInfo = (req, res) => {
   });
 };
 
-export const getHealthStatus = (req, res) => {
-  res.status(200).json({
-    success: true,
-    status: "healthy",
-    environment: env.nodeEnv,
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-  });
+export const getHealthStatus = async (req, res, next) => {
+  try {
+    const database = await getDatabaseStatus();
+
+    res.status(200).json({
+      success: true,
+      status: "healthy",
+      environment: env.nodeEnv,
+      database,
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    next(error);
+  }
 };
