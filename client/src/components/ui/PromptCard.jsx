@@ -65,7 +65,7 @@ export default function PromptCard({ prompt, index = 0 }) {
         {/* View Details Link */}
         <Link
           href={`/prompts/${prompt._id}`}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700/50 bg-zinc-800/50 text-zinc-400 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400 group-hover:text-zinc-950 group-hover:shadow-[0_0_20px_rgba(52,211,153,0.4)]"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700/50 bg-zinc-800/50 text-zinc-400 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400 group-hover:text-zinc-950 group-hover:shadow-[0_0_10px_rgba(52,211,153,0.2)]"
         >
           <ArrowUpRight size={18} strokeWidth={2.5} />
         </Link>

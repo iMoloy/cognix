@@ -9,8 +9,8 @@ export default function AuthShell({ title, subtitle, children }) {
       
       {/* Background Orbs */}
       <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden">
-        <div className="absolute top-0 left-[-10%] h-[600px] w-[600px] rounded-full bg-emerald-500/5 blur-[120px] opacity-50" />
-        <div className="absolute bottom-[-10%] right-[-10%] h-[500px] w-[500px] rounded-full bg-cyan-500/5 blur-[120px] opacity-50" />
+        <div className="absolute top-0 left-[-10%] h-[600px] w-[600px] rounded-full bg-emerald-500/5 blur-[150px] opacity-20" />
+        <div className="absolute bottom-[-10%] right-[-10%] h-[500px] w-[500px] rounded-full bg-cyan-500/5 blur-[150px] opacity-20" />
       </div>
 
       <section className="relative z-10 mx-auto grid w-full max-w-6xl overflow-hidden rounded-3xl border border-white/5 bg-zinc-950/50 shadow-2xl backdrop-blur-2xl lg:grid-cols-[1fr_1.1fr]">
@@ -69,7 +69,7 @@ export default function AuthShell({ title, subtitle, children }) {
               <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">AI tools</span>
             </div>
             <div className="rounded-xl border border-white/5 bg-white/5 p-4 backdrop-blur-md">
-              <strong className="block text-2xl font-bold text-emerald-400">$5</strong>
+              <strong className="block bg-[length:200%_auto] animate-gradient-x bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-clip-text text-2xl font-bold text-transparent">$5</strong>
               <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Premium</span>
             </div>
             <div className="rounded-xl border border-white/5 bg-white/5 p-4 backdrop-blur-md">

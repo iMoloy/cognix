@@ -98,7 +98,7 @@ export default function RegisterForm() {
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         type="submit"
-        className="group relative mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-400 px-5 text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:shadow-[0_0_30px_rgba(52,211,153,0.5)]"
+        className="group relative mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-5 text-sm font-bold text-zinc-950 shadow-md transition-all hover:shadow-[0_0_15px_rgba(52,211,153,0.25)]"
       >
         <UserPlus size={18} className="transition-transform group-hover:scale-110" />
         Create Account
@@ -106,7 +106,7 @@ export default function RegisterForm() {
 
       <p className="mt-6 text-center text-sm font-medium text-zinc-500">
         Already have an account?{" "}
-        <Link href="/login" className="font-bold text-emerald-400 transition-colors hover:text-emerald-300">
+        <Link href="/login" className="bg-[length:200%_auto] animate-gradient-x bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-clip-text font-bold text-transparent">
           Log in
         </Link>
       </p>

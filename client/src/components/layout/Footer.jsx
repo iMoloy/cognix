@@ -4,6 +4,15 @@ import { BrainCircuit, Globe, MessageSquare, Mail } from "lucide-react";
 export default function Footer() {
   return (
     <footer className="relative border-t border-white/5 bg-[#030303] py-10 overflow-hidden">
+      {/* SVG Gradient Definition */}
+      <svg width="0" height="0" className="absolute">
+        <linearGradient id="icon-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#34d399" />
+          <stop offset="50%" stopColor="#22d3ee" />
+          <stop offset="100%" stopColor="#34d399" />
+        </linearGradient>
+      </svg>
+
       {/* Super subtle glowing top border edge */}
       <div className="absolute top-0 left-1/2 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent"></div>
       
@@ -12,10 +21,10 @@ export default function Footer() {
         {/* Brand & Copyright */}
         <div className="flex flex-col items-center gap-3 sm:items-start">
           <Link href="/" className="group flex items-center gap-2">
-            <div className="flex size-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-emerald-400 transition-colors group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10">
-              <BrainCircuit size={14} />
+            <div className="flex size-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 transition-colors group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10">
+              <BrainCircuit size={14} color="url(#icon-gradient)" />
             </div>
-            <span className="text-sm font-extrabold tracking-tight text-white transition-colors group-hover:text-emerald-400">Cognix</span>
+            <span className="bg-[length:200%_auto] animate-gradient-x bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-clip-text text-sm font-extrabold tracking-tight text-transparent">Cognix</span>
           </Link>
           <p className="text-xs font-medium text-zinc-500">
             © {new Date().getFullYear()} Cognix Platform. All rights reserved.

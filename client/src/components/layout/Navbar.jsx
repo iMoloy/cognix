@@ -22,18 +22,26 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/5 bg-[#030303]/80 backdrop-blur-2xl">
+      {/* SVG Gradient Definition for Icons */}
+      <svg width="0" height="0" className="absolute">
+        <linearGradient id="icon-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#34d399" />
+          <stop offset="50%" stopColor="#22d3ee" />
+          <stop offset="100%" stopColor="#34d399" />
+        </linearGradient>
+      </svg>
       <nav className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         
         {/* Left Side: Logo + Links */}
         <div className="flex items-center gap-10">
           {/* Brand Logo */}
           <Link href="/" className="group flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-400 text-zinc-950 shadow-[0_0_15px_rgba(52,211,153,0.3)] transition-transform group-hover:scale-105">
-              <BrainCircuit size={22} strokeWidth={2.5} />
+            <div className="flex size-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition-all group-hover:scale-105 group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10">
+              <BrainCircuit size={18} color="url(#icon-gradient)" />
             </div>
             <div>
-              <span className="block text-xl font-extrabold leading-none text-white tracking-tight">Cognix</span>
-              <span className="hidden text-[10px] font-bold uppercase tracking-widest text-emerald-500 sm:block mt-0.5">Premium Prompts</span>
+              <span className="bg-[length:200%_auto] animate-gradient-x bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-clip-text text-xl font-extrabold tracking-tight text-transparent">Cognix</span>
+              <span className="hidden mt-0.5 bg-[length:200%_auto] animate-gradient-x bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-clip-text text-[10px] font-bold uppercase tracking-widest text-transparent sm:block">Premium Prompts</span>
             </div>
           </Link>
 
@@ -103,7 +111,7 @@ export default function Navbar() {
               </Link>
               <Link
                 href="/register"
-                className="group flex h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-400 px-6 text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(52,211,153,0.5)]"
+                className="group flex h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-6 text-sm font-bold text-zinc-950 shadow-md transition-all hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(52,211,153,0.25)]"
               >
                 <Sparkles size={14} className="transition-transform group-hover:scale-125" />
                 Get Started

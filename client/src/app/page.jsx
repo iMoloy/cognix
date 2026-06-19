@@ -44,8 +44,8 @@ export default function Home() {
       
       {/* Premium Hero Background Effects */}
       <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden">
-        <div className="absolute top-[-20%] left-[10%] h-[700px] w-[700px] rounded-full bg-emerald-500/5 blur-[120px] opacity-50" />
-        <div className="absolute right-[-10%] top-[30%] h-[500px] w-[500px] rounded-full bg-cyan-500/5 blur-[120px] opacity-50" />
+        <div className="absolute top-[-20%] left-[10%] h-[700px] w-[700px] rounded-full bg-emerald-500/5 blur-[150px] opacity-20" />
+        <div className="absolute right-[-10%] top-[30%] h-[500px] w-[500px] rounded-full bg-cyan-500/5 blur-[150px] opacity-20" />
         {/* Subtle grid pattern overlay */}
         <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-center opacity-[0.03]"></div>
       </div>
@@ -90,7 +90,7 @@ export default function Home() {
               />
               <Link
                 href="/prompts"
-                className="flex h-12 items-center justify-center rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-400 px-8 text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(52,211,153,0.5)]"
+                className="flex h-12 items-center justify-center rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-8 text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(52,211,153,0.5)]"
               >
                 Search
               </Link>
@@ -104,7 +104,7 @@ export default function Home() {
             >
               <Link
                 href="/register"
-                className="group flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-400 px-8 text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(52,211,153,0.5)]"
+                className="group flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-8 text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(52,211,153,0.5)]"
               >
                 Create account
                 <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />
@@ -145,7 +145,7 @@ export default function Home() {
             className="perspective-1000 relative"
           >
             {/* Glowing orb behind the card */}
-            <div className="absolute inset-0 left-1/2 top-1/2 h-[80%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/10 blur-[100px] opacity-50"></div>
+            <div className="absolute inset-0 left-1/2 top-1/2 h-[80%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/10 blur-[120px] opacity-20"></div>
             
             <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/40 shadow-2xl backdrop-blur-2xl">
               <div className="border-b border-white/5 bg-white/[0.02] px-6 py-5">
