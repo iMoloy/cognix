@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LogIn } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { motion } from "framer-motion";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -26,10 +27,10 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div>
-        <label htmlFor="email" className="text-sm font-semibold text-zinc-300">
-          Email
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-2">
+        <label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+          Email Address
         </label>
         <input
           id="email"
@@ -38,13 +39,13 @@ export default function LoginForm() {
           value={formData.email}
           onChange={handleChange}
           required
-          className="mt-2 h-12 w-full rounded-lg border border-zinc-800 bg-zinc-900 px-4 text-sm text-zinc-50 outline-none transition placeholder:text-zinc-600 focus:border-emerald-300"
+          className="h-14 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-medium text-white outline-none backdrop-blur-md transition-all placeholder:text-zinc-600 focus:border-emerald-500/50 focus:bg-white/10 focus:shadow-[0_0_20px_rgba(52,211,153,0.15)]"
           placeholder="creator@cognix.dev"
         />
       </div>
 
-      <div>
-        <label htmlFor="password" className="text-sm font-semibold text-zinc-300">
+      <div className="space-y-2">
+        <label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-zinc-400">
           Password
         </label>
         <input
@@ -55,22 +56,24 @@ export default function LoginForm() {
           onChange={handleChange}
           required
           minLength={6}
-          className="mt-2 h-12 w-full rounded-lg border border-zinc-800 bg-zinc-900 px-4 text-sm text-zinc-50 outline-none transition placeholder:text-zinc-600 focus:border-emerald-300"
-          placeholder="Enter your password"
+          className="h-14 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-medium text-white outline-none backdrop-blur-md transition-all placeholder:text-zinc-600 focus:border-emerald-500/50 focus:bg-white/10 focus:shadow-[0_0_20px_rgba(52,211,153,0.15)]"
+          placeholder="••••••••"
         />
       </div>
 
-      <button
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
         type="submit"
-        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-emerald-300 px-5 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-200"
+        className="group relative mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-400 px-5 text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:shadow-[0_0_30px_rgba(52,211,153,0.5)]"
       >
-        <LogIn size={18} />
-        Login
-      </button>
+        <LogIn size={18} className="transition-transform group-hover:-translate-x-1" />
+        Secure Login
+      </motion.button>
 
-      <p className="text-center text-sm text-zinc-500">
+      <p className="mt-8 text-center text-sm font-medium text-zinc-500">
         New to Cognix?{" "}
-        <Link href="/register" className="font-semibold text-zinc-50">
+        <Link href="/register" className="font-bold text-emerald-400 transition-colors hover:text-emerald-300">
           Create an account
         </Link>
       </p>

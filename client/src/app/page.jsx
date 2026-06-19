@@ -1,14 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import {
-  ArrowRight,
-  Bookmark,
-  CheckCircle2,
-  Copy,
-  LockKeyhole,
-  Search,
-  ShieldCheck,
-  Star,
-} from "lucide-react";
+import { ArrowRight, Bookmark, CheckCircle2, Copy, LockKeyhole, Search, ShieldCheck, Star } from "lucide-react";
+import { motion } from "framer-motion";
 
 const promptRows = [
   {
@@ -46,170 +40,218 @@ const workflowItems = [
 
 export default function Home() {
   return (
-    <main className="bg-zinc-950">
-      <section className="border-b border-zinc-800 bg-zinc-900 px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto grid w-full max-w-7xl gap-12 lg:grid-cols-[0.96fr_1.04fr] lg:items-center">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
-              AI prompt marketplace
-            </p>
-            <h1 className="mt-5 max-w-3xl text-5xl font-bold leading-[1.04] text-zinc-50 sm:text-6xl">
-              A curated workspace for prompts worth reusing.
+    <main className="relative min-h-screen bg-[#030303] selection:bg-emerald-500/30">
+      
+      {/* Premium Hero Background Effects */}
+      <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden">
+        <div className="absolute top-[-20%] left-[10%] h-[700px] w-[700px] rounded-full bg-emerald-500/5 blur-[120px] opacity-50" />
+        <div className="absolute right-[-10%] top-[30%] h-[500px] w-[500px] rounded-full bg-cyan-500/5 blur-[120px] opacity-50" />
+        {/* Subtle grid pattern overlay */}
+        <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-center opacity-[0.03]"></div>
+      </div>
+
+      <section className="relative z-10 border-b border-white/5 bg-transparent px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <div className="mx-auto grid w-full max-w-7xl gap-16 lg:grid-cols-[1fr_1fr] lg:items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold tracking-[0.2em] text-zinc-400 backdrop-blur-md">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+              </span>
+              COGNIX PLATFORM
+            </div>
+            
+            <h1 className="mt-6 max-w-3xl text-5xl font-extrabold leading-[1.1] text-white sm:text-6xl lg:text-[4rem]">
+              Curated Prompts <br className="hidden sm:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 animate-gradient-x">
+                Worth Reusing.
+              </span>
             </h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-400">
-              Cognix is built for publishing, reviewing, bookmarking, and selling practical AI prompts across the tools teams already use.
+            
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-zinc-400 font-medium">
+              A premium marketplace built for modern engineering and design teams. Publish, review, bookmark, and monetize battle-tested AI workflows.
             </p>
 
-            <div className="mt-8 flex max-w-2xl items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-950 p-2 shadow-sm">
-              <Search className="ml-2 text-zinc-500" size={20} />
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="mt-10 flex max-w-xl items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-2 shadow-2xl backdrop-blur-xl focus-within:border-emerald-500/50 focus-within:bg-white/[0.05] transition-all"
+            >
+              <Search className="ml-3 text-zinc-500" size={22} />
               <input
-                className="h-11 flex-1 bg-transparent text-sm text-zinc-50 outline-none"
-                placeholder="Search by title, tag, or AI tool"
+                className="h-12 flex-1 bg-transparent text-base text-zinc-100 placeholder-zinc-500 outline-none"
+                placeholder="Search prompt templates..."
                 aria-label="Search prompts"
               />
               <Link
                 href="/prompts"
-                className="inline-flex h-11 items-center justify-center rounded-md bg-emerald-300 px-4 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-200"
+                className="flex h-12 items-center justify-center rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-400 px-8 text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(52,211,153,0.5)]"
               >
                 Search
               </Link>
-            </div>
+            </motion.div>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center"
+            >
               <Link
                 href="/register"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-emerald-300 px-6 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-200"
+                className="group flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-400 px-8 text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(52,211,153,0.5)]"
               >
                 Create account
-                <ArrowRight size={17} />
+                <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
                 href="/prompts"
-                className="inline-flex h-12 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950 px-6 text-sm font-semibold text-zinc-200 transition hover:border-zinc-700"
+                className="flex h-12 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-8 text-sm font-bold text-white backdrop-blur-md transition-all hover:scale-[1.02] hover:bg-white/10"
               >
                 Browse marketplace
               </Link>
-            </div>
+            </motion.div>
 
-            <div className="mt-9 grid max-w-xl grid-cols-3 divide-x divide-zinc-800 border-y border-zinc-800 py-5">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.6 }}
+              className="mt-14 grid max-w-xl grid-cols-3 divide-x divide-white/10 border-t border-white/10 pt-8"
+            >
               <div>
-                <strong className="block text-2xl text-zinc-50">3</strong>
-                <span className="text-xs font-medium text-zinc-500">User roles</span>
+                <strong className="block text-3xl font-extrabold text-white">3</strong>
+                <span className="mt-1 block text-xs font-semibold uppercase tracking-wider text-zinc-500">User roles</span>
               </div>
-              <div className="pl-5">
-                <strong className="block text-2xl text-zinc-50">$5</strong>
-                <span className="text-xs font-medium text-zinc-500">Premium unlock</span>
+              <div className="pl-6">
+                <strong className="block text-3xl font-extrabold text-white">$5</strong>
+                <span className="mt-1 block text-xs font-semibold uppercase tracking-wider text-zinc-500">Premium unlock</span>
               </div>
-              <div className="pl-5">
-                <strong className="block text-2xl text-zinc-50">2+</strong>
-                <span className="text-xs font-medium text-zinc-500">Paginated views</span>
+              <div className="pl-6">
+                <strong className="block text-3xl font-extrabold text-white">2+</strong>
+                <span className="mt-1 block text-xs font-semibold uppercase tracking-wider text-zinc-500">Data Views</span>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950 shadow-xl shadow-black/40">
-            <div className="border-b border-zinc-800 px-5 py-4">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-base font-bold text-zinc-50">Marketplace Preview</h2>
-                  <p className="mt-1 text-sm text-zinc-500">Approved prompts sorted by engagement</p>
-                </div>
-                <span className="rounded-md bg-emerald-300 px-3 py-1 text-xs font-bold text-emerald-950">
-                  Live queue
-                </span>
-              </div>
-            </div>
-
-            <div className="divide-y divide-zinc-800">
-              {promptRows.map((prompt) => (
-                <article key={prompt.title} className="grid gap-4 px-5 py-4 sm:grid-cols-[1fr_auto] sm:items-center">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, rotateY: -10 }}
+            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="perspective-1000 relative"
+          >
+            {/* Glowing orb behind the card */}
+            <div className="absolute inset-0 left-1/2 top-1/2 h-[80%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/10 blur-[100px] opacity-50"></div>
+            
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/40 shadow-2xl backdrop-blur-2xl">
+              <div className="border-b border-white/5 bg-white/[0.02] px-6 py-5">
+                <div className="flex items-center justify-between gap-4">
                   <div>
-                    <h3 className="font-semibold text-zinc-50">{prompt.title}</h3>
-                    <div className="mt-2 flex flex-wrap gap-2 text-xs font-medium text-zinc-500">
-                      <span>{prompt.category}</span>
-                      <span>·</span>
-                      <span>{prompt.tool}</span>
-                      <span>·</span>
-                      <span>{prompt.level}</span>
-                    </div>
+                    <h2 className="text-lg font-bold text-white">Live Queue</h2>
+                    <p className="mt-1 text-xs font-medium text-zinc-500">Top engaged prompts this week</p>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-zinc-400">
-                    <span className="inline-flex items-center gap-1">
-                      <Copy size={15} />
-                      {prompt.copies}
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Star size={15} />
-                      {prompt.rating}
-                    </span>
-                  </div>
-                </article>
-              ))}
-            </div>
+                  <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400 ring-1 ring-emerald-500/30">
+                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                    Trending
+                  </span>
+                </div>
+              </div>
 
-            <div className="grid gap-3 border-t border-zinc-800 bg-zinc-900 p-5 sm:grid-cols-2">
-              <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-zinc-50">
-                  <LockKeyhole size={17} />
-                  Premium gate
-                </div>
-                <p className="mt-2 text-sm leading-6 text-zinc-500">
-                  Private prompts remain blurred until payment access is confirmed.
-                </p>
+              <div className="divide-y divide-white/5">
+                {promptRows.map((prompt, i) => (
+                  <motion.article 
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.5 + (i * 0.1) }}
+                    key={prompt.title} 
+                    className="group flex flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between transition-colors hover:bg-white/[0.02]"
+                  >
+                    <div>
+                      <h3 className="font-bold text-zinc-100 group-hover:text-emerald-300 transition-colors">{prompt.title}</h3>
+                      <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wider text-zinc-500">
+                        <span className="text-emerald-500/80">{prompt.category}</span>
+                        <span>·</span>
+                        <span>{prompt.tool}</span>
+                        <span>·</span>
+                        <span>{prompt.level}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-5 text-sm font-semibold text-zinc-400">
+                      <span className="flex items-center gap-1.5">
+                        <Copy size={15} className="text-zinc-600" />
+                        {prompt.copies}
+                      </span>
+                      <span className="flex items-center gap-1.5 text-amber-400/90">
+                        <Star size={15} className="fill-amber-400/30 text-amber-500" />
+                        {prompt.rating}
+                      </span>
+                    </div>
+                  </motion.article>
+                ))}
               </div>
-              <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-zinc-50">
-                  <Bookmark size={17} />
-                  Saved library
+
+              <div className="grid gap-4 border-t border-white/5 bg-white/[0.01] p-6 sm:grid-cols-2">
+                <div className="rounded-xl border border-white/5 bg-black/20 p-5 backdrop-blur-md">
+                  <div className="flex items-center gap-2 text-sm font-bold text-white">
+                    <LockKeyhole size={16} className="text-emerald-400" />
+                    Premium Gate
+                  </div>
+                  <p className="mt-2 text-xs leading-relaxed text-zinc-500 font-medium">
+                    Private prompts remain blurred securely until payment is verified via Stripe.
+                  </p>
                 </div>
-                <p className="mt-2 text-sm leading-6 text-zinc-500">
-                  Users can bookmark useful prompts without creating duplicates.
-                </p>
+                <div className="rounded-xl border border-white/5 bg-black/20 p-5 backdrop-blur-md">
+                  <div className="flex items-center gap-2 text-sm font-bold text-white">
+                    <Bookmark size={16} className="text-cyan-400" />
+                    Smart Library
+                  </div>
+                  <p className="mt-2 text-xs leading-relaxed text-zinc-500 font-medium">
+                    One-click bookmarks without cluttering the database with duplicate records.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      <section className="px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr]">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
-              Product flow
+      <section className="relative z-10 px-4 py-24 sm:px-6 lg:px-8">
+        <div className="mx-auto grid w-full max-w-7xl gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <p className="inline-block rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-zinc-400">
+              Product Architecture
             </p>
-            <h2 className="mt-3 text-3xl font-bold leading-tight text-zinc-50">
-              Designed around moderation, discovery, and creator ownership.
+            <h2 className="mt-6 text-3xl font-extrabold leading-tight text-white sm:text-4xl">
+              Engineered for moderation, discovery, and scale.
             </h2>
-          </div>
+          </motion.div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            {workflowItems.map((item) => (
-              <div key={item} className="flex gap-3 rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-                <CheckCircle2 className="mt-0.5 shrink-0 text-zinc-50" size={19} />
-                <p className="text-sm font-medium leading-6 text-zinc-300">{item}</p>
-              </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {workflowItems.map((item, i) => (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                key={item} 
+                className="group flex gap-4 rounded-xl border border-white/5 bg-white/[0.02] p-6 transition-all hover:bg-white/[0.04] hover:border-white/10 hover:shadow-xl hover:-translate-y-1"
+              >
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/10">
+                  <CheckCircle2 className="text-emerald-400" size={18} />
+                </div>
+                <p className="text-sm font-semibold leading-relaxed text-zinc-300 group-hover:text-white transition-colors">{item}</p>
+              </motion.div>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section className="border-t border-zinc-800 bg-zinc-900 px-4 py-14 sm:px-6 lg:px-8">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 rounded-xl border border-zinc-800 bg-zinc-950 p-6 shadow-sm lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <div className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-400">
-              <ShieldCheck size={18} />
-              Role-based marketplace foundation
-            </div>
-            <h2 className="mt-2 text-2xl font-bold text-zinc-50">
-              Start with the client experience, then wire each screen to the API.
-            </h2>
-          </div>
-          <Link
-            href="/register"
-            className="inline-flex h-11 items-center justify-center rounded-md bg-emerald-300 px-5 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-200"
-          >
-            Continue setup
-          </Link>
         </div>
       </section>
     </main>
