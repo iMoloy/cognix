@@ -1,147 +1,161 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { Key, Bookmark, WalletCards, ArrowRight, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import {
-  Bookmark,
-  ChartNoAxesCombined,
-  Crown,
-  FilePlus2,
-  MessageSquareText,
-  TrendingUp,
-  UserRound,
-} from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import PromptCard from "@/components/ui/PromptCard";
 
-const stats = [
-  { label: "Prompts", value: "0", icon: FilePlus2 },
-  { label: "Bookmarks", value: "0", icon: Bookmark },
-  { label: "Reviews", value: "0", icon: MessageSquareText },
-  { label: "Copies", value: "0", icon: TrendingUp },
-];
-
-const dashboardLinks = [
-  { label: "Add Prompt", icon: FilePlus2, href: "/dashboard/add-prompt" },
-  { label: "Saved Prompts", icon: Bookmark, href: "/dashboard/saved-prompts" },
-  { label: "My Reviews", icon: MessageSquareText, href: "/dashboard/my-reviews" },
-  { label: "Profile", icon: UserRound, href: "/dashboard/profile" },
-];
-
-export default function DashboardPage() {
-  const router = useRouter();
-  const { loading, isAuthenticated, user } = useAuth();
-
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push("/login");
-    }
-  }, [loading, isAuthenticated, router]);
-
-  if (loading || !isAuthenticated) {
-    return (
-      <main className="flex min-h-[calc(100vh-8rem)] items-center justify-center bg-zinc-900">
-        <div className="h-10 w-10 rounded-full border-4 border-zinc-800 border-t-emerald-300" />
-      </main>
-    );
+// Mock Data for Dashboard
+const mockUser = {
+  name: "Sarah Developer",
+  email: "sarah@example.com",
+  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+  joinDate: "June 2026",
+  plan: "Pro Builder",
+  stats: {
+    unlocked: 12,
+    saved: 45,
+    spend: 60
   }
+};
 
+const mockRecentActivity = [
+  {
+    _id: "101",
+    title: "Senior React Developer Interview Simulator",
+    description: "Acts as a technical interviewer asking advanced questions on React hooks, fiber architecture, and performance optimization.",
+    category: "Engineering",
+    tool: "ChatGPT",
+    rating: 4.9,
+    price: 5,
+    author: { name: "Alex Dev", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex" },
+    isPremium: true
+  },
+  {
+    _id: "102",
+    title: "Next.js 14 API Architect",
+    description: "Generate secure, perfectly typed Next.js App Router API endpoints with built-in Zod validation and error handling.",
+    category: "Architecture",
+    tool: "Claude 3.5 Sonnet",
+    rating: 5.0,
+    price: 0,
+    author: { name: "Vercel Master", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Vercel" },
+    isPremium: false
+  }
+];
+
+export default function DashboardOverviewPage() {
   return (
-    <main className="min-h-[calc(100vh-8rem)] bg-zinc-900 px-4 py-8">
-      <section className="mx-auto w-full max-w-7xl">
-        <div className="flex flex-col gap-4 border-b border-zinc-800 pb-6 lg:flex-row lg:items-end lg:justify-between">
+    <div className="space-y-8">
+      
+      {/* Header & Profile */}
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">Welcome back, {mockUser.name.split(" ")[0]}</h1>
+          <p className="mt-2 text-zinc-400">Here's what's happening with your prompt engineering arsenal.</p>
+        </div>
+        
+        <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-zinc-900/40 p-4 backdrop-blur-xl">
+          <img 
+            src={mockUser.avatar} 
+            alt={mockUser.name} 
+            className="h-12 w-12 rounded-full border border-white/10 bg-zinc-800"
+          />
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
-              Dashboard
-            </p>
-            <h1 className="mt-2 text-3xl font-bold text-zinc-50">Welcome, {user?.name}</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">
-              A working area for prompts, reviews, bookmarks, and subscription status.
-            </p>
-          </div>
-
-          <div className="inline-flex w-fit items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm font-semibold text-zinc-200">
-            <Crown size={17} />
-            {user?.subscription === "premium" ? "Premium account" : "Free account"}
-          </div>
-        </div>
-
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <div key={item.label} className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-zinc-500">{item.label}</span>
-                  <Icon size={19} className="text-zinc-500" />
-                </div>
-                <strong className="mt-4 block text-3xl text-zinc-50">{item.value}</strong>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
-          <div className="rounded-lg border border-zinc-800 bg-zinc-950">
-            <div className="border-b border-zinc-800 px-5 py-4">
-              <h2 className="font-bold text-zinc-50">Workspace shortcuts</h2>
-            </div>
-            <div className="divide-y divide-zinc-800">
-              {dashboardLinks.map((item) => {
-                const Icon = item.icon;
-
-                return (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    className="flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-zinc-900"
-                  >
-                    <span className="flex items-center gap-3">
-                      <span className="flex size-10 items-center justify-center rounded-md bg-zinc-800 text-zinc-300">
-                        <Icon size={19} />
-                      </span>
-                      <span>
-                        <span className="block text-sm font-semibold text-zinc-50">{item.label}</span>
-                        <span className="text-xs text-zinc-500">Open {item.label.toLowerCase()}</span>
-                      </span>
-                    </span>
-                    <span className="text-sm text-zinc-500">Open</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-
-          <aside className="rounded-lg border border-zinc-800 bg-zinc-950 p-5">
+            <div className="font-bold text-white">{mockUser.name}</div>
             <div className="flex items-center gap-2">
-              <ChartNoAxesCombined size={20} className="text-zinc-500" />
-              <h2 className="font-bold text-zinc-50">Analytics preview</h2>
+              <span className="text-xs font-medium text-zinc-400">Member since {mockUser.joinDate}</span>
+              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                {mockUser.plan}
+              </span>
             </div>
-            <p className="mt-3 text-sm leading-6 text-zinc-500">
-              Prompt growth and copy activity charts will connect here when real creator data is available.
-            </p>
-
-            <div className="mt-6 space-y-4">
-              {[
-                { label: "Copy activity", width: "w-28" },
-                { label: "Prompt growth", width: "w-36" },
-                { label: "Bookmarks", width: "w-20" },
-              ].map((item) => (
-                <div key={item.label}>
-                  <div className="mb-2 flex justify-between text-xs font-semibold text-zinc-500">
-                    <span>{item.label}</span>
-                    <span>0</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-zinc-800">
-                    <div className={`h-2 rounded-full bg-emerald-300 ${item.width}`} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </aside>
+          </div>
         </div>
-      </section>
-    </main>
+      </div>
+
+      {/* Quick Stats Grid */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl"
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
+              <Key size={20} />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-zinc-500">Unlocked Prompts</p>
+              <h3 className="text-2xl font-extrabold text-white">{mockUser.stats.unlocked}</h3>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl"
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400">
+              <Bookmark size={20} />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-zinc-500">Saved to Library</p>
+              <h3 className="text-2xl font-extrabold text-white">{mockUser.stats.saved}</h3>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl"
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400">
+              <WalletCards size={20} />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-zinc-500">Total Spend</p>
+              <h3 className="text-2xl font-extrabold text-white">${mockUser.stats.spend}</h3>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Recent Activity Section */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="rounded-2xl border border-white/10 bg-zinc-900/20 p-6 backdrop-blur-xl md:p-8"
+      >
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TrendingUp size={20} className="text-emerald-400" />
+            <h2 className="text-xl font-bold text-white">Recent Activity</h2>
+          </div>
+          <Link 
+            href="/dashboard/prompts" 
+            className="group flex items-center gap-2 text-sm font-bold text-zinc-400 transition-colors hover:text-white"
+          >
+            View all
+            <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
+
+        {/* Reuse PromptCard for consistency */}
+        <div className="grid gap-6 xl:grid-cols-2">
+          {mockRecentActivity.map((prompt, index) => (
+            <PromptCard key={prompt._id} prompt={prompt} index={index} />
+          ))}
+        </div>
+      </motion.div>
+
+    </div>
   );
 }
