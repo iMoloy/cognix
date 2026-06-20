@@ -141,14 +141,13 @@ export default function Navbar() {
             </Link>
           )}
           
-          <button
-            type="button"
+          <Button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="flex size-10 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 backdrop-blur-md transition-all active:scale-95"
+            className="!p-0 size-10 active:scale-95"
             aria-label="Open navigation menu"
           >
             {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          </Button>
         </div>
       </nav>
 

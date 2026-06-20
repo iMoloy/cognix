@@ -40,7 +40,7 @@ const workflowItems = [
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen bg-[#030303] selection:bg-emerald-500/30">
+    <main className="relative min-h-screen overflow-hidden bg-[#030303] selection:bg-emerald-500/30">
       
       {/* Premium Hero Background Effects */}
       <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden">
@@ -65,7 +65,7 @@ export default function Home() {
               COGNIX PLATFORM
             </div>
             
-            <h1 className="mt-6 max-w-3xl text-5xl font-extrabold leading-[1.1] text-white sm:text-6xl lg:text-[4rem]">
+            <h1 className="mt-6 max-w-3xl text-4xl font-extrabold leading-[1.1] text-white sm:text-6xl lg:text-[4rem]">
               Curated Prompts <br className="hidden sm:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 animate-gradient-x">
                 Worth Reusing.
@@ -80,17 +80,17 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="mt-10 flex max-w-xl items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-2 shadow-2xl backdrop-blur-xl focus-within:border-emerald-500/50 focus-within:bg-white/[0.05] transition-all"
+              className="mt-10 flex max-w-xl items-center gap-2 sm:gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-1.5 sm:p-2 shadow-2xl backdrop-blur-xl focus-within:border-emerald-500/50 focus-within:bg-white/[0.05] transition-all"
             >
-              <Search className="ml-3 text-zinc-500" size={22} />
+              <Search className="ml-2 sm:ml-3 shrink-0 text-zinc-500" size={20} />
               <input
-                className="h-12 flex-1 bg-transparent text-base text-zinc-100 placeholder-zinc-500 outline-none"
+                className="h-10 sm:h-12 min-w-0 flex-1 bg-transparent text-sm sm:text-base text-zinc-100 placeholder-zinc-500 outline-none"
                 placeholder="Search prompt templates..."
                 aria-label="Search prompts"
               />
               <Link
                 href="/prompts"
-                className="flex h-12 items-center justify-center rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-8 text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(52,211,153,0.5)]"
+                className="flex h-10 sm:h-12 items-center justify-center rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-4 sm:px-8 text-xs sm:text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(52,211,153,0.5)] whitespace-nowrap shrink-0"
               >
                 Search
               </Link>
@@ -121,19 +121,19 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 0.6 }}
-              className="mt-14 grid max-w-xl grid-cols-3 divide-x divide-white/10 border-t border-white/10 pt-8"
+              className="mt-10 sm:mt-14 grid max-w-xl grid-cols-3 divide-x divide-white/10 border-t border-white/10 pt-6 sm:pt-8"
             >
-              <div>
-                <strong className="block text-3xl font-extrabold text-white">3</strong>
-                <span className="mt-1 block text-xs font-semibold uppercase tracking-wider text-zinc-500">User roles</span>
+              <div className="pr-2 sm:pr-0">
+                <strong className="block text-xl sm:text-3xl font-extrabold text-white">3</strong>
+                <span className="mt-1 block text-[9px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500">User roles</span>
               </div>
-              <div className="pl-6">
-                <strong className="block text-3xl font-extrabold text-white">$5</strong>
-                <span className="mt-1 block text-xs font-semibold uppercase tracking-wider text-zinc-500">Premium unlock</span>
+              <div className="px-3 sm:pl-6 sm:pr-0">
+                <strong className="block text-xl sm:text-3xl font-extrabold text-white">$5</strong>
+                <span className="mt-1 block text-[9px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500">Premium unlock</span>
               </div>
-              <div className="pl-6">
-                <strong className="block text-3xl font-extrabold text-white">2+</strong>
-                <span className="mt-1 block text-xs font-semibold uppercase tracking-wider text-zinc-500">Data Views</span>
+              <div className="pl-3 sm:pl-6">
+                <strong className="block text-xl sm:text-3xl font-extrabold text-white">2+</strong>
+                <span className="mt-1 block text-[9px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-500">Data Views</span>
               </div>
             </motion.div>
           </motion.div>
