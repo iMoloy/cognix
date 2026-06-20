@@ -8,10 +8,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Button from "@/components/ui/Button";
 
-const navLinks = [
-  { href: "/prompts", label: "Marketplace" },
-];
-
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -42,48 +38,31 @@ export default function Navbar() {
         <div className="flex items-center gap-10">
           {/* Brand Logo */}
           <Link href="/" className="group flex items-center gap-3" onClick={closeMobileMenu}>
-            <div className="flex size-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition-all group-hover:scale-105 group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10">
-              <BrainCircuit size={18} color="url(#icon-gradient)" />
+            <div className="flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition-all group-hover:scale-105 group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10">
+              <BrainCircuit size={26} color="url(#icon-gradient)" />
             </div>
-            <div>
-              <span className="bg-[length:200%_auto] animate-gradient-x bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-clip-text text-xl font-extrabold tracking-tight text-transparent">Cognix</span>
-              <span className="hidden mt-0.5 bg-[length:200%_auto] animate-gradient-x bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-clip-text text-[10px] font-bold uppercase tracking-widest text-transparent sm:block">Premium Prompts</span>
+            <div className="flex flex-col justify-center">
+              <span className="bg-[length:200%_auto] animate-gradient-x bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-clip-text text-2xl font-extrabold tracking-tight text-transparent block leading-none">Cognix</span>
+              <span className="hidden mt-1 bg-[length:200%_auto] animate-gradient-x bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-clip-text text-[8px] font-bold uppercase tracking-[0.25em] text-transparent sm:block leading-none">Premium Prompts</span>
             </div>
           </Link>
 
-          {/* Desktop Links (Next to Logo) */}
-          <div className="hidden items-center gap-8 md:flex">
-            {navLinks.map((link) => {
-              const active = pathname === link.href;
-
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`relative text-sm font-bold transition-colors ${
-                    active ? "text-white" : "text-zinc-500 hover:text-emerald-400"
-                  }`}
-                >
-                  {link.label}
-                  {active && (
-                    <motion.div
-                      layoutId="navbar-indicator"
-                      className="absolute -bottom-7 left-0 right-0 h-[2px] bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]"
-                      initial={false}
-                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                    />
-                  )}
-                </Link>
-              );
-            })}
-          </div>
         </div>
 
         {/* Action Buttons (Desktop Right) */}
         <div className="hidden items-center gap-4 md:flex">
+          {/* Prompts Button (First item on right side) */}
+          <Button
+            onClick={() => router.push("/prompts")}
+            className="h-9 px-1 text-sm"
+          >
+            Prompts
+            <Search size={16} className="ml-1.5" />
+          </Button>
+
           {isAuthenticated ? (
             <>
-              {/* Profile Image Replacing Search Position */}
+              {/* Profile Image */}
               <Link
                 href="/dashboard/profile"
                 className="group relative"
@@ -144,15 +123,6 @@ export default function Navbar() {
 
               </div>
           )}
-
-          {/* Search (Far Right) */}
-          <Link
-            href="/prompts"
-            className="ml-2 flex size-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-zinc-400 backdrop-blur-md transition-all hover:scale-[1.02] hover:bg-white/10 hover:text-emerald-400"
-            aria-label="Search prompts"
-          >
-            <Search size={18} />
-          </Link>
         </div>
 
         {/* Mobile Menu & Profile */}
@@ -193,13 +163,17 @@ export default function Navbar() {
           >
             <div className="flex flex-col px-6 py-8 space-y-6">
               
-              <Link 
-                href="/prompts" 
-                onClick={closeMobileMenu}
-                className="flex items-center gap-3 text-lg font-bold text-white hover:text-emerald-400"
+              <Button
+                fullWidth
+                onClick={() => {
+                  router.push("/prompts");
+                  setIsMobileMenuOpen(false);
+                }}
+                className="h-11 text-sm"
               >
-                <Search size={20} className="text-zinc-500" /> Explore Marketplace
-              </Link>
+                Prompts
+                <Search size={18} className="ml-2" />
+              </Button>
 
               {isAuthenticated ? (
                 <>
