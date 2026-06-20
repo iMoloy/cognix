@@ -1,10 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BrainCircuit, LayoutDashboard, LogOut, Menu, Search, Sparkles } from "lucide-react";
+import { BrainCircuit, LayoutDashboard, LogOut, Menu, X, Search, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
   { href: "/prompts", label: "Marketplace" },
@@ -14,11 +15,15 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated, logout, user } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     router.push("/");
+    setIsMobileMenuOpen(false);
   };
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/5 bg-[#030303]/80 backdrop-blur-2xl">
@@ -35,7 +40,7 @@ export default function Navbar() {
         {/* Left Side: Logo + Links */}
         <div className="flex items-center gap-10">
           {/* Brand Logo */}
-          <Link href="/" className="group flex items-center gap-3">
+          <Link href="/" className="group flex items-center gap-3" onClick={closeMobileMenu}>
             <div className="flex size-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition-all group-hover:scale-105 group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10">
               <BrainCircuit size={18} color="url(#icon-gradient)" />
             </div>
@@ -73,7 +78,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Action Buttons (Right) */}
+        {/* Action Buttons (Desktop Right) */}
         <div className="hidden items-center gap-4 md:flex">
           <Link
             href="/prompts"
@@ -123,19 +128,76 @@ export default function Navbar() {
         {/* Mobile Menu Toggle */}
         <button
           type="button"
-          className="flex size-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-zinc-300 md:hidden backdrop-blur-md"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="flex size-10 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 md:hidden backdrop-blur-md"
           aria-label="Open navigation menu"
         >
-          <Menu size={20} />
+          {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </nav>
 
-      {/* Mobile Authenticated Status */}
-      {isAuthenticated && (
-        <div className="border-t border-white/5 bg-[#030303] px-4 py-2 text-center text-xs font-semibold text-emerald-400 md:hidden">
-          Signed in as {user?.email}
-        </div>
-      )}
+      {/* Mobile Menu Dropdown */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute left-0 right-0 top-[80px] border-b border-white/10 bg-[#030303]/95 backdrop-blur-3xl shadow-2xl md:hidden"
+          >
+            <div className="flex flex-col px-6 py-8 space-y-6">
+              
+              <Link 
+                href="/prompts" 
+                onClick={closeMobileMenu}
+                className="flex items-center gap-3 text-lg font-bold text-white hover:text-emerald-400"
+              >
+                <Search size={20} className="text-zinc-500" /> Explore Marketplace
+              </Link>
+
+              {isAuthenticated ? (
+                <>
+                  <Link 
+                    href="/dashboard" 
+                    onClick={closeMobileMenu}
+                    className="flex items-center gap-3 text-lg font-bold text-white hover:text-emerald-400"
+                  >
+                    <LayoutDashboard size={20} className="text-emerald-400" /> Dashboard
+                  </Link>
+                  <button 
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 text-lg font-bold text-red-400 text-left"
+                  >
+                    <LogOut size={20} /> Logout
+                  </button>
+                  <div className="pt-4 border-t border-white/5 text-xs font-semibold text-zinc-500">
+                    Signed in as {user?.email}
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col gap-3 pt-4 border-t border-white/5">
+                  <Link
+                    href="/login"
+                    onClick={closeMobileMenu}
+                    className="flex h-12 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-sm font-bold text-white"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={closeMobileMenu}
+                    className="flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x text-sm font-bold text-zinc-950"
+                  >
+                    <Sparkles size={16} />
+                    Get Started
+                  </Link>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </header>
   );
 }
