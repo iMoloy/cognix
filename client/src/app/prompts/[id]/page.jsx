@@ -28,8 +28,8 @@ Follow these rules strictly:
   copies: 342,
   views: 1205,
   rating: 4.9,
-  isPremium: true,
-  price: 5,
+  isPremium: false,
+  price: 0,
   author: {
     name: "Alex Dev",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
