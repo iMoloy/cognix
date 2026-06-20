@@ -81,6 +81,13 @@ export function AuthProvider({ children }) {
     );
   };
 
+  const updateProfile = (updatedData) => {
+    if (user) {
+      const newUser = { ...user, ...updatedData };
+      saveSession(newUser, token);
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setToken("");
@@ -96,6 +103,7 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(user && token),
       login,
       register,
+      updateProfile,
       logout,
     }),
     [user, token, loading],

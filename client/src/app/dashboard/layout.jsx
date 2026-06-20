@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 import { 
   LayoutDashboard, 
   Settings, 
@@ -20,8 +21,10 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
-  const [activeRole, setActiveRole] = useState("user");
+  const { user } = useAuth();
   const [isNavOpen, setIsNavOpen] = useState(false);
+
+  const activeRole = user?.role || "user";
 
   // Dynamic role-based links
   const getLinks = () => {
@@ -29,7 +32,7 @@ export default function DashboardLayout({ children }) {
       { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
       { name: "Saved Prompts", href: "/dashboard/saved", icon: Bookmark },
       { name: "My Prompts", href: "/dashboard/my-prompts", icon: FileText },
-      { name: "Settings", href: "/dashboard/settings", icon: Settings },
+      { name: "Profile", href: "/dashboard/profile", icon: Settings },
     ];
 
     if (activeRole === "creator") {
@@ -44,7 +47,7 @@ export default function DashboardLayout({ children }) {
         { name: "All Prompts", href: "/dashboard/admin/prompts", icon: FileText },
         { name: "Reported", href: "/dashboard/admin/reports", icon: AlertTriangle },
         { name: "Payments", href: "/dashboard/admin/payments", icon: CreditCard },
-        { name: "Settings", href: "/dashboard/settings", icon: Settings },
+        { name: "Profile", href: "/dashboard/profile", icon: Settings },
       ];
     }
 
@@ -66,25 +69,6 @@ export default function DashboardLayout({ children }) {
         {/* Sidebar Navigation */}
         <aside className="relative z-20 w-full shrink-0 md:w-64">
           <div className="md:sticky md:top-28 flex flex-col gap-6">
-            
-            {/* MOCK ROLE SWITCHER */}
-            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 backdrop-blur-xl">
-              <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
-                <Shield size={14} /> View As
-              </div>
-              <select 
-                value={activeRole} 
-                onChange={(e) => {
-                  setActiveRole(e.target.value);
-                  setIsNavOpen(false);
-                }}
-                className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm font-bold text-white outline-none focus:border-emerald-500/50"
-              >
-                <option value="user">User</option>
-                <option value="creator">Creator</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
 
             {/* MOBILE NAVIGATION DROPDOWN */}
             <div className="relative md:hidden">

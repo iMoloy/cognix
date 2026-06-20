@@ -50,61 +50,83 @@ export default function MyPromptsPage() {
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/40 shadow-2xl backdrop-blur-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-zinc-400">
-            <thead className="border-b border-white/5 bg-white/[0.02] text-xs uppercase text-zinc-500">
+            <thead className="border-b border-white/5 bg-white/[0.02] text-[10px] uppercase tracking-widest text-zinc-500">
               <tr>
-                <th className="px-6 py-4 font-bold tracking-wider">Prompt Name</th>
-                <th className="px-6 py-4 font-bold tracking-wider">AI Tool</th>
-                <th className="px-6 py-4 font-bold tracking-wider">Status</th>
-                <th className="px-6 py-4 font-bold tracking-wider">Copies</th>
-                <th className="px-6 py-4 font-bold tracking-wider">Date Added</th>
-                <th className="px-6 py-4 text-right font-bold tracking-wider">Actions</th>
+                <th className="px-6 py-5 font-bold">Prompt Details</th>
+                <th className="px-6 py-5 font-bold">AI Model</th>
+                <th className="px-6 py-5 font-bold">Status</th>
+                <th className="px-6 py-5 font-bold">Metrics</th>
+                <th className="px-6 py-5 font-bold">Date Added</th>
+                <th className="px-6 py-5 text-right font-bold">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {mockMyPrompts.map((prompt) => (
-                <tr key={prompt._id} className="transition-colors hover:bg-white/[0.02]">
-                  <td className="whitespace-nowrap px-6 py-5 font-bold text-white">
-                    {prompt.title}
+                <tr key={prompt._id} className="group transition-colors hover:bg-white/[0.02]">
+                  
+                  {/* Title Column (Wraps nicely on desktop) */}
+                  <td className="px-6 py-6 w-1/3">
+                    <div className="flex flex-col gap-1">
+                      <span className="font-bold text-white text-base leading-snug group-hover:text-emerald-400 transition-colors">
+                        {prompt.title}
+                      </span>
+                      <span className="text-xs text-zinc-500 md:hidden">
+                        Added: {prompt.dateAdded}
+                      </span>
+                    </div>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-5">
-                    <span className="inline-flex items-center rounded-lg border border-white/10 bg-black/20 px-2.5 py-1 text-xs font-medium text-zinc-300">
+                  
+                  {/* AI Tool */}
+                  <td className="whitespace-nowrap px-6 py-6">
+                    <span className="inline-flex items-center rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 text-xs font-medium text-zinc-300 shadow-inner">
                       {prompt.aiTool}
                     </span>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-5">
+                  
+                  {/* Status */}
+                  <td className="whitespace-nowrap px-6 py-6">
                     {prompt.status === "approved" ? (
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
                         <CheckCircle2 size={12} /> Approved
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-500">
-                        <Clock size={12} /> Pending Review
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-500">
+                        <Clock size={12} /> Pending
                       </span>
                     )}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-5 text-zinc-300">
-                    <span className="font-mono font-bold">{prompt.copyCount}</span>
+                  
+                  {/* Metrics */}
+                  <td className="whitespace-nowrap px-6 py-6">
+                    <div className="flex flex-col">
+                      <span className="font-mono font-bold text-white text-sm">{prompt.copyCount}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Copies</span>
+                    </div>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-5 text-xs text-zinc-500">
+                  
+                  {/* Date Added (Hidden on mobile as it's merged with title, shown on tablet/desktop) */}
+                  <td className="whitespace-nowrap px-6 py-6 text-sm text-zinc-400 hidden md:table-cell">
                     {prompt.dateAdded}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-5 text-right">
-                    <div className="flex items-center justify-end gap-2">
+                  
+                  {/* Actions */}
+                  <td className="whitespace-nowrap px-6 py-6 text-right">
+                    <div className="flex items-center justify-end gap-1 sm:gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                       <button 
                         title="View Analytics"
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-zinc-400 transition-colors hover:bg-cyan-500/10 hover:text-cyan-400"
+                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-zinc-400 transition-colors hover:bg-cyan-500/10 hover:text-cyan-400 active:scale-95"
                       >
                         <BarChart2 size={16} />
                       </button>
                       <button 
                         title="Edit Prompt"
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-zinc-400 transition-colors hover:bg-emerald-500/10 hover:text-emerald-400"
+                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-zinc-400 transition-colors hover:bg-emerald-500/10 hover:text-emerald-400 active:scale-95"
                       >
                         <Edit size={16} />
                       </button>
                       <button 
                         title="Delete Prompt"
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-zinc-400 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-zinc-400 transition-colors hover:bg-red-500/10 hover:text-red-400 active:scale-95"
                       >
                         <Trash2 size={16} />
                       </button>
