@@ -4,6 +4,7 @@ import { getApiInfo } from "./controllers/health.controller.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { notFound } from "./middleware/notFound.js";
 import healthRoutes from "./routes/health.routes.js";
+import promptsRoutes from "./routes/prompts.routes.js";
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/", getApiInfo);
 app.use("/api", healthRoutes);
+app.use("/api/prompts", promptsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

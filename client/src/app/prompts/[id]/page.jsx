@@ -10,8 +10,6 @@ import Button from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import ReviewModal from "@/components/ui/ReviewModal";
 import ReportModal from "@/components/ui/ReportModal";
-import { mockPrompts } from "@/lib/mockData";
-
 export default function PromptDetailsPage() {
   const params = useParams();
   const { user, loading } = useAuth();
@@ -20,6 +18,9 @@ export default function PromptDetailsPage() {
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
 
+  const [prompt, setPrompt] = useState(null);
+  const [isFetching, setIsFetching] = useState(true);
+
   // Auth Protection - Redirect if not logged in
   useEffect(() => {
     if (!loading && !user) {
@@ -27,24 +28,46 @@ export default function PromptDetailsPage() {
     }
   }, [user, loading, router]);
 
-  // Find the exact prompt from mockData using params.id
-  // If not found (e.g. testing with random ID), fallback to the first one
-  const promptId = params?.id || "1";
-  const mockPrompt = mockPrompts.find(p => p._id === promptId) || mockPrompts[0];
-  
-  // Provide a fallback instruction if missing
-  if (!mockPrompt.instruction) {
-    mockPrompt.instruction = "This is a detailed prompt instruction placeholder. " + mockPrompt.description;
-  }
+  const promptId = params?.id;
+
+  useEffect(() => {
+    const fetchPrompt = async () => {
+      try {
+        if (!promptId) return;
+        const res = await fetch(`http://localhost:5000/api/prompts/${promptId}`);
+        if (!res.ok) throw new Error("Prompt not found");
+        const data = await res.json();
+        
+        if (!data.instruction) {
+          data.instruction = "This is a detailed prompt instruction placeholder. " + data.description;
+        }
+        setPrompt(data);
+      } catch (error) {
+        console.error("Failed to fetch prompt details", error);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    fetchPrompt();
+  }, [promptId]);
 
   // Dynamic Access Logic
   const isPremiumUser = user?.subscription === "premium" || user?.role === "admin" || user?.role === "creator";
-  const hasAccess = !mockPrompt.isPremium || isPremiumUser;
+  const hasAccess = prompt ? (!prompt.isPremium || isPremiumUser) : false;
 
-  if (loading || !user) {
+  if (loading || isFetching || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#030303]">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!prompt) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#030303] text-white">
+        <h2 className="text-2xl font-bold">Prompt Not Found</h2>
+        <Button onClick={() => router.push("/prompts")} className="mt-6">Back to Marketplace</Button>
       </div>
     );
   }
@@ -54,10 +77,10 @@ export default function PromptDetailsPage() {
       
       {/* Dynamic Background Image from Prompt */}
       <div className="pointer-events-none absolute inset-0 z-0 h-[600px] w-full overflow-hidden">
-        {mockPrompt.image && (
+        {prompt.image && (
           <div 
             className="absolute inset-0 bg-cover bg-center opacity-20 blur-3xl"
-            style={{ backgroundImage: `url(${mockPrompt.image})` }}
+            style={{ backgroundImage: `url(${prompt.image})` }}
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#030303]/80 to-[#030303]" />
@@ -84,11 +107,11 @@ export default function PromptDetailsPage() {
           className="flex flex-col gap-8 md:flex-row md:items-start"
         >
           {/* Cover Image Thumbnail */}
-          {mockPrompt.image && (
+          {prompt.image && (
             <div className="shrink-0">
               <img 
-                src={mockPrompt.image} 
-                alt={mockPrompt.title} 
+                src={prompt.image} 
+                alt={prompt.title} 
                 className="h-48 w-full max-w-[320px] rounded-2xl border border-white/10 object-cover shadow-2xl md:h-64"
               />
             </div>
@@ -98,12 +121,12 @@ export default function PromptDetailsPage() {
           <div className="flex-1 space-y-5">
             <div className="flex flex-wrap items-center gap-3">
               <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400 backdrop-blur-md">
-                <Sparkles size={12} /> {mockPrompt.category}
+                <Sparkles size={12} /> {prompt.category}
               </span>
               <span className="rounded-full border border-zinc-700/50 bg-zinc-800/50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 backdrop-blur-md">
-                {mockPrompt.tool}
+                {prompt.tool}
               </span>
-              {mockPrompt.isPremium && (
+              {prompt.isPremium && (
                 <span className="flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-500">
                   <LockKeyhole size={12} /> Premium
                 </span>
@@ -111,29 +134,29 @@ export default function PromptDetailsPage() {
             </div>
 
             <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
-              {mockPrompt.title}
+              {prompt.title}
             </h1>
             <p className="max-w-2xl text-lg leading-relaxed text-zinc-400">
-              {mockPrompt.description}
+              {prompt.description}
             </p>
 
             {/* Author & Core Stats row */}
             <div className="flex flex-wrap items-center gap-6 pt-4">
               <div className="flex items-center gap-3 pr-6 border-r border-white/10">
                 <img 
-                  src={mockPrompt.author.avatar} 
-                  alt={mockPrompt.author.name} 
+                  src={prompt.author.avatar} 
+                  alt={prompt.author.name} 
                   className="h-10 w-10 rounded-full border border-white/10 bg-zinc-800"
                 />
                 <div>
-                  <h3 className="text-sm font-bold text-white">{mockPrompt.author.name}</h3>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">{mockPrompt.author.role}</p>
+                  <h3 className="text-sm font-bold text-white">{prompt.author.name}</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">{prompt.author.role}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-6 text-sm font-bold text-zinc-300">
-                <span className="flex items-center gap-2"><Star size={16} className="text-amber-400" /> {mockPrompt.rating} Rating</span>
-                <span className="flex items-center gap-2"><Copy size={16} className="text-zinc-500" /> {mockPrompt.copies} Copies</span>
+                <span className="flex items-center gap-2"><Star size={16} className="text-amber-400" /> {prompt.rating} Rating</span>
+                <span className="flex items-center gap-2"><Copy size={16} className="text-zinc-500" /> {prompt.copies} Copies</span>
               </div>
               
               <Button variant="secondary" className="ml-auto px-5 py-2.5 text-sm">
@@ -160,12 +183,12 @@ export default function PromptDetailsPage() {
                   <TerminalSquare size={16} className="text-emerald-400" />
                   Prompt Instruction Payload
                 </div>
-                {hasAccess && <CopyToClipboard text={mockPrompt.instruction} />}
+                {hasAccess && <CopyToClipboard text={prompt.instruction} />}
               </div>
 
               <div className="relative p-6 min-h-[350px]">
                 {/* Paywall Blur Layer */}
-                {!hasAccess && mockPrompt.isPremium && (
+                {!hasAccess && prompt.isPremium && (
                   <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#030303]/80 p-6 backdrop-blur-[8px]">
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 shadow-[0_0_30px_rgba(52,211,153,0.3)] ring-1 ring-emerald-500/20">
                       <LockKeyhole size={28} className="text-emerald-400" />
@@ -178,14 +201,14 @@ export default function PromptDetailsPage() {
                       onClick={() => router.push("/payment")}
                       className="mt-8 px-10 py-4 text-base"
                     >
-                      Unlock Now for ${mockPrompt.price}
+                      Unlock Now for ${prompt.price}
                     </Button>
                   </div>
                 )}
 
                 {/* Actual payload */}
-                <pre className={`whitespace-pre-wrap font-mono text-sm leading-relaxed text-emerald-50/90 ${!hasAccess && mockPrompt.isPremium ? "blur-[6px] select-none opacity-40" : ""}`}>
-                  {mockPrompt.instruction}
+                <pre className={`whitespace-pre-wrap font-mono text-sm leading-relaxed text-emerald-50/90 ${!hasAccess && prompt.isPremium ? "blur-[6px] select-none opacity-40" : ""}`}>
+                  {prompt.instruction}
                 </pre>
               </div>
             </div>
@@ -214,11 +237,11 @@ export default function PromptDetailsPage() {
                 </Button>
               </div>
 
-              {mockPrompt.reviews.length === 0 ? (
+              {prompt.reviews.length === 0 ? (
                 <p className="text-sm text-zinc-500 italic">No reviews yet.</p>
               ) : (
                 <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                  {mockPrompt.reviews.map((review) => (
+                  {prompt.reviews.map((review) => (
                     <div key={review.id} className="rounded-xl border border-white/5 bg-zinc-950/50 p-4">
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-xs font-bold text-white flex items-center gap-2">
@@ -243,11 +266,11 @@ export default function PromptDetailsPage() {
               <div className="space-y-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-500">Published</span>
-                  <span className="font-medium text-white">{mockPrompt.createdAt}</span>
+                  <span className="font-medium text-white">{prompt.createdAt}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-500">Total Views</span>
-                  <span className="font-medium text-white">{mockPrompt.views}</span>
+                  <span className="font-medium text-white">{prompt.views}</span>
                 </div>
               </div>
             </div>
@@ -271,13 +294,13 @@ export default function PromptDetailsPage() {
       <ReviewModal 
         isOpen={isReviewOpen} 
         onClose={() => setIsReviewOpen(false)} 
-        promptTitle={mockPrompt.title} 
+        promptTitle={prompt.title} 
       />
       
       <ReportModal 
         isOpen={isReportOpen} 
         onClose={() => setIsReportOpen(false)} 
-        promptTitle={mockPrompt.title} 
+        promptTitle={prompt.title} 
       />
     </main>
   );

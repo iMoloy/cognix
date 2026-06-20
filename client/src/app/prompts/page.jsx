@@ -1,13 +1,29 @@
 "use client";
 
-import { Search, Filter, SlidersHorizontal, ChevronDown } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Filter, SlidersHorizontal, ChevronDown, Loader2 } from "lucide-react";
 import PromptCard from "@/components/ui/PromptCard";
 import { motion } from "framer-motion";
 import Button from "@/components/ui/Button";
 
-import { mockPrompts } from "@/lib/mockData";
-
 export default function MarketplacePage() {
+  const [prompts, setPrompts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPrompts = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/prompts");
+        const data = await res.json();
+        setPrompts(data);
+      } catch (error) {
+        console.error("Failed to fetch prompts", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPrompts();
+  }, []);
   return (
     <main className="relative min-h-screen bg-[#050505] selection:bg-emerald-500/30">
       
@@ -118,7 +134,7 @@ export default function MarketplacePage() {
           <div className="flex-1">
             {/* Sorting Header */}
             <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm font-medium text-zinc-400">Showing <span className="font-bold text-white">24</span> results</p>
+              <p className="text-sm font-medium text-zinc-400">Showing <span className="font-bold text-white">{prompts.length}</span> results</p>
               
               <div className="relative inline-flex">
                 <select className="appearance-none rounded-xl border border-white/10 bg-white/5 py-2.5 pl-4 pr-10 text-sm font-medium text-zinc-300 outline-none backdrop-blur-md transition-colors hover:border-white/20 focus:border-emerald-500/50">
@@ -131,11 +147,17 @@ export default function MarketplacePage() {
             </div>
 
             {/* Grid Layout */}
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-2">
-              {mockPrompts.map((prompt, index) => (
-                <PromptCard key={prompt._id} prompt={prompt} index={index} />
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="flex h-64 items-center justify-center">
+                <Loader2 className="animate-spin text-emerald-500" size={32} />
+              </div>
+            ) : (
+              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-2">
+                {prompts.map((prompt, index) => (
+                  <PromptCard key={prompt._id} prompt={prompt} index={index} />
+                ))}
+              </div>
+            )}
 
             {/* Pagination Draft */}
             <div className="mt-16 flex justify-center">
