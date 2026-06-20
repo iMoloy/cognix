@@ -112,22 +112,37 @@ export default function Navbar() {
               </Button>
             </>
           ) : (
-            <>
-              <Button
-                variant="ghost"
-                onClick={() => router.push("/login")}
-                className="px-5 py-2.5 text-sm font-bold text-zinc-400 hover:text-emerald-400"
-              >
-                Login
-              </Button>
-              <Button
-                onClick={() => router.push("/register")}
-                className="h-10 px-6 text-sm"
-              >
-                <Sparkles size={14} className="mr-2" />
-                Get Started
-              </Button>
-            </>
+              <div className="relative flex h-9 w-36 rounded-xl shadow-sm transition-shadow duration-300 has-[.login-btn:hover]:shadow-[-10px_0_20px_-2px_rgba(52,211,153,0.4)] has-[.register-btn:hover]:shadow-[10px_0_20px_-2px_rgba(52,211,153,0.4)]">
+                
+                {/* Base Green Gradient */}
+                <div className="absolute inset-0 z-0 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x"></div>
+                
+                {/* Left Button */}
+                <button
+                  onClick={() => router.push("/login")}
+                  className="login-btn peer/left group/btnL relative z-10 flex h-full w-[43%] items-center justify-center text-sm font-bold text-zinc-950 outline-none"
+                >
+                  <span className="inline-block transition-transform duration-300 group-hover/btnL:scale-[1.12]">Login</span>
+                </button>
+
+                {/* Divider */}
+                <div className="absolute left-[43%] top-2 bottom-2 w-[1.5px] -translate-x-1/2 -skew-x-12 bg-zinc-950 pointer-events-none z-20 rounded-full"></div>
+
+                {/* Right Button */}
+                <button
+                  onClick={() => router.push("/register")}
+                  className="register-btn peer/right group/btnR relative z-10 flex h-full w-[57%] items-center justify-center text-sm font-bold text-zinc-950 outline-none"
+                >
+                  <span className="inline-block transition-transform duration-300 group-hover/btnR:scale-[1.12]">Register</span>
+                </button>
+
+                {/* Clipped Hover Backgrounds (Bright Overlays) */}
+                <div className="absolute inset-0 z-0 overflow-hidden rounded-xl pointer-events-none">
+                  <div className="absolute bottom-0 right-[57%] top-0 w-[200%] origin-right -skew-x-12 opacity-0 transition-opacity duration-300 peer-hover/left:opacity-100 bg-white/20"></div>
+                  <div className="absolute bottom-0 left-[43%] top-0 w-[200%] origin-left -skew-x-12 opacity-0 transition-opacity duration-300 peer-hover/right:opacity-100 bg-white/20"></div>
+                </div>
+
+              </div>
           )}
 
           {/* Search (Far Right) */}
@@ -229,29 +244,44 @@ export default function Navbar() {
                   </Link>
                 </>
               ) : (
-                <div className="flex flex-col gap-3 pt-4 border-t border-white/5">
-                  <Button
-                    fullWidth
-                    variant="ghost"
-                    onClick={() => {
-                      router.push("/login");
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="h-12 border border-white/10 bg-white/5"
-                  >
-                    Login
-                  </Button>
-                  <Button
-                    fullWidth
-                    onClick={() => {
-                      router.push("/register");
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="h-12"
-                  >
-                    <Sparkles size={14} className="mr-2" />
-                    Get Started
-                  </Button>
+                <div className="pt-4 border-t border-white/5">
+                  <div className="relative flex h-11 w-full rounded-xl shadow-sm transition-shadow duration-300 has-[.login-btn:hover]:shadow-[-10px_0_20px_-2px_rgba(52,211,153,0.4)] has-[.register-btn:hover]:shadow-[10px_0_20px_-2px_rgba(52,211,153,0.4)]">
+                    
+                    {/* Base Green Gradient */}
+                    <div className="absolute inset-0 z-0 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x"></div>
+
+                    {/* Left Button */}
+                    <button
+                      onClick={() => {
+                        router.push("/login");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="login-btn peer/left group/btnL relative z-10 flex h-full w-[43%] items-center justify-center text-sm font-bold text-zinc-950 outline-none"
+                    >
+                      <span className="inline-block transition-transform duration-300 group-hover/btnL:scale-[1.12]">Login</span>
+                    </button>
+
+                    {/* Divider */}
+                    <div className="absolute left-[43%] top-2.5 bottom-2.5 w-[1.5px] -translate-x-1/2 -skew-x-12 bg-zinc-950 pointer-events-none z-20 rounded-full"></div>
+
+                    {/* Right Button */}
+                    <button
+                      onClick={() => {
+                        router.push("/register");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="register-btn peer/right group/btnR relative z-10 flex h-full w-[57%] items-center justify-center text-sm font-bold text-zinc-950 outline-none"
+                    >
+                      <span className="inline-block transition-transform duration-300 group-hover/btnR:scale-[1.12]">Register</span>
+                    </button>
+
+                    {/* Clipped Hover Backgrounds (Bright Overlays) */}
+                    <div className="absolute inset-0 z-0 overflow-hidden rounded-xl pointer-events-none">
+                      <div className="absolute bottom-0 right-[57%] top-0 w-[200%] origin-right -skew-x-12 opacity-0 transition-opacity duration-300 peer-hover/left:opacity-100 bg-white/20"></div>
+                      <div className="absolute bottom-0 left-[43%] top-0 w-[200%] origin-left -skew-x-12 opacity-0 transition-opacity duration-300 peer-hover/right:opacity-100 bg-white/20"></div>
+                    </div>
+
+                  </div>
                 </div>
               )}
             </div>
