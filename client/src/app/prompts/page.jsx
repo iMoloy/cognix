@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Search, Filter, SlidersHorizontal, ChevronDown, Loader2 } from "lucide-react";
 import PromptCard from "@/components/ui/PromptCard";
+import PromptCardSkeleton from "@/components/ui/PromptCardSkeleton";
 import { motion } from "framer-motion";
 import Button from "@/components/ui/Button";
 
@@ -13,7 +14,8 @@ export default function MarketplacePage() {
   useEffect(() => {
     const fetchPrompts = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/prompts");
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const res = await fetch(`${apiUrl}/api/prompts`);
         const data = await res.json();
         setPrompts(data);
       } catch (error) {
@@ -148,8 +150,10 @@ export default function MarketplacePage() {
 
             {/* Grid Layout */}
             {isLoading ? (
-              <div className="flex h-64 items-center justify-center">
-                <Loader2 className="animate-spin text-emerald-500" size={32} />
+              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-2">
+                {[...Array(6)].map((_, i) => (
+                  <PromptCardSkeleton key={i} />
+                ))}
               </div>
             ) : (
               <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-2">

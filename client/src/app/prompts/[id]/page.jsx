@@ -34,7 +34,8 @@ export default function PromptDetailsPage() {
     const fetchPrompt = async () => {
       try {
         if (!promptId) return;
-        const res = await fetch(`http://localhost:5000/api/prompts/${promptId}`);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const res = await fetch(`${apiUrl}/api/prompts/${promptId}`);
         if (!res.ok) throw new Error("Prompt not found");
         const data = await res.json();
         
@@ -57,9 +58,39 @@ export default function PromptDetailsPage() {
 
   if (loading || isFetching || !user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#030303]">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
-      </div>
+      <main className="relative min-h-screen bg-[#030303] pb-20">
+        <div className="relative z-10 mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+          {/* Navigation Skeleton */}
+          <div className="mb-8 h-5 w-32 rounded-md bg-zinc-800/80 animate-pulse" />
+
+          {/* HERO SECTION Skeleton */}
+          <div className="flex flex-col gap-8 md:flex-row md:items-start">
+            <div className="h-48 w-full max-w-[320px] rounded-2xl bg-zinc-800/80 animate-pulse md:h-64 shrink-0" />
+            <div className="flex-1 space-y-5 w-full">
+              <div className="flex gap-3">
+                <div className="h-6 w-20 rounded-full bg-zinc-800/80 animate-pulse" />
+                <div className="h-6 w-16 rounded-full bg-zinc-800/80 animate-pulse" />
+              </div>
+              <div className="h-10 w-3/4 rounded-md bg-zinc-800/80 animate-pulse" />
+              <div className="h-6 w-full rounded-md bg-zinc-800/80 animate-pulse" />
+              <div className="h-6 w-5/6 rounded-md bg-zinc-800/80 animate-pulse" />
+              <div className="flex gap-6 pt-4">
+                <div className="h-10 w-10 rounded-full bg-zinc-800/80 animate-pulse" />
+                <div className="h-10 w-24 rounded-md bg-zinc-800/80 animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          {/* MAIN BODY GRID Skeleton */}
+          <div className="mt-12 grid gap-8 lg:grid-cols-[1fr_350px]">
+            <div className="h-[400px] w-full rounded-2xl bg-zinc-800/80 animate-pulse" />
+            <div className="space-y-6">
+              <div className="h-[200px] w-full rounded-2xl bg-zinc-800/80 animate-pulse" />
+              <div className="h-[150px] w-full rounded-2xl bg-zinc-800/80 animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </main>
     );
   }
 
