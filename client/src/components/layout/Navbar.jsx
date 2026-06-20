@@ -79,15 +79,15 @@ export default function Navbar() {
                 onClick={() => router.push("/dashboard")}
                 className="h-10 px-5 text-sm"
               >
-                <LayoutDashboard size={16} className="mr-2" />
                 Dashboard
+                <LayoutDashboard size={16} className="ml-2" />
               </Button>
               <Button
                 onClick={handleLogout}
-                className="h-10 px-5 text-sm"
+                className="!p-0 size-10"
+                aria-label="Logout"
               >
-                <LogOut size={16} className="mr-2" />
-                Logout
+                <LogOut size={18} />
               </Button>
             </>
           ) : (
@@ -184,8 +184,8 @@ export default function Navbar() {
                     }}
                     className="h-12"
                   >
-                    <LayoutDashboard size={16} className="mr-2" />
                     Dashboard
+                    <LayoutDashboard size={16} className="ml-2" />
                   </Button>
                   <Button
                     fullWidth
@@ -194,9 +194,9 @@ export default function Navbar() {
                       setIsMobileMenuOpen(false);
                     }}
                     className="h-12"
+                    aria-label="Logout"
                   >
-                    <LogOut size={16} className="mr-2" />
-                    Logout
+                    <LogOut size={20} />
                   </Button>
                   
                   {/* Mobile Dropdown User Profile Card */}
