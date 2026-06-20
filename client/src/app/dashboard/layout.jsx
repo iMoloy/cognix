@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Bookmark, Key, Settings, LifeBuoy } from "lucide-react";
+import { LayoutDashboard, Bookmark, FileText, PlusCircle, Star, UserCircle, LifeBuoy } from "lucide-react";
 import { motion } from "framer-motion";
 
 const sidebarLinks = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { name: "My Prompts", href: "/dashboard/prompts", icon: Key },
+  { name: "Add Prompt", href: "/dashboard/add-prompt", icon: PlusCircle },
+  { name: "My Prompts", href: "/dashboard/my-prompts", icon: FileText },
   { name: "Saved Prompts", href: "/dashboard/saved", icon: Bookmark },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
+  { name: "My Reviews", href: "/dashboard/reviews", icon: Star },
+  { name: "Profile", href: "/dashboard/profile", icon: UserCircle },
 ];
 
 export default function DashboardLayout({ children }) {
