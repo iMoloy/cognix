@@ -100,7 +100,7 @@ export default function AdminPromptsQueuePage() {
               className={`rounded-lg px-4 py-2 text-xs font-bold capitalize whitespace-nowrap transition-all ${
                 filter === f 
                   ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" 
-                  : "bg-white/5 text-zinc-400 border border-transparent hover:bg-white/10 hover:text-white"
+                  : "bg-white/5 text-zinc-400 border border-transparent hover:bg-white/10 hover:text-emerald-400"
               }`}
             >
               {f}
@@ -200,7 +200,7 @@ export default function AdminPromptsQueuePage() {
                           {/* View Action */}
                           <Link 
                             href={`/prompts/${prompt.id}`}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white transition-colors"
+                            className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-emerald-400 transition-colors"
                             title="Preview Prompt"
                           >
                             <Eye size={16} />

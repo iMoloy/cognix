@@ -248,7 +248,7 @@ export default function Home() {
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/10">
                   <CheckCircle2 className="text-emerald-400" size={18} />
                 </div>
-                <p className="text-sm font-semibold leading-relaxed text-zinc-300 group-hover:text-white transition-colors">{item}</p>
+                <p className="text-sm font-semibold leading-relaxed text-zinc-300 group-hover:text-emerald-400 transition-colors">{item}</p>
               </motion.div>
             ))}
           </div>

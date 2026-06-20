@@ -141,7 +141,7 @@ export default function DashboardOverviewPage() {
           </div>
           <Link 
             href="/dashboard/prompts" 
-            className="group flex items-center gap-2 text-sm font-bold text-zinc-400 transition-colors hover:text-white"
+            className="group flex items-center gap-2 text-sm font-bold text-zinc-400 transition-colors hover:text-emerald-400"
           >
             View all
             <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />

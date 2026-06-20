@@ -179,13 +179,13 @@ export default function AnalyticsPage() {
         <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/40 p-1 backdrop-blur-md">
           <button 
             onClick={() => setActiveRole("creator")}
-            className={`rounded-lg px-4 py-2 text-sm font-bold transition-all ${activeRole === "creator" ? "bg-emerald-500/20 text-emerald-400" : "text-zinc-500 hover:text-white"}`}
+            className={`rounded-lg px-4 py-2 text-sm font-bold transition-all ${activeRole === "creator" ? "bg-emerald-500/20 text-emerald-400" : "text-zinc-500 hover:text-emerald-400"}`}
           >
             Creator View
           </button>
           <button 
             onClick={() => setActiveRole("admin")}
-            className={`rounded-lg px-4 py-2 text-sm font-bold transition-all ${activeRole === "admin" ? "bg-emerald-500/20 text-emerald-400" : "text-zinc-500 hover:text-white"}`}
+            className={`rounded-lg px-4 py-2 text-sm font-bold transition-all ${activeRole === "admin" ? "bg-emerald-500/20 text-emerald-400" : "text-zinc-500 hover:text-emerald-400"}`}
           >
             Admin View
           </button>

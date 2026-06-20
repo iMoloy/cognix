@@ -3,6 +3,7 @@
 import { Search, Filter, SlidersHorizontal, ChevronDown } from "lucide-react";
 import PromptCard from "@/components/ui/PromptCard";
 import { motion } from "framer-motion";
+import Button from "@/components/ui/Button";
 
 import { mockPrompts } from "@/lib/mockData";
 
@@ -52,9 +53,9 @@ export default function MarketplacePage() {
               className="h-12 flex-1 bg-transparent text-base text-zinc-100 placeholder-zinc-500 outline-none"
               placeholder="Search by title, keyword, or AI tool..."
             />
-            <button className="h-12 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-8 text-sm font-bold text-zinc-950 shadow-md transition-all hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(52,211,153,0.25)]">
+            <Button className="h-12 px-8 shrink-0">
               Search
-            </button>
+            </Button>
           </motion.div>
         </div>
       </section>
@@ -67,9 +68,9 @@ export default function MarketplacePage() {
           <aside className="w-full shrink-0 lg:sticky lg:top-8 lg:w-64">
             <div className="flex items-center justify-between lg:hidden">
               <span className="text-lg font-bold text-white">Filters</span>
-              <button className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-300 backdrop-blur-md">
-                <Filter size={16} /> Toggle
-              </button>
+              <Button variant="secondary" size="sm" className="lg:hidden">
+                <Filter size={16} className="mr-2" /> Toggle
+              </Button>
             </div>
 
             <div className="hidden space-y-8 lg:block">
@@ -82,7 +83,7 @@ export default function MarketplacePage() {
                 <h3 className="text-sm font-bold text-white">Category</h3>
                 <div className="flex flex-col gap-3">
                   {["Engineering", "Marketing", "Design", "Data", "Product"].map(cat => (
-                    <label key={cat} className="group flex cursor-pointer items-center gap-3 text-sm font-medium text-zinc-400 transition-colors hover:text-white">
+                    <label key={cat} className="group flex cursor-pointer items-center gap-3 text-sm font-medium text-zinc-400 transition-colors hover:text-emerald-400">
                       <div className="relative flex h-5 w-5 items-center justify-center rounded border border-white/20 bg-white/5 transition-colors group-hover:border-emerald-500/50">
                         <input type="checkbox" className="peer absolute h-full w-full cursor-pointer opacity-0" />
                         <div className="h-2.5 w-2.5 rounded-sm bg-emerald-500 opacity-0 transition-opacity peer-checked:opacity-100"></div>
@@ -100,7 +101,7 @@ export default function MarketplacePage() {
                 <h3 className="text-sm font-bold text-white">AI Engine</h3>
                 <div className="flex flex-col gap-3">
                   {["ChatGPT", "Claude", "Gemini", "Midjourney"].map(tool => (
-                    <label key={tool} className="group flex cursor-pointer items-center gap-3 text-sm font-medium text-zinc-400 transition-colors hover:text-white">
+                    <label key={tool} className="group flex cursor-pointer items-center gap-3 text-sm font-medium text-zinc-400 transition-colors hover:text-emerald-400">
                       <div className="relative flex h-5 w-5 items-center justify-center rounded border border-white/20 bg-white/5 transition-colors group-hover:border-emerald-500/50">
                         <input type="checkbox" className="peer absolute h-full w-full cursor-pointer opacity-0" />
                         <div className="h-2.5 w-2.5 rounded-sm bg-emerald-500 opacity-0 transition-opacity peer-checked:opacity-100"></div>
@@ -141,8 +142,8 @@ export default function MarketplacePage() {
               <div className="flex items-center gap-2 rounded-full border border-white/5 bg-white/5 p-1 backdrop-blur-md">
                 <button className="flex h-10 items-center justify-center rounded-full px-5 text-sm font-medium text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-300">Previous</button>
                 <button className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-sm font-bold text-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.2)]">1</button>
-                <button className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium text-zinc-400 transition-colors hover:bg-white/10 hover:text-white">2</button>
-                <button className="flex h-10 items-center justify-center rounded-full px-5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/10 hover:text-white">Next</button>
+                <button className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium text-zinc-400 transition-colors hover:bg-white/10 hover:text-emerald-400">2</button>
+                <button className="flex h-10 items-center justify-center rounded-full px-5 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/10 hover:text-emerald-400">Next</button>
               </div>
             </div>
           </div>

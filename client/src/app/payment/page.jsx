@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, CreditCard, ShieldCheck, Lock, ChevronRight, Loader2, Sparkles } from "lucide-react";
+import Button from "@/components/ui/Button";
 import Link from "next/link";
 
 const benefits = [
@@ -219,21 +220,13 @@ export default function PaymentPage() {
                 </div>
 
                 <div className="pt-4">
-                  <button 
-                    disabled={isProcessing}
-                    className="group relative flex h-14 w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] px-8 text-sm font-bold text-zinc-950 shadow-md transition-all hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(52,211,153,0.25)] disabled:opacity-70 disabled:hover:scale-100"
+                  <Button 
+                    fullWidth 
+                    isLoading={isProcessing}
                   >
-                    <div className={`flex items-center gap-2 transition-all ${isProcessing ? "opacity-0" : "opacity-100 animate-gradient-x"}`}>
-                      <ShieldCheck size={18} className="transition-transform group-hover:scale-110" />
-                      Pay $5.00
-                    </div>
-                    
-                    {isProcessing && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-emerald-500">
-                        <Loader2 size={24} className="animate-spin text-zinc-950" />
-                      </div>
-                    )}
-                  </button>
+                    <ShieldCheck size={18} className="mr-2" />
+                    {isProcessing ? "Processing..." : "Pay $5.00"}
+                  </Button>
                   <p className="mt-4 text-center text-xs font-medium text-zinc-500 flex items-center justify-center gap-1.5">
                     <Lock size={10} /> Payments are secure and encrypted.
                   </p>

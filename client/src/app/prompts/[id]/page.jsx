@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, LockKeyhole, Sparkles, Star, Copy, Eye, BookmarkPlus, CalendarDays, TerminalSquare, MessageSquare, AlertTriangle, User as UserIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import CopyToClipboard from "@/components/ui/CopyToClipboard";
+import Button from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import ReviewModal from "@/components/ui/ReviewModal";
 import ReportModal from "@/components/ui/ReportModal";
@@ -68,7 +69,7 @@ export default function PromptDetailsPage() {
         <div className="mb-8">
           <Link 
             href="/prompts" 
-            className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-400 transition-colors hover:text-white"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-400 transition-colors hover:text-emerald-400"
           >
             <ArrowLeft size={16} />
             Back to Marketplace
@@ -135,9 +136,9 @@ export default function PromptDetailsPage() {
                 <span className="flex items-center gap-2"><Copy size={16} className="text-zinc-500" /> {mockPrompt.copies} Copies</span>
               </div>
               
-              <button className="ml-auto flex items-center gap-2 rounded-xl bg-white/5 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10">
-                <BookmarkPlus size={18} /> Save
-              </button>
+              <Button variant="secondary" className="ml-auto px-5 py-2.5 text-sm">
+                <BookmarkPlus size={18} className="mr-2" /> Save
+              </Button>
             </div>
           </div>
         </motion.div>
@@ -173,12 +174,12 @@ export default function PromptDetailsPage() {
                     <p className="mt-3 text-center text-sm font-medium text-zinc-400 max-w-sm leading-relaxed">
                       This is a highly optimized, battle-tested prompt. Unlock it to access the full instructions and drastically improve your workflow.
                     </p>
-                    <button 
+                    <Button 
                       onClick={() => router.push("/payment")}
-                      className="mt-8 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-10 py-4 text-base font-bold text-zinc-950 shadow-md transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(52,211,153,0.3)]"
+                      className="mt-8 px-10 py-4 text-base"
                     >
                       Unlock Now for ${mockPrompt.price}
-                    </button>
+                    </Button>
                   </div>
                 )}
 
@@ -204,12 +205,13 @@ export default function PromptDetailsPage() {
                   <MessageSquare size={18} className="text-emerald-400" />
                   Reviews
                 </h3>
-                <button 
+                <Button 
+                  variant="ghost"
                   onClick={() => setIsReviewOpen(true)}
-                  className="text-xs font-bold text-emerald-400 hover:text-emerald-300"
+                  className="text-xs text-emerald-400 hover:text-emerald-300"
                 >
                   + Add Review
-                </button>
+                </Button>
               </div>
 
               {mockPrompt.reviews.length === 0 ? (
@@ -252,12 +254,13 @@ export default function PromptDetailsPage() {
 
             {/* Report */}
             <div className="flex justify-center pt-2">
-              <button 
+              <Button 
+                variant="ghost"
                 onClick={() => setIsReportOpen(true)}
-                className="flex items-center gap-2 text-xs font-medium text-zinc-600 transition-colors hover:text-rose-400"
+                className="text-xs text-zinc-600 hover:text-rose-400"
               >
-                <AlertTriangle size={14} /> Report this prompt
-              </button>
+                <AlertTriangle size={14} className="mr-2" /> Report this prompt
+              </Button>
             </div>
           </motion.div>
 

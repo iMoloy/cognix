@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { UploadCloud, Image as ImageIcon, Send, Sparkles } from "lucide-react";
+import Button from "@/components/ui/Button";
 
 export default function AddPromptPage() {
   const [dragActive, setDragActive] = useState(false);
@@ -169,10 +170,12 @@ export default function AddPromptPage() {
 
           {/* Submit Button */}
           <div className="pt-4 border-t border-white/10">
-            <button className="group flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-8 py-4 text-sm font-bold text-zinc-950 shadow-md transition-all hover:scale-[1.01] hover:shadow-[0_0_15px_rgba(52,211,153,0.25)] sm:w-auto">
-              <Send size={18} className="transition-transform group-hover:translate-x-1" />
+            <Button 
+              className="w-full sm:w-auto px-10 py-4 text-base"
+            >
+              <Send size={18} className="mr-2" />
               Submit Prompt for Review
-            </button>
+            </Button>
             <p className="mt-3 text-xs text-zinc-500">
               By submitting, you agree to our prompt quality guidelines. Approvals usually take 24 hours.
             </p>

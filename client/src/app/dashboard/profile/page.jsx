@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCircle2, Shield, User, Crown, Key, Camera, Save, Loader2 } from "lucide-react";
+import Button from "@/components/ui/Button";
 import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -126,14 +127,14 @@ export default function ProfilePage() {
 
               {/* Submit Button */}
               <div className="pt-4 flex justify-end">
-                <button
+                <Button
                   type="submit"
-                  disabled={isSaving}
-                  className="flex h-11 items-center justify-center gap-2 rounded-xl bg-white text-sm font-bold text-zinc-950 px-6 transition-all hover:bg-zinc-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  isLoading={isSaving}
+                  className="h-11 px-6 text-sm"
                 >
-                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                  <Save size={16} className="mr-2" />
                   {isSaving ? "Saving..." : "Save Changes"}
-                </button>
+                </Button>
               </div>
 
             </div>

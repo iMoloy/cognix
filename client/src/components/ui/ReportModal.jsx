@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, AlertTriangle } from "lucide-react";
+import Button from "@/components/ui/Button";
 
 export default function ReportModal({ isOpen, onClose, promptTitle }) {
   const [reason, setReason] = useState("");
@@ -34,7 +35,7 @@ export default function ReportModal({ isOpen, onClose, promptTitle }) {
             </div>
             <button 
               onClick={onClose}
-              className="rounded-full p-1.5 text-zinc-500 transition-colors hover:bg-white/10 hover:text-white"
+              className="rounded-full p-1.5 text-zinc-500 transition-colors hover:bg-white/10 hover:text-emerald-400"
             >
               <X size={18} />
             </button>
@@ -82,20 +83,19 @@ export default function ReportModal({ isOpen, onClose, promptTitle }) {
 
             {/* Actions */}
             <div className="flex justify-end gap-3">
-              <button
-                type="button"
+              <Button
+                variant="ghost"
                 onClick={onClose}
-                className="rounded-xl px-5 py-2.5 text-sm font-bold text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="danger"
                 type="submit"
                 disabled={!reason || !details.trim()}
-                className="rounded-xl bg-rose-500 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-rose-600 disabled:opacity-50 disabled:hover:bg-rose-500"
               >
                 Submit Report
-              </button>
+              </Button>
             </div>
           </form>
         </motion.div>

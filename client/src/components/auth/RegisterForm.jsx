@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { UserPlus, Eye, EyeOff } from "lucide-react";
+import Button from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 
@@ -11,6 +12,7 @@ export default function RegisterForm() {
   const router = useRouter();
   const { register, login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -23,8 +25,11 @@ export default function RegisterForm() {
     setFormData((current) => ({ ...current, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 800));
     register(formData);
     router.push("/dashboard");
   };
@@ -103,7 +108,7 @@ export default function RegisterForm() {
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-emerald-400 transition-colors"
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
@@ -111,15 +116,13 @@ export default function RegisterForm() {
       </div>
 
       <div className="space-y-4 pt-2">
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          type="submit"
-          className="group relative flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-5 text-sm font-bold text-zinc-950 shadow-md transition-all hover:shadow-[0_0_15px_rgba(52,211,153,0.25)]"
+        <Button 
+          type="submit" 
+          fullWidth 
+          isLoading={isLoading}
         >
-          <UserPlus size={18} className="transition-transform group-hover:scale-110" />
-          Create Account
-        </motion.button>
+          {isLoading ? "Creating Account..." : "Create Account"}
+        </Button>
 
         <div className="relative flex items-center py-2">
           <div className="flex-grow border-t border-white/10"></div>

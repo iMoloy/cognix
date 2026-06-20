@@ -35,15 +35,15 @@ export default function Footer() {
           {/* Links & Socials */}
           <div className="flex flex-col items-center gap-5 sm:items-end">
             <div className="flex items-center gap-6 text-xs font-semibold text-zinc-500">
-              <Link href="/privacy" className="transition-colors hover:text-white">Privacy Policy</Link>
-              <Link href="/terms" className="transition-colors hover:text-white">Terms of Service</Link>
+              <Link href="/privacy" className="transition-colors hover:text-emerald-400">Privacy Policy</Link>
+              <Link href="/terms" className="transition-colors hover:text-emerald-400">Terms of Service</Link>
               
               <div className="h-3 w-px bg-white/10 hidden sm:block"></div>
               
               <div className="flex items-center gap-4">
-                <a href="#" className="transition-colors hover:text-white" aria-label="Website"><Globe size={15} /></a>
-                <a href="#" className="transition-colors hover:text-white" aria-label="Community"><MessageSquare size={15} /></a>
-                <a href="#" className="transition-colors hover:text-white" aria-label="Support"><Mail size={15} /></a>
+                <a href="#" className="transition-colors hover:text-emerald-400" aria-label="Website"><Globe size={15} /></a>
+                <a href="#" className="transition-colors hover:text-emerald-400" aria-label="Community"><MessageSquare size={15} /></a>
+                <a href="#" className="transition-colors hover:text-emerald-400" aria-label="Support"><Mail size={15} /></a>
               </div>
             </div>
             

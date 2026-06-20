@@ -2,8 +2,9 @@
 
 import { Shield, Sparkles, User, Copy, Check, ArrowRight, Code2, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import Button from "@/components/ui/Button";
 
 const demoAccounts = [
   {
@@ -45,6 +46,7 @@ const demoAccounts = [
 ];
 
 export default function DemoAccountsPage() {
+  const router = useRouter();
   const [copiedField, setCopiedField] = useState(null);
   const [showPassword, setShowPassword] = useState({});
 
@@ -136,7 +138,7 @@ export default function DemoAccountsPage() {
                       />
                       <button
                         onClick={() => copyToClipboard(account.email, `${account.id}-email`)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-zinc-400 transition-all hover:bg-white/10 hover:text-white active:scale-95"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-zinc-400 transition-all hover:bg-white/10 hover:text-emerald-400 active:scale-95"
                         title="Copy Email"
                       >
                         <AnimatePresence mode="wait">
@@ -167,14 +169,14 @@ export default function DemoAccountsPage() {
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                         <button
                           onClick={() => togglePassword(account.id)}
-                          className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-zinc-400 transition-all hover:bg-white/10 hover:text-white active:scale-95"
+                          className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-zinc-400 transition-all hover:bg-white/10 hover:text-emerald-400 active:scale-95"
                           title="Toggle Password"
                         >
                           {showPassword[account.id] ? <EyeOff size={14} /> : <Eye size={14} />}
                         </button>
                         <button
                           onClick={() => copyToClipboard(account.password, `${account.id}-password`)}
-                          className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-zinc-400 transition-all hover:bg-white/10 hover:text-white active:scale-95"
+                          className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-zinc-400 transition-all hover:bg-white/10 hover:text-emerald-400 active:scale-95"
                           title="Copy Password"
                         >
                           <AnimatePresence mode="wait">
@@ -195,12 +197,13 @@ export default function DemoAccountsPage() {
                 </div>
 
                 {/* Action Button */}
-                <Link
-                  href={`/login?email=${encodeURIComponent(account.email)}&password=${encodeURIComponent(account.password)}`}
-                  className="mt-auto flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x text-sm font-bold text-zinc-950 shadow-md transition-all hover:shadow-[0_0_15px_rgba(52,211,153,0.25)] hover:scale-[1.02] active:scale-[0.98]"
+                <Button
+                  onClick={() => router.push(`/login?email=${encodeURIComponent(account.email)}&password=${encodeURIComponent(account.password)}`)}
+                  className="mt-auto h-14"
+                  fullWidth
                 >
-                  Auto Login <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-                </Link>
+                  Auto Login <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
               </div>
             </motion.div>
           ))}

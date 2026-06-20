@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { BrainCircuit, LayoutDashboard, LogOut, Menu, X, Search, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
+import Button from "@/components/ui/Button";
 
 const navLinks = [
   { href: "/prompts", label: "Marketplace" },
@@ -60,7 +61,7 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   className={`relative text-sm font-bold transition-colors ${
-                    active ? "text-white" : "text-zinc-500 hover:text-white"
+                    active ? "text-white" : "text-zinc-500 hover:text-emerald-400"
                   }`}
                 >
                   {link.label}
@@ -95,44 +96,44 @@ export default function Navbar() {
                 />
               </Link>
               
-              <Link
-                href="/dashboard"
-                className="flex h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 text-sm font-bold text-white backdrop-blur-md transition-all hover:scale-[1.02] hover:bg-white/10"
+              <Button
+                onClick={() => router.push("/dashboard")}
+                className="h-10 px-5 text-sm"
               >
-                <LayoutDashboard size={16} className="text-emerald-400" />
+                <LayoutDashboard size={16} className="mr-2" />
                 Dashboard
-              </Link>
-              <button
-                type="button"
+              </Button>
+              <Button
                 onClick={handleLogout}
-                className="flex h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 text-sm font-bold text-white backdrop-blur-md transition-all hover:scale-[1.02] hover:bg-white/10"
+                className="h-10 px-5 text-sm"
               >
-                <LogOut size={16} />
+                <LogOut size={16} className="mr-2" />
                 Logout
-              </button>
+              </Button>
             </>
           ) : (
             <>
-              <Link
-                href="/login"
-                className="rounded-xl px-5 py-2.5 text-sm font-bold text-zinc-400 transition-colors hover:text-white"
+              <Button
+                variant="ghost"
+                onClick={() => router.push("/login")}
+                className="px-5 py-2.5 text-sm font-bold text-zinc-400 hover:text-emerald-400"
               >
                 Login
-              </Link>
-              <Link
-                href="/register"
-                className="group flex h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-6 text-sm font-bold text-zinc-950 shadow-md transition-all hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(52,211,153,0.25)]"
+              </Button>
+              <Button
+                onClick={() => router.push("/register")}
+                className="h-10 px-6 text-sm"
               >
-                <Sparkles size={14} className="transition-transform group-hover:scale-125" />
+                <Sparkles size={14} className="mr-2" />
                 Get Started
-              </Link>
+              </Button>
             </>
           )}
 
           {/* Search (Far Right) */}
           <Link
             href="/prompts"
-            className="ml-2 flex size-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-zinc-400 backdrop-blur-md transition-all hover:scale-[1.02] hover:bg-white/10 hover:text-white"
+            className="ml-2 flex size-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-zinc-400 backdrop-blur-md transition-all hover:scale-[1.02] hover:bg-white/10 hover:text-emerald-400"
             aria-label="Search prompts"
           >
             <Search size={18} />
@@ -187,19 +188,28 @@ export default function Navbar() {
 
               {isAuthenticated ? (
                 <>
-                  <Link 
-                    href="/dashboard" 
-                    onClick={closeMobileMenu}
-                    className="flex items-center gap-3 text-lg font-bold text-white hover:text-emerald-400"
+                  <Button
+                    fullWidth
+                    onClick={() => {
+                      router.push("/dashboard");
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="h-12"
                   >
-                    <LayoutDashboard size={20} className="text-emerald-400" /> Dashboard
-                  </Link>
-                  <button 
-                    onClick={handleLogout}
-                    className="flex items-center gap-3 text-lg font-bold text-red-400 text-left"
+                    <LayoutDashboard size={16} className="mr-2" />
+                    Dashboard
+                  </Button>
+                  <Button
+                    fullWidth
+                    onClick={() => {
+                      handleLogout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="h-12"
                   >
-                    <LogOut size={20} /> Logout
-                  </button>
+                    <LogOut size={16} className="mr-2" />
+                    Logout
+                  </Button>
                   
                   {/* Mobile Dropdown User Profile Card */}
                   <Link 
@@ -220,21 +230,28 @@ export default function Navbar() {
                 </>
               ) : (
                 <div className="flex flex-col gap-3 pt-4 border-t border-white/5">
-                  <Link
-                    href="/login"
-                    onClick={closeMobileMenu}
-                    className="flex h-12 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-sm font-bold text-white"
+                  <Button
+                    fullWidth
+                    variant="ghost"
+                    onClick={() => {
+                      router.push("/login");
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="h-12 border border-white/10 bg-white/5"
                   >
                     Login
-                  </Link>
-                  <Link
-                    href="/register"
-                    onClick={closeMobileMenu}
-                    className="flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x text-sm font-bold text-zinc-950"
+                  </Button>
+                  <Button
+                    fullWidth
+                    onClick={() => {
+                      router.push("/register");
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="h-12"
                   >
-                    <Sparkles size={16} />
+                    <Sparkles size={14} className="mr-2" />
                     Get Started
-                  </Link>
+                  </Button>
                 </div>
               )}
             </div>

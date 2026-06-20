@@ -144,7 +144,7 @@ export default function DashboardLayout({ children }) {
                         size={18} 
                         className={`relative z-10 transition-colors ${isActive ? "text-emerald-400" : "text-zinc-500 group-hover:text-emerald-400"}`} 
                       />
-                      <span className={`relative z-10 transition-colors ${isActive ? "font-bold text-white" : "text-zinc-400 group-hover:text-white"}`}>
+                      <span className={`relative z-10 transition-colors ${isActive ? "font-bold text-white" : "text-zinc-400 group-hover:text-emerald-400"}`}>
                         {link.name}
                       </span>
                     </Link>
@@ -155,7 +155,7 @@ export default function DashboardLayout({ children }) {
               <div className="mt-2 border-t border-white/10 pt-2">
                 <Link
                   href="/help"
-                  className="group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-zinc-400 transition-all hover:bg-white/5 hover:text-white"
+                  className="group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-zinc-400 transition-all hover:bg-white/5 hover:text-emerald-400"
                 >
                   <LifeBuoy size={18} className="text-zinc-500 group-hover:text-emerald-400" />
                   Help & Support

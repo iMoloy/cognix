@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Star, MessageSquare } from "lucide-react";
+import Button from "@/components/ui/Button";
 
 export default function ReviewModal({ isOpen, onClose, promptTitle }) {
   const [rating, setRating] = useState(0);
@@ -35,7 +36,7 @@ export default function ReviewModal({ isOpen, onClose, promptTitle }) {
             </div>
             <button 
               onClick={onClose}
-              className="rounded-full p-1.5 text-zinc-500 transition-colors hover:bg-white/10 hover:text-white"
+              className="rounded-full p-1.5 text-zinc-500 transition-colors hover:bg-white/10 hover:text-emerald-400"
             >
               <X size={18} />
             </button>
@@ -91,20 +92,18 @@ export default function ReviewModal({ isOpen, onClose, promptTitle }) {
 
             {/* Actions */}
             <div className="flex justify-end gap-3">
-              <button
-                type="button"
+              <Button
+                variant="ghost"
                 onClick={onClose}
-                className="rounded-xl px-5 py-2.5 text-sm font-bold text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
                 disabled={!rating || !review.trim()}
-                className="rounded-xl bg-emerald-500 px-6 py-2.5 text-sm font-bold text-zinc-950 transition-all hover:bg-emerald-400 disabled:opacity-50 disabled:hover:bg-emerald-500"
               >
                 Post Review
-              </button>
+              </Button>
             </div>
           </form>
         </motion.div>
