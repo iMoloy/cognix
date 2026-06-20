@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, LockKeyhole, Sparkles, Star, Copy, Eye, BookmarkPlus, CalendarDays, TerminalSquare } from "lucide-react";
+import { ArrowLeft, LockKeyhole, Sparkles, Star, Copy, Eye, BookmarkPlus, CalendarDays, TerminalSquare, MessageSquare, AlertTriangle, User as UserIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import CopyToClipboard from "@/components/ui/CopyToClipboard";
 import { useAuth } from "@/contexts/AuthContext";
+import ReviewModal from "@/components/ui/ReviewModal";
+import ReportModal from "@/components/ui/ReportModal";
 
 // Mock Data
 const mockPrompt = {
@@ -32,19 +35,26 @@ Follow these rules strictly:
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
     role: "Senior Staff Engineer"
   },
-  createdAt: "Oct 12, 2026"
+  createdAt: "Oct 12, 2026",
+  reviews: [
+    { id: 1, user: "Sarah K.", rating: 5, text: "Incredible prompt. It really grilled me on React Server Components!", date: "2 days ago" },
+    { id: 2, user: "Mike T.", rating: 4, text: "Very good, but sometimes it asks two questions at once if you give a long answer.", date: "1 week ago" }
+  ]
 };
 
 export default function PromptDetailsPage({ params }) {
   const { user } = useAuth();
   const router = useRouter();
 
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+
   // Dynamic Access Logic
   const isPremiumUser = user?.subscription === "premium" || user?.role === "admin" || user?.role === "creator";
   const hasAccess = !mockPrompt.isPremium || isPremiumUser;
 
   return (
-    <main className="relative min-h-screen bg-[#030303] selection:bg-emerald-500/30">
+    <main className="relative min-h-screen bg-[#030303] selection:bg-emerald-500/30 pb-20">
       
       {/* Background Orbs */}
       <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden">
@@ -138,13 +148,63 @@ export default function PromptDetailsPage({ params }) {
                 </pre>
               </div>
             </motion.div>
+
+            {/* Feedback & Reviews Section */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="mt-12 space-y-6 pt-8 border-t border-white/5"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <MessageSquare size={20} className="text-zinc-400" />
+                  Reviews ({mockPrompt.reviews.length})
+                </h3>
+                <button 
+                  onClick={() => setIsReviewOpen(true)}
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-white transition-all hover:bg-white/10"
+                >
+                  Write a Review
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {mockPrompt.reviews.map((review) => (
+                  <div key={review.id} className="rounded-xl border border-white/5 bg-zinc-900/20 p-5">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-zinc-400">
+                          <UserIcon size={16} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-white">{review.user}</p>
+                          <div className="flex items-center gap-1 mt-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star 
+                                key={i} 
+                                size={12} 
+                                className={i < review.rating ? "fill-amber-400 text-amber-400" : "text-zinc-700"} 
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <span className="text-xs text-zinc-500">{review.date}</span>
+                    </div>
+                    <p className="mt-4 text-sm text-zinc-300 leading-relaxed">{review.text}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
           </div>
 
           {/* Right Column: Sidebar Stats & Author */}
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
             className="space-y-6"
           >
             {/* Stats Card */}
@@ -169,7 +229,7 @@ export default function PromptDetailsPage({ params }) {
               </div>
 
               <div className="mt-8 border-t border-white/5 pt-6">
-                <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-3.5 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/10 hover:scale-[1.02]">
+                <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-3.5 text-sm font-bold text-emerald-400 backdrop-blur-md transition-all hover:bg-emerald-500/20 hover:scale-[1.02]">
                   <BookmarkPlus size={16} /> Save to Library
                 </button>
               </div>
@@ -190,10 +250,34 @@ export default function PromptDetailsPage({ params }) {
                 </div>
               </div>
             </div>
+
+            {/* Report Button */}
+            <div className="flex justify-center pt-4">
+              <button 
+                onClick={() => setIsReportOpen(true)}
+                className="flex items-center gap-2 text-xs font-medium text-zinc-500 transition-colors hover:text-rose-400"
+              >
+                <AlertTriangle size={14} />
+                Report this prompt
+              </button>
+            </div>
           </motion.div>
 
         </div>
       </div>
+
+      {/* Modals */}
+      <ReviewModal 
+        isOpen={isReviewOpen} 
+        onClose={() => setIsReviewOpen(false)} 
+        promptTitle={mockPrompt.title} 
+      />
+      
+      <ReportModal 
+        isOpen={isReportOpen} 
+        onClose={() => setIsReportOpen(false)} 
+        promptTitle={mockPrompt.title} 
+      />
     </main>
   );
 }
