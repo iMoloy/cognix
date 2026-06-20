@@ -1,85 +1,122 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Bookmark, FileText, PlusCircle, Star, UserCircle, LifeBuoy } from "lucide-react";
+import { 
+  LayoutDashboard, Bookmark, FileText, PlusCircle, 
+  Star, UserCircle, LifeBuoy, BarChart3, Users, 
+  AlertTriangle, CreditCard, Shield 
+} from "lucide-react";
 import { motion } from "framer-motion";
-
-const sidebarLinks = [
-  { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Add Prompt", href: "/dashboard/add-prompt", icon: PlusCircle },
-  { name: "My Prompts", href: "/dashboard/my-prompts", icon: FileText },
-  { name: "Saved Prompts", href: "/dashboard/saved", icon: Bookmark },
-  { name: "My Reviews", href: "/dashboard/reviews", icon: Star },
-  { name: "Profile", href: "/dashboard/profile", icon: UserCircle },
-];
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
+  const [activeRole, setActiveRole] = useState("admin"); // Default to admin for testing
+
+  const getLinks = () => {
+    const userLinks = [
+      { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
+      { name: "Add Prompt", href: "/dashboard/add-prompt", icon: PlusCircle },
+      { name: "My Prompts", href: "/dashboard/my-prompts", icon: FileText },
+      { name: "Saved Prompts", href: "/dashboard/saved", icon: Bookmark },
+      { name: "My Reviews", href: "/dashboard/reviews", icon: Star },
+      { name: "Profile", href: "/dashboard/profile", icon: UserCircle },
+    ];
+
+    if (activeRole === "creator") {
+      return [
+        { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
+        ...userLinks
+      ];
+    }
+
+    if (activeRole === "admin") {
+      return [
+        { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
+        { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
+        { name: "All Users", href: "/dashboard/admin/users", icon: Users },
+        { name: "All Prompts", href: "/dashboard/admin/prompts", icon: FileText },
+        { name: "Reported", href: "/dashboard/admin/reports", icon: AlertTriangle },
+        { name: "Payments", href: "/dashboard/admin/payments", icon: CreditCard },
+        { name: "Profile", href: "/dashboard/profile", icon: UserCircle },
+      ];
+    }
+
+    return userLinks;
+  };
+
+  const sidebarLinks = getLinks();
 
   return (
-    <div className="relative min-h-screen bg-[#030303] pt-20">
-      {/* Background Orbs */}
-      <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden">
-        <div className="absolute top-0 left-[-10%] h-[600px] w-[600px] rounded-full bg-emerald-500/5 blur-[150px] opacity-20" />
-        <div className="absolute bottom-[-10%] right-[-10%] h-[500px] w-[500px] rounded-full bg-cyan-500/5 blur-[150px] opacity-20" />
-      </div>
+    <div className="flex min-h-screen bg-[#030303]">
+      
+      {/* Sidebar */}
+      <aside className="fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 border-r border-white/10 bg-zinc-950/80 backdrop-blur-xl hidden md:block">
+        <div className="flex h-full flex-col p-4">
+          
+          {/* MOCK ROLE SWITCHER */}
+          <div className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3">
+            <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
+              <Shield size={14} /> View As
+            </div>
+            <select 
+              value={activeRole} 
+              onChange={(e) => setActiveRole(e.target.value)}
+              className="w-full rounded-lg border border-white/10 bg-black/40 px-2 py-1.5 text-sm font-bold text-white outline-none focus:border-emerald-500/50"
+            >
+              <option value="user">User</option>
+              <option value="creator">Creator</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
 
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 md:flex-row lg:px-8">
-        
-        {/* Sidebar Navigation */}
-        <aside className="relative z-10 w-full shrink-0 md:w-64">
-          <nav className="sticky top-28 flex flex-col gap-2 rounded-2xl border border-white/10 bg-zinc-950/50 p-4 shadow-2xl backdrop-blur-2xl">
-            <h3 className="mb-2 px-2 text-xs font-bold uppercase tracking-wider text-zinc-500">
-              Dashboard
-            </h3>
-            
+          <nav className="flex-1 space-y-1">
             {sidebarLinks.map((link) => {
-              const isActive = pathname === link.href;
-              const Icon = link.icon;
-              
+              const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
               return (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all ${
-                    isActive
-                      ? "bg-white/10 text-white"
-                      : "text-zinc-400 hover:bg-white/5 hover:text-white"
-                  }`}
+                  className="group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all"
                 >
                   {isActive && (
-                    <motion.div
+                    <motion.div 
                       layoutId="sidebar-active"
-                      className="absolute left-0 top-0 h-full w-1 rounded-full bg-gradient-to-b from-emerald-400 to-cyan-400"
+                      className="absolute inset-0 rounded-xl border border-emerald-500/20 bg-emerald-500/10"
                     />
                   )}
-                  <Icon 
+                  <link.icon 
                     size={18} 
-                    className={isActive ? "text-emerald-400" : "transition-colors group-hover:text-emerald-400"} 
+                    className={`relative z-10 transition-colors ${isActive ? "text-emerald-400" : "text-zinc-500 group-hover:text-emerald-400"}`} 
                   />
-                  {link.name}
+                  <span className={`relative z-10 transition-colors ${isActive ? "font-bold text-white" : "text-zinc-400 group-hover:text-white"}`}>
+                    {link.name}
+                  </span>
                 </Link>
               );
             })}
-
-            <div className="my-2 h-px bg-white/10"></div>
-
-            <Link
-              href="/support"
-              className="group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-zinc-400 transition-all hover:bg-white/5 hover:text-white"
-            >
-              <LifeBuoy size={18} className="transition-colors group-hover:text-emerald-400" />
-              Support & Help
-            </Link>
           </nav>
-        </aside>
 
-        {/* Main Dashboard Content Area */}
-        <main className="relative z-10 flex-1">
+          <div className="mt-auto border-t border-white/10 pt-4">
+            <Link
+              href="/help"
+              className="group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-zinc-400 transition-all hover:bg-white/5 hover:text-white"
+            >
+              <LifeBuoy size={18} className="text-zinc-500 group-hover:text-emerald-400" />
+              Help & Support
+            </Link>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="flex-1 px-4 py-8 md:ml-64 md:px-8 lg:px-12 mt-16">
+        <div className="mx-auto max-w-5xl">
           {children}
-        </main>
-      </div>
+        </div>
+      </main>
+
     </div>
   );
 }
