@@ -4,68 +4,7 @@ import { Search, Filter, SlidersHorizontal, ChevronDown } from "lucide-react";
 import PromptCard from "@/components/ui/PromptCard";
 import { motion } from "framer-motion";
 
-const mockPrompts = [
-  {
-    _id: "1",
-    title: "Senior React Developer Interview Simulator",
-    description: "Acts as a technical interviewer asking advanced questions on React hooks, fiber architecture, and performance optimization.",
-    category: "Engineering",
-    tool: "ChatGPT",
-    copies: 342,
-    rating: 4.9,
-    isPremium: true,
-  },
-  {
-    _id: "2",
-    title: "High-Converting Landing Page Copywriter",
-    description: "Generates PAS (Problem-Agitation-Solution) structured copy tailored for SaaS landing pages with strong CTAs.",
-    category: "Marketing",
-    tool: "Claude",
-    copies: 1205,
-    rating: 4.7,
-    isPremium: false,
-  },
-  {
-    _id: "3",
-    title: "SQL Query Optimizer & Explainer",
-    description: "Analyzes slow database queries, explains execution plans, and provides optimized index recommendations.",
-    category: "Data",
-    tool: "Gemini",
-    copies: 89,
-    rating: 5.0,
-    isPremium: false,
-  },
-  {
-    _id: "4",
-    title: "Product Requirements Document (PRD) Generator",
-    description: "Transforms rough feature ideas into structured PRDs ready for engineering estimation.",
-    category: "Product",
-    tool: "ChatGPT",
-    copies: 567,
-    rating: 4.8,
-    isPremium: true,
-  },
-  {
-    _id: "5",
-    title: "AWS Infrastructure as Code (Terraform)",
-    description: "Generates production-ready Terraform modules for scalable AWS architectures following best practices.",
-    category: "Engineering",
-    tool: "Claude",
-    copies: 210,
-    rating: 4.6,
-    isPremium: true,
-  },
-  {
-    _id: "6",
-    title: "UX Persona & Journey Mapper",
-    description: "Creates detailed user personas and empathy maps based on your target demographic inputs.",
-    category: "Design",
-    tool: "ChatGPT",
-    copies: 840,
-    rating: 4.9,
-    isPremium: false,
-  }
-];
+import { mockPrompts } from "@/lib/mockData";
 
 export default function MarketplacePage() {
   return (

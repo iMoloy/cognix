@@ -18,6 +18,18 @@ export default function PromptCard({ prompt, index = 0 }) {
       {/* Subtle background glow on hover */}
       <div className="absolute inset-0 z-0 rounded-2xl bg-gradient-to-br from-emerald-500/0 via-transparent to-emerald-500/0 opacity-0 transition-opacity duration-700 group-hover:from-emerald-500/5 group-hover:to-transparent group-hover:opacity-40"></div>
 
+      {/* Card Image Thumbnail */}
+      {prompt.image && (
+        <div className="relative z-10 -mx-6 -mt-6 mb-6 h-40 overflow-hidden border-b border-white/5">
+          <img 
+            src={prompt.image} 
+            alt={prompt.title} 
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent"></div>
+        </div>
+      )}
+
       {/* Header & Badges */}
       <div className="relative z-10 flex items-start justify-between gap-4">
         <div className="flex flex-wrap gap-2">

@@ -1,264 +1,262 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, LockKeyhole, Sparkles, Star, Copy, Eye, BookmarkPlus, CalendarDays, TerminalSquare, MessageSquare, AlertTriangle, User as UserIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import CopyToClipboard from "@/components/ui/CopyToClipboard";
 import { useAuth } from "@/contexts/AuthContext";
 import ReviewModal from "@/components/ui/ReviewModal";
 import ReportModal from "@/components/ui/ReportModal";
+import { mockPrompts } from "@/lib/mockData";
 
-// Mock Data
-const mockPrompt = {
-  _id: "1",
-  title: "Senior React Developer Interview Simulator",
-  description: "Acts as a technical interviewer asking advanced questions on React hooks, fiber architecture, and performance optimization. It adapts to your answers and provides feedback.",
-  instruction: `You are to act as a Senior React Engineering Manager conducting a technical interview.
-Your goal is to assess my knowledge of advanced React concepts.
-
-Follow these rules strictly:
-1. Ask me one question at a time.
-2. Wait for my response before proceeding.
-3. If my answer is incorrect or incomplete, gently correct me and explain the underlying architecture (e.g., how the Fiber tree reconciliation actually works).
-4. Start by asking me to explain the difference between useMemo and React.memo under the hood.`,
-  category: "Engineering",
-  tool: "ChatGPT",
-  copies: 342,
-  views: 1205,
-  rating: 4.9,
-  isPremium: false,
-  price: 0,
-  author: {
-    name: "Alex Dev",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
-    role: "Senior Staff Engineer"
-  },
-  createdAt: "Oct 12, 2026",
-  reviews: [
-    { id: 1, user: "Sarah K.", rating: 5, text: "Incredible prompt. It really grilled me on React Server Components!", date: "2 days ago" },
-    { id: 2, user: "Mike T.", rating: 4, text: "Very good, but sometimes it asks two questions at once if you give a long answer.", date: "1 week ago" }
-  ]
-};
-
-export default function PromptDetailsPage({ params }) {
-  const { user } = useAuth();
+export default function PromptDetailsPage() {
+  const params = useParams();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
 
+  // Auth Protection - Redirect if not logged in
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
+
+  // Find the exact prompt from mockData using params.id
+  // If not found (e.g. testing with random ID), fallback to the first one
+  const promptId = params?.id || "1";
+  const mockPrompt = mockPrompts.find(p => p._id === promptId) || mockPrompts[0];
+  
+  // Provide a fallback instruction if missing
+  if (!mockPrompt.instruction) {
+    mockPrompt.instruction = "This is a detailed prompt instruction placeholder. " + mockPrompt.description;
+  }
+
   // Dynamic Access Logic
   const isPremiumUser = user?.subscription === "premium" || user?.role === "admin" || user?.role === "creator";
   const hasAccess = !mockPrompt.isPremium || isPremiumUser;
 
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#030303]">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <main className="relative min-h-screen bg-[#030303] selection:bg-emerald-500/30 pb-20">
       
-      {/* Background Orbs */}
-      <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] h-[500px] w-[500px] rounded-full bg-emerald-500/5 blur-[150px] opacity-20" />
-        <div className="absolute right-[-5%] top-[20%] h-[400px] w-[400px] rounded-full bg-cyan-500/5 blur-[150px] opacity-20" />
+      {/* Dynamic Background Image from Prompt */}
+      <div className="pointer-events-none absolute inset-0 z-0 h-[600px] w-full overflow-hidden">
+        {mockPrompt.image && (
+          <div 
+            className="absolute inset-0 bg-cover bg-center opacity-20 blur-3xl"
+            style={{ backgroundImage: `url(${mockPrompt.image})` }}
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#030303]/80 to-[#030303]" />
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         
         {/* Navigation */}
-        <div className="mb-10 flex items-center justify-between">
+        <div className="mb-8">
           <Link 
             href="/prompts" 
-            className="flex items-center gap-2 text-sm font-semibold text-zinc-400 transition-colors hover:text-white"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-400 transition-colors hover:text-white"
           >
             <ArrowLeft size={16} />
             Back to Marketplace
           </Link>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid gap-8 lg:grid-cols-[1fr_350px]">
-          
-          {/* Left Column: Prompt Details & Execution */}
-          <div className="space-y-8">
-            
-            {/* Header Area */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400 backdrop-blur-md">
-                  <Sparkles size={12} className="text-emerald-400" />
-                  {mockPrompt.category}
-                </span>
-                <span className="rounded-full border border-zinc-700/50 bg-zinc-800/50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 backdrop-blur-md">
-                  {mockPrompt.tool}
-                </span>
-              </div>
-              <h1 className="mt-5 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-                {mockPrompt.title}
-              </h1>
-              <p className="mt-4 text-base leading-relaxed text-zinc-400">
-                {mockPrompt.description}
-              </p>
-            </motion.div>
+        {/* HERO SECTION */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col gap-8 md:flex-row md:items-start"
+        >
+          {/* Cover Image Thumbnail */}
+          {mockPrompt.image && (
+            <div className="shrink-0">
+              <img 
+                src={mockPrompt.image} 
+                alt={mockPrompt.title} 
+                className="h-48 w-full max-w-[320px] rounded-2xl border border-white/10 object-cover shadow-2xl md:h-64"
+              />
+            </div>
+          )}
 
-            {/* Prompt Engine Window */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/50 shadow-2xl backdrop-blur-xl"
-            >
-              {/* Window Header */}
+          {/* Metadata */}
+          <div className="flex-1 space-y-5">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400 backdrop-blur-md">
+                <Sparkles size={12} /> {mockPrompt.category}
+              </span>
+              <span className="rounded-full border border-zinc-700/50 bg-zinc-800/50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 backdrop-blur-md">
+                {mockPrompt.tool}
+              </span>
+              {mockPrompt.isPremium && (
+                <span className="flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-500">
+                  <LockKeyhole size={12} /> Premium
+                </span>
+              )}
+            </div>
+
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
+              {mockPrompt.title}
+            </h1>
+            <p className="max-w-2xl text-lg leading-relaxed text-zinc-400">
+              {mockPrompt.description}
+            </p>
+
+            {/* Author & Core Stats row */}
+            <div className="flex flex-wrap items-center gap-6 pt-4">
+              <div className="flex items-center gap-3 pr-6 border-r border-white/10">
+                <img 
+                  src={mockPrompt.author.avatar} 
+                  alt={mockPrompt.author.name} 
+                  className="h-10 w-10 rounded-full border border-white/10 bg-zinc-800"
+                />
+                <div>
+                  <h3 className="text-sm font-bold text-white">{mockPrompt.author.name}</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">{mockPrompt.author.role}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-6 text-sm font-bold text-zinc-300">
+                <span className="flex items-center gap-2"><Star size={16} className="text-amber-400" /> {mockPrompt.rating} Rating</span>
+                <span className="flex items-center gap-2"><Copy size={16} className="text-zinc-500" /> {mockPrompt.copies} Copies</span>
+              </div>
+              
+              <button className="ml-auto flex items-center gap-2 rounded-xl bg-white/5 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10">
+                <BookmarkPlus size={18} /> Save
+              </button>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* MAIN BODY GRID */}
+        <div className="mt-12 grid gap-8 lg:grid-cols-[1fr_350px]">
+          
+          {/* Left Column: Prompt Engine */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="space-y-8"
+          >
+            {/* Prompt Instruction Window */}
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/60 shadow-2xl backdrop-blur-xl">
               <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] px-5 py-3">
                 <div className="flex items-center gap-2 text-sm font-bold text-zinc-300">
                   <TerminalSquare size={16} className="text-emerald-400" />
-                  Prompt Instruction
+                  Prompt Instruction Payload
                 </div>
                 {hasAccess && <CopyToClipboard text={mockPrompt.instruction} />}
               </div>
 
-              {/* Window Body (Payload) */}
-              <div className="relative p-6">
-                
+              <div className="relative p-6 min-h-[350px]">
                 {/* Paywall Blur Layer */}
                 {!hasAccess && mockPrompt.isPremium && (
-                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/60 p-6 backdrop-blur-md">
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#030303]/80 p-6 backdrop-blur-[8px]">
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 shadow-[0_0_30px_rgba(52,211,153,0.3)] ring-1 ring-emerald-500/20">
                       <LockKeyhole size={28} className="text-emerald-400" />
                     </div>
-                    <h3 className="mt-6 text-xl font-bold text-white">Premium Prompt</h3>
-                    <p className="mt-2 text-center text-sm font-medium text-zinc-400 max-w-xs">
-                      This is a highly optimized, battle-tested prompt. Unlock it forever to access the full instruction payload.
+                    <h3 className="mt-6 text-2xl font-bold text-white">Unlock This Premium Prompt</h3>
+                    <p className="mt-3 text-center text-sm font-medium text-zinc-400 max-w-sm leading-relaxed">
+                      This is a highly optimized, battle-tested prompt. Unlock it to access the full instructions and drastically improve your workflow.
                     </p>
                     <button 
                       onClick={() => router.push("/payment")}
-                      className="mt-8 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-8 py-3.5 text-sm font-bold text-zinc-950 shadow-md transition-all hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(52,211,153,0.25)]"
+                      className="mt-8 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-10 py-4 text-base font-bold text-zinc-950 shadow-md transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(52,211,153,0.3)]"
                     >
-                      Unlock for ${mockPrompt.price}
+                      Unlock Now for ${mockPrompt.price}
                     </button>
                   </div>
                 )}
 
-                {/* The actual text */}
+                {/* Actual payload */}
                 <pre className={`whitespace-pre-wrap font-mono text-sm leading-relaxed text-emerald-50/90 ${!hasAccess && mockPrompt.isPremium ? "blur-[6px] select-none opacity-40" : ""}`}>
                   {mockPrompt.instruction}
                 </pre>
               </div>
-            </motion.div>
+            </div>
+          </motion.div>
 
-            {/* Feedback & Reviews Section */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mt-12 space-y-6 pt-8 border-t border-white/5"
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <MessageSquare size={20} className="text-zinc-400" />
-                  Reviews ({mockPrompt.reviews.length})
-                </h3>
-                <button 
-                  onClick={() => setIsReviewOpen(true)}
-                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-white transition-all hover:bg-white/10"
-                >
-                  Write a Review
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {mockPrompt.reviews.map((review) => (
-                  <div key={review.id} className="rounded-xl border border-white/5 bg-zinc-900/20 p-5">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-zinc-400">
-                          <UserIcon size={16} />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-white">{review.user}</p>
-                          <div className="flex items-center gap-1 mt-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star 
-                                key={i} 
-                                size={12} 
-                                className={i < review.rating ? "fill-amber-400 text-amber-400" : "text-zinc-700"} 
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      <span className="text-xs text-zinc-500">{review.date}</span>
-                    </div>
-                    <p className="mt-4 text-sm text-zinc-300 leading-relaxed">{review.text}</p>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-
-          </div>
-
-          {/* Right Column: Sidebar Stats & Author */}
+          {/* Right Column: Reviews & Extra Actions */}
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
             className="space-y-6"
           >
-            {/* Stats Card */}
+            {/* Reviews Section */}
             <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-2xl">
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-zinc-500"><Copy size={14} /> Copies</span>
-                  <span className="mt-2 block text-xl font-extrabold text-white">{mockPrompt.copies}</span>
-                </div>
-                <div>
-                  <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-zinc-500"><Star size={14} /> Rating</span>
-                  <span className="mt-2 block text-xl font-extrabold text-amber-400">{mockPrompt.rating}</span>
-                </div>
-                <div>
-                  <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-zinc-500"><Eye size={14} /> Views</span>
-                  <span className="mt-2 block text-xl font-extrabold text-white">{mockPrompt.views}</span>
-                </div>
-                <div>
-                  <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-zinc-500"><CalendarDays size={14} /> Added</span>
-                  <span className="mt-2 block text-sm font-extrabold text-white pt-1">{mockPrompt.createdAt}</span>
-                </div>
-              </div>
-
-              <div className="mt-8 border-t border-white/5 pt-6">
-                <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-3.5 text-sm font-bold text-emerald-400 backdrop-blur-md transition-all hover:bg-emerald-500/20 hover:scale-[1.02]">
-                  <BookmarkPlus size={16} /> Save to Library
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <MessageSquare size={18} className="text-emerald-400" />
+                  Reviews
+                </h3>
+                <button 
+                  onClick={() => setIsReviewOpen(true)}
+                  className="text-xs font-bold text-emerald-400 hover:text-emerald-300"
+                >
+                  + Add Review
                 </button>
               </div>
+
+              {mockPrompt.reviews.length === 0 ? (
+                <p className="text-sm text-zinc-500 italic">No reviews yet.</p>
+              ) : (
+                <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                  {mockPrompt.reviews.map((review) => (
+                    <div key={review.id} className="rounded-xl border border-white/5 bg-zinc-950/50 p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-bold text-white flex items-center gap-2">
+                          <UserIcon size={12} className="text-zinc-500" /> {review.user}
+                        </p>
+                        <div className="flex items-center gap-0.5">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} size={10} className={i < review.rating ? "fill-amber-400 text-amber-400" : "text-zinc-700"} />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-xs text-zinc-400 leading-relaxed">{review.text}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Author Card */}
+            {/* Meta Info */}
             <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-2xl">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-4">Creator</h4>
-              <div className="flex items-center gap-4">
-                <img 
-                  src={mockPrompt.author.avatar} 
-                  alt={mockPrompt.author.name} 
-                  className="h-12 w-12 rounded-full border border-white/10 bg-zinc-800"
-                />
-                <div>
-                  <h3 className="font-bold text-white">{mockPrompt.author.name}</h3>
-                  <p className="text-xs font-medium text-zinc-400">{mockPrompt.author.role}</p>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-4">Prompt Details</h4>
+              <div className="space-y-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-500">Published</span>
+                  <span className="font-medium text-white">{mockPrompt.createdAt}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-500">Total Views</span>
+                  <span className="font-medium text-white">{mockPrompt.views}</span>
                 </div>
               </div>
             </div>
 
-            {/* Report Button */}
-            <div className="flex justify-center pt-4">
+            {/* Report */}
+            <div className="flex justify-center pt-2">
               <button 
                 onClick={() => setIsReportOpen(true)}
-                className="flex items-center gap-2 text-xs font-medium text-zinc-500 transition-colors hover:text-rose-400"
+                className="flex items-center gap-2 text-xs font-medium text-zinc-600 transition-colors hover:text-rose-400"
               >
-                <AlertTriangle size={14} />
-                Report this prompt
+                <AlertTriangle size={14} /> Report this prompt
               </button>
             </div>
           </motion.div>

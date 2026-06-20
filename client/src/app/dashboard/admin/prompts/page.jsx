@@ -4,48 +4,19 @@ import { useState } from "react";
 import { CheckCircle, XCircle, Search, Clock, FileText, Eye, Star, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-
-// Mock Data for Admin Queue
-const initialPrompts = [
-  {
-    id: "p1",
-    title: "Next.js 15 App Router Boilerplate",
-    author: "Alex Dev",
-    category: "Engineering",
-    date: "Just now",
-    status: "pending",
-    featured: false
-  },
-  {
-    id: "p2",
-    title: "Advanced Tailwind Animation Classes",
-    author: "Sarah UI",
-    category: "Design",
-    date: "2 hours ago",
-    status: "pending",
-    featured: false
-  },
-  {
-    id: "p3",
-    title: "MongoDB Aggregation Pipeline Builder",
-    author: "DB Wizard",
-    category: "Engineering",
-    date: "1 day ago",
-    status: "approved",
-    featured: true
-  },
-  {
-    id: "p4",
-    title: "Spammy SEO Keywords List",
-    author: "Unknown Hacker",
-    category: "Marketing",
-    date: "2 days ago",
-    status: "rejected",
-    featured: false
-  }
-];
+import { mockPrompts } from "@/lib/mockData";
 
 export default function AdminPromptsQueuePage() {
+  // Map mockPrompts to include status and featured flags for the admin queue
+  const initialPrompts = mockPrompts.map((p, index) => ({
+    ...p,
+    id: p._id,
+    author: p.author.name, // Map object to string for the table
+    date: p.createdAt, // Map createdAt to date
+    status: index % 4 === 0 ? "pending" : index % 3 === 0 ? "rejected" : "approved",
+    featured: index === 2 || index === 5
+  }));
+
   const [prompts, setPrompts] = useState(initialPrompts);
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("all"); // 'all', 'pending', 'approved', 'rejected'
@@ -228,7 +199,7 @@ export default function AdminPromptsQueuePage() {
                           
                           {/* View Action */}
                           <Link 
-                            href={`/prompts/1`} // Assuming ID 1 for preview in UI
+                            href={`/prompts/${prompt.id}`}
                             className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white transition-colors"
                             title="Preview Prompt"
                           >
