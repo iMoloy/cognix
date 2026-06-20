@@ -4,12 +4,28 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 const AuthContext = createContext(null);
 
-const demoUser = {
-  name: "Cognix Creator",
-  email: "creator@cognix.dev",
-  photoURL: "",
-  role: "creator",
-  subscription: "free",
+const MOCK_USERS = {
+  "admin@cognix.com": {
+    name: "Admin User",
+    email: "admin@cognix.com",
+    photoURL: "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin",
+    role: "admin",
+    subscription: "premium",
+  },
+  "creator@cognix.com": {
+    name: "Creator User",
+    email: "creator@cognix.com",
+    photoURL: "https://api.dicebear.com/7.x/avataaars/svg?seed=Creator",
+    role: "creator",
+    subscription: "premium",
+  },
+  "user@cognix.com": {
+    name: "Standard User",
+    email: "user@cognix.com",
+    photoURL: "https://api.dicebear.com/7.x/avataaars/svg?seed=User",
+    role: "user",
+    subscription: "free",
+  }
 };
 
 export function AuthProvider({ children }) {
@@ -38,13 +54,17 @@ export function AuthProvider({ children }) {
 
   const login = (formData) => {
     // Temporary frontend session until backend auth is wired.
-    saveSession(
-      {
-        ...demoUser,
-        email: formData.email,
-      },
-      "frontend-demo-token",
-    );
+    const defaultUser = {
+      name: "Cognix User",
+      email: formData.email,
+      photoURL: "https://api.dicebear.com/7.x/avataaars/svg?seed=" + formData.email,
+      role: "user",
+      subscription: "free",
+    };
+    
+    const matchedUser = MOCK_USERS[formData.email] || defaultUser;
+
+    saveSession(matchedUser, "frontend-demo-token");
   };
 
   const register = (formData) => {
@@ -53,7 +73,7 @@ export function AuthProvider({ children }) {
       {
         name: formData.name,
         email: formData.email,
-        photoURL: formData.photoURL,
+        photoURL: formData.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.name}`,
         role: "user",
         subscription: "free",
       },

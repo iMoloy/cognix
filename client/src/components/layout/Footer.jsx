@@ -67,7 +67,7 @@ export default function Footer() {
           <div className="h-1 w-1 rounded-full bg-white/10"></div>
           <Link href="/register" className="hover:text-emerald-400 transition-colors">Register</Link>
           <div className="h-1 w-1 rounded-full bg-white/10"></div>
-          <Link href="/dashboard" className="hover:text-emerald-400 transition-colors">Demo User</Link>
+          <Link href="/demo" className="hover:text-emerald-400 transition-colors">Demo User</Link>
         </div>
 
       </div>
