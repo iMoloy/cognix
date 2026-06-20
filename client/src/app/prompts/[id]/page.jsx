@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, LockKeyhole, Sparkles, Star, Copy, Eye, BookmarkPlus, CalendarDays, TerminalSquare } from "lucide-react";
 import { motion } from "framer-motion";
 import CopyToClipboard from "@/components/ui/CopyToClipboard";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Mock Data
 const mockPrompt = {
@@ -35,8 +36,12 @@ Follow these rules strictly:
 };
 
 export default function PromptDetailsPage({ params }) {
-  // Toggle for testing UI states easily
-  const [hasAccess, setHasAccess] = useState(false);
+  const { user } = useAuth();
+  const router = useRouter();
+
+  // Dynamic Access Logic
+  const isPremiumUser = user?.subscription === "premium" || user?.role === "admin" || user?.role === "creator";
+  const hasAccess = !mockPrompt.isPremium || isPremiumUser;
 
   return (
     <main className="relative min-h-screen bg-[#030303] selection:bg-emerald-500/30">
@@ -49,7 +54,7 @@ export default function PromptDetailsPage({ params }) {
 
       <div className="relative z-10 mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
         
-        {/* Navigation & Testing Toggle */}
+        {/* Navigation */}
         <div className="mb-10 flex items-center justify-between">
           <Link 
             href="/prompts" 
@@ -58,14 +63,6 @@ export default function PromptDetailsPage({ params }) {
             <ArrowLeft size={16} />
             Back to Marketplace
           </Link>
-
-          {/* Dev Testing Toggle */}
-          <button
-            onClick={() => setHasAccess(!hasAccess)}
-            className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-1.5 text-xs font-bold text-emerald-400 transition-all hover:bg-emerald-500/20"
-          >
-            Test UI: {hasAccess ? "Unlocked" : "Locked"}
-          </button>
         </div>
 
         {/* Main Content Grid */}
@@ -126,7 +123,10 @@ export default function PromptDetailsPage({ params }) {
                     <p className="mt-2 text-center text-sm font-medium text-zinc-400 max-w-xs">
                       This is a highly optimized, battle-tested prompt. Unlock it forever to access the full instruction payload.
                     </p>
-                    <button className="mt-8 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-8 py-3.5 text-sm font-bold text-zinc-950 shadow-md transition-all hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(52,211,153,0.25)]">
+                    <button 
+                      onClick={() => router.push("/payment")}
+                      className="mt-8 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-8 py-3.5 text-sm font-bold text-zinc-950 shadow-md transition-all hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(52,211,153,0.25)]"
+                    >
                       Unlock for ${mockPrompt.price}
                     </button>
                   </div>
