@@ -80,16 +80,21 @@ export default function Navbar() {
 
         {/* Action Buttons (Desktop Right) */}
         <div className="hidden items-center gap-4 md:flex">
-          <Link
-            href="/prompts"
-            className="flex size-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-zinc-400 backdrop-blur-md transition-all hover:scale-[1.02] hover:bg-white/10 hover:text-white"
-            aria-label="Search prompts"
-          >
-            <Search size={18} />
-          </Link>
-          
           {isAuthenticated ? (
             <>
+              {/* Profile Image Replacing Search Position */}
+              <Link
+                href="/dashboard/profile"
+                className="group relative"
+                title="View Profile"
+              >
+                <img 
+                  src={user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`} 
+                  alt="Profile" 
+                  className="size-10 rounded-xl border border-white/10 bg-zinc-800 object-cover transition-all group-hover:scale-105 group-hover:border-emerald-500/50"
+                />
+              </Link>
+              
               <Link
                 href="/dashboard"
                 className="flex h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 text-sm font-bold text-white backdrop-blur-md transition-all hover:scale-[1.02] hover:bg-white/10"
@@ -123,17 +128,42 @@ export default function Navbar() {
               </Link>
             </>
           )}
+
+          {/* Search (Far Right) */}
+          <Link
+            href="/prompts"
+            className="ml-2 flex size-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-zinc-400 backdrop-blur-md transition-all hover:scale-[1.02] hover:bg-white/10 hover:text-white"
+            aria-label="Search prompts"
+          >
+            <Search size={18} />
+          </Link>
         </div>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          type="button"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="flex size-10 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 md:hidden backdrop-blur-md"
-          aria-label="Open navigation menu"
-        >
-          {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        {/* Mobile Menu & Profile */}
+        <div className="flex items-center gap-3 md:hidden">
+          {isAuthenticated && (
+            <Link
+              href="/dashboard/profile"
+              onClick={closeMobileMenu}
+              className="group relative"
+            >
+              <img 
+                src={user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`} 
+                alt="Profile" 
+                className="size-10 rounded-xl border border-white/10 bg-zinc-800 object-cover transition-all active:scale-95"
+              />
+            </Link>
+          )}
+          
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="flex size-10 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 backdrop-blur-md transition-all active:scale-95"
+            aria-label="Open navigation menu"
+          >
+            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </nav>
 
       {/* Mobile Menu Dropdown */}
@@ -170,9 +200,23 @@ export default function Navbar() {
                   >
                     <LogOut size={20} /> Logout
                   </button>
-                  <div className="pt-4 border-t border-white/5 text-xs font-semibold text-zinc-500">
-                    Signed in as {user?.email}
-                  </div>
+                  
+                  {/* Mobile Dropdown User Profile Card */}
+                  <Link 
+                    href="/dashboard/profile"
+                    onClick={closeMobileMenu}
+                    className="mt-2 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10"
+                  >
+                    <img 
+                      src={user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`} 
+                      alt="Profile" 
+                      className="size-10 rounded-full border border-white/10 bg-zinc-800 object-cover"
+                    />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-white">{user?.name}</span>
+                      <span className="text-xs font-medium text-zinc-500">{user?.email}</span>
+                    </div>
+                  </Link>
                 </>
               ) : (
                 <div className="flex flex-col gap-3 pt-4 border-t border-white/5">
