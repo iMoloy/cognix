@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { CheckCircle2, CreditCard, ShieldCheck, Lock, ChevronRight, Loader2, Sparkles } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 
 const benefits = [
   "Instant access to all Private / Premium Prompts",
@@ -15,6 +16,7 @@ const benefits = [
 ];
 
 export default function PaymentPage() {
+  const { upgradeToPremium } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -30,6 +32,7 @@ export default function PaymentPage() {
     setTimeout(() => {
       setIsProcessing(false);
       setIsSuccess(true);
+      upgradeToPremium();
     }, 2500);
   };
 

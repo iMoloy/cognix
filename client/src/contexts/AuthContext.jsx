@@ -88,6 +88,13 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const upgradeToPremium = () => {
+    if (user) {
+      const newUser = { ...user, subscription: "premium" };
+      saveSession(newUser, token);
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setToken("");
@@ -104,6 +111,7 @@ export function AuthProvider({ children }) {
       login,
       register,
       updateProfile,
+      upgradeToPremium,
       logout,
     }),
     [user, token, loading],
