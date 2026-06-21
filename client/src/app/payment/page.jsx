@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, CreditCard, ShieldCheck, Lock, ChevronRight, Loader2, Sparkles } from "lucide-react";
 import Button from "@/components/ui/Button";
@@ -29,7 +29,7 @@ export default function PaymentPage() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
   // Fetch client secret when component mounts
-  useState(() => {
+  useEffect(() => {
     const fetchClientSecret = async () => {
       try {
         const res = await fetch(`${apiUrl}/api/payments/create-intent`, {
