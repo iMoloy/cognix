@@ -167,6 +167,68 @@ router.patch("/:email", async (req, res) => {
   }
 });
 
+// Toggle Bookmark Prompt (Logged in user)
+router.post("/bookmark", verifyToken, async (req, res) => {
+  try {
+    const email = req.user?.email; // from verifyToken middleware
+    const { promptId } = req.body;
+    
+    if (!email || !promptId) {
+      return res.status(400).send({ message: "Missing email or promptId" });
+    }
+
+    const db = getDatabase();
+    const usersCollection = db.collection("users");
+    const user = await usersCollection.findOne({ email });
+
+    if (!user) return res.status(404).send({ message: "User not found" });
+
+    const bookmarks = user.bookmarks || [];
+    const isBookmarked = bookmarks.includes(promptId);
+
+    let updateDoc;
+    let message = "";
+    if (isBookmarked) {
+      // Remove bookmark
+      updateDoc = { $pull: { bookmarks: promptId } };
+      message = "Bookmark removed";
+    } else {
+      // Add bookmark
+      updateDoc = { $push: { bookmarks: promptId } };
+      message = "Prompt bookmarked";
+    }
+
+    await usersCollection.updateOne({ email }, updateDoc);
+    
+    res.send({ message, isBookmarked: !isBookmarked });
+  } catch (error) {
+    res.status(500).send({ message: "Failed to toggle bookmark", error });
+  }
+});
+
+// Get Bookmarked Prompts
+router.get("/bookmarks/:email", verifyToken, async (req, res) => {
+  try {
+    const email = req.params.email;
+    const db = getDatabase();
+    
+    const user = await db.collection("users").findOne({ email });
+    if (!user) return res.status(404).send({ message: "User not found" });
+
+    const bookmarks = user.bookmarks || [];
+    if (bookmarks.length === 0) return res.send([]);
+
+    const objectIds = bookmarks.map(id => {
+      try { return new ObjectId(id); } catch(e) { return null; }
+    }).filter(Boolean);
+
+    const prompts = await db.collection("prompts").find({ _id: { $in: objectIds } }).toArray();
+    res.send(prompts);
+  } catch (error) {
+    res.status(500).send({ message: "Failed to fetch bookmarks", error });
+  }
+});
+
 // Get All Users (Admin Only)
 router.get("/", verifyToken, verifyAdmin, async (req, res) => {
   try {

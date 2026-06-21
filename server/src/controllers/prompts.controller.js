@@ -74,6 +74,15 @@ export const getPromptById = async (req, res, next) => {
       return res.status(404).json({ message: "Prompt not found" });
     }
     
+    // Fetch reviews for this prompt
+    const reviews = await db.collection("reviews").find({ promptId: id }).sort({ date: -1 }).toArray();
+    prompt.reviews = reviews.map(r => ({
+      id: r._id,
+      user: r.userName || "User",
+      rating: r.rating,
+      text: r.comment
+    }));
+
     res.json(prompt);
   } catch (error) {
     next(error);

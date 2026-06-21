@@ -10,6 +10,8 @@ import promptsRoutes from "./routes/prompts.routes.js";
 import jwtRoutes from "./routes/jwt.routes.js";
 import usersRoutes from "./routes/users.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
+import reviewsRoutes from "./routes/reviews.routes.js";
+import reportsRoutes from "./routes/reports.routes.js";
 
 const app = express();
 
@@ -45,6 +47,8 @@ app.use("/api/prompts", promptsRoutes);
 app.use("/api/jwt", jwtRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/reviews", reviewsRoutes);
+app.use("/api/reports", reportsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

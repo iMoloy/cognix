@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Star, MessageSquare } from "lucide-react";
 import Button from "@/components/ui/Button";
 
-export default function ReviewModal({ isOpen, onClose, promptTitle }) {
+export default function ReviewModal({ isOpen, onClose, promptTitle, onSubmit }) {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [review, setReview] = useState("");
@@ -14,8 +14,9 @@ export default function ReviewModal({ isOpen, onClose, promptTitle }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Simulate API call
-    console.log("Submitted Review:", { rating, review });
+    if (onSubmit) {
+      onSubmit({ rating, review });
+    }
     onClose();
   };
 

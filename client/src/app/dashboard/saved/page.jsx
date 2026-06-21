@@ -3,33 +3,39 @@
 import PromptCard from "@/components/ui/PromptCard";
 import { Bookmark } from "lucide-react";
 
-// Local mock data for saved prompts
-const savedPrompts = [
-  {
-    _id: "1",
-    title: "Next.js API Route Architect",
-    description: "Generate secure, perfectly typed Next.js App Router API endpoints with built-in Zod validation, error handling, and rate limiting.",
-    category: "Architecture",
-    tool: "ChatGPT-4",
-    rating: 4.9,
-    price: 5,
-    author: { name: "Alex Dev", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex" },
-    isPremium: true
-  },
-  {
-    _id: "2",
-    title: "SaaS Landing Page Copywriter",
-    description: "High-converting copy for B2B SaaS landing pages targeting enterprise clients.",
-    category: "Marketing",
-    tool: "Claude 3",
-    rating: 4.8,
-    price: 0,
-    author: { name: "Sarah Copy", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" },
-    isPremium: false
-  }
-];
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function SavedPromptsPage() {
+  const { user } = useAuth();
+  const [savedPrompts, setSavedPrompts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBookmarks = async () => {
+      if (!user?.email) return;
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${apiUrl}/api/users/bookmarks/${user.email}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setSavedPrompts(data);
+        }
+      } catch (e) {
+        console.error("Failed to fetch saved prompts", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBookmarks();
+  }, [user]);
+
+  if (loading) return <div className="text-zinc-400">Loading saved prompts...</div>;
 
   return (
     <div className="space-y-8">

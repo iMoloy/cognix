@@ -10,6 +10,9 @@ import Button from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import ReviewModal from "@/components/ui/ReviewModal";
 import ReportModal from "@/components/ui/ReportModal";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function PromptDetailsPage() {
   const params = useParams();
   const { user, loading } = useAuth();
@@ -20,6 +23,9 @@ export default function PromptDetailsPage() {
 
   const [prompt, setPrompt] = useState(null);
   const [isFetching, setIsFetching] = useState(true);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
   // Auth Protection - Redirect if not logged in
   useEffect(() => {
@@ -43,6 +49,19 @@ export default function PromptDetailsPage() {
           data.instruction = "This is a detailed prompt instruction placeholder. " + data.description;
         }
         setPrompt(data);
+
+        // Check if user has bookmarked this
+        if (user) {
+          try {
+            const userRes = await fetch(`${apiUrl}/api/users/${user.email}`);
+            if (userRes.ok) {
+              const userData = await userRes.json();
+              setIsBookmarked(userData?.bookmarks?.includes(promptId));
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        }
       } catch (error) {
         console.error("Failed to fetch prompt details", error);
       } finally {
@@ -50,7 +69,116 @@ export default function PromptDetailsPage() {
       }
     };
     fetchPrompt();
-  }, [promptId]);
+  }, [promptId, user, apiUrl]);
+
+  const handleCopy = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      
+      // Increment copy count
+      const res = await fetch(`${apiUrl}/api/prompts/${promptId}/copy`, {
+        method: "POST"
+      });
+      if (res.ok) {
+        setPrompt(prev => ({ ...prev, copies: (prev.copies || 0) + 1 }));
+      }
+      toast.success("Prompt copied to clipboard!");
+    } catch (error) {
+      toast.error("Failed to copy prompt.");
+    }
+  };
+
+  const handleBookmark = async () => {
+    if (!user) {
+      toast.error("Please login to bookmark prompts.");
+      router.push("/login");
+      return;
+    }
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${apiUrl}/api/users/bookmark`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ promptId })
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setIsBookmarked(data.isBookmarked);
+        if (data.isBookmarked) {
+          toast.success("Prompt bookmarked");
+        } else {
+          toast.success("Bookmark removed");
+        }
+      } else {
+        toast.error("Failed to toggle bookmark");
+      }
+    } catch (error) {
+      toast.error("Error bookmarking prompt");
+    }
+  };
+
+  const handleReviewSubmit = async ({ rating, review }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${apiUrl}/api/reviews`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          promptId,
+          rating,
+          comment: review,
+          userEmail: user.email,
+          userName: user.displayName || user.name || "User"
+        })
+      });
+      if (res.ok) {
+        toast.success("Review submitted successfully");
+        // Refetch prompt to get new reviews
+        const promptRes = await fetch(`${apiUrl}/api/prompts/${promptId}`);
+        if (promptRes.ok) {
+          const data = await promptRes.json();
+          setPrompt(data);
+        }
+      } else {
+        toast.error("Failed to submit review");
+      }
+    } catch (e) {
+      toast.error("Error submitting review");
+    }
+  };
+
+  const handleReportSubmit = async ({ reason, details }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${apiUrl}/api/reports`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          promptId,
+          reason,
+          description: details,
+          userEmail: user.email
+        })
+      });
+      if (res.ok) {
+        toast.success("Report submitted successfully");
+      } else {
+        toast.error("Failed to submit report");
+      }
+    } catch (e) {
+      toast.error("Error submitting report");
+    }
+  };
 
   // Dynamic Access Logic
   const isPremiumUser = user?.subscription === "premium" || user?.role === "admin" || user?.role === "creator";
@@ -105,6 +233,7 @@ export default function PromptDetailsPage() {
 
   return (
     <main className="relative min-h-screen bg-[#030303] selection:bg-emerald-500/30 pb-20">
+      <ToastContainer theme="dark" />
       
       {/* Dynamic Background Image from Prompt */}
       <div className="pointer-events-none absolute inset-0 z-0 h-[600px] w-full overflow-hidden">
@@ -190,8 +319,8 @@ export default function PromptDetailsPage() {
                 <span className="flex items-center gap-2"><Copy size={16} className="text-zinc-500" /> {prompt.copies} Copies</span>
               </div>
               
-              <Button variant="secondary" className="ml-auto px-5 py-2.5 text-sm">
-                <BookmarkPlus size={18} className="mr-2" /> Save
+              <Button onClick={handleBookmark} variant={isBookmarked ? "primary" : "secondary"} className="ml-auto px-5 py-2.5 text-sm">
+                <BookmarkPlus size={18} className="mr-2" /> {isBookmarked ? "Saved" : "Save"}
               </Button>
             </div>
           </div>
@@ -214,7 +343,11 @@ export default function PromptDetailsPage() {
                   <TerminalSquare size={16} className="text-emerald-400" />
                   Prompt Instruction Payload
                 </div>
-                {hasAccess && <CopyToClipboard text={prompt.instruction} />}
+                {hasAccess && (
+                  <Button variant="ghost" className="h-8 text-xs font-bold" onClick={() => handleCopy(prompt.instruction)}>
+                    <Copy size={14} className="mr-2" /> Copy Prompt
+                  </Button>
+                )}
               </div>
 
               <div className="relative p-6 min-h-[350px]">
@@ -326,12 +459,14 @@ export default function PromptDetailsPage() {
         isOpen={isReviewOpen} 
         onClose={() => setIsReviewOpen(false)} 
         promptTitle={prompt.title} 
+        onSubmit={handleReviewSubmit}
       />
       
       <ReportModal 
         isOpen={isReportOpen} 
         onClose={() => setIsReportOpen(false)} 
         promptTitle={prompt.title} 
+        onSubmit={handleReportSubmit}
       />
     </main>
   );

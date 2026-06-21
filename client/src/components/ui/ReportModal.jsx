@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, AlertTriangle } from "lucide-react";
 import Button from "@/components/ui/Button";
 
-export default function ReportModal({ isOpen, onClose, promptTitle }) {
+export default function ReportModal({ isOpen, onClose, promptTitle, onSubmit }) {
   const [reason, setReason] = useState("");
   const [details, setDetails] = useState("");
 
@@ -13,8 +13,9 @@ export default function ReportModal({ isOpen, onClose, promptTitle }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Simulate API call
-    console.log("Submitted Report:", { reason, details });
+    if (onSubmit) {
+      onSubmit({ reason, details });
+    }
     onClose();
   };
 
