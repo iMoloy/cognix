@@ -100,3 +100,11 @@ input {
   border-bottom-left-radius: 8px !important;
   border-bottom-right-radius: 8px !important;
 }
+
+/* Hide Stripe Developer Test Mode Floating Badge */
+iframe[src*="b.stripecdn.com"],
+div[id^="StripeDOM"] > iframe {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
