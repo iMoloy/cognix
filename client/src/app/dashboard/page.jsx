@@ -60,7 +60,7 @@ export default function DashboardOverviewPage() {
           <img 
             src={user.photoURL} 
             alt={user.name} 
-            className="h-12 w-12 rounded-full border border-white/10 bg-zinc-800 object-cover"
+            className={`h-12 w-12 rounded-full object-cover bg-zinc-800 ${user.subscription === 'premium' ? 'ring-2 ring-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.4)]' : 'border border-white/10'}`}
           />
           <div>
             <div className="font-bold text-white">{user.name}</div>

@@ -112,7 +112,7 @@ export default function ProfilePage() {
                 <img 
                   src={formData.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.name}`} 
                   alt="Profile" 
-                  className="h-32 w-32 rounded-full border-4 border-white/5 bg-zinc-800 object-cover transition-opacity group-hover:opacity-50"
+                  className={`h-32 w-32 rounded-full bg-zinc-800 object-cover transition-opacity group-hover:opacity-50 ${isPremium ? 'border-4 border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.4)]' : 'border-4 border-white/5'}`}
                 />
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                   <Camera size={24} className="text-white" />
