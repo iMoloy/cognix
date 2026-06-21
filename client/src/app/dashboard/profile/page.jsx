@@ -14,11 +14,14 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState({
     name: user?.name || "",
     photoURL: user?.photoURL || "",
+    email: user?.email || "",
+    role: user?.role || "",
   });
 
   if (!user) return null;
 
   const isPremium = user.subscription === "premium";
+  const isAdmin = user.role === "admin";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -111,17 +114,32 @@ export default function ProfilePage() {
                   <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 ml-1">Email Address</label>
                   <input 
                     type="email" 
-                    disabled
-                    value={user.email}
-                    className="h-12 w-full rounded-xl border border-white/5 bg-white/5 px-4 text-sm font-medium text-zinc-500 cursor-not-allowed"
-                    title="Email cannot be changed"
+                    name="email"
+                    disabled={!isAdmin}
+                    value={isAdmin ? formData.email : user.email}
+                    onChange={handleChange}
+                    className={`h-12 w-full rounded-xl border px-4 text-sm font-medium outline-none transition-colors ${isAdmin ? "border-white/10 bg-black/40 text-white focus:border-emerald-500/50" : "border-white/5 bg-white/5 text-zinc-500 cursor-not-allowed"}`}
+                    title={isAdmin ? "" : "Email cannot be changed"}
                   />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 ml-1">Account Role</label>
-                  <div className="h-12 w-full flex items-center rounded-xl border border-white/5 bg-white/5 px-4 text-sm font-medium text-zinc-400 capitalize">
-                    <Shield size={14} className="mr-2 text-emerald-400" /> {user.role}
-                  </div>
+                  {isAdmin ? (
+                    <select 
+                      name="role"
+                      value={formData.role}
+                      onChange={handleChange}
+                      className="h-12 w-full rounded-xl border border-white/10 bg-black/40 px-4 text-sm font-medium text-white outline-none transition-colors focus:border-emerald-500/50 capitalize"
+                    >
+                      <option value="user">user</option>
+                      <option value="creator">creator</option>
+                      <option value="admin">admin</option>
+                    </select>
+                  ) : (
+                    <div className="h-12 w-full flex items-center rounded-xl border border-white/5 bg-white/5 px-4 text-sm font-medium text-zinc-400 capitalize">
+                      <Shield size={14} className="mr-2 text-emerald-400" /> {user.role}
+                    </div>
+                  )}
                 </div>
               </div>
 

@@ -51,15 +51,6 @@ export default function Navbar() {
 
         {/* Action Buttons (Desktop Right) */}
         <div className="hidden items-center gap-4 md:flex">
-          {/* Prompts Button (First item on right side) */}
-          <Button
-            onClick={() => router.push("/prompts")}
-            className="h-9 px-1 text-sm"
-          >
-            Prompts
-            <Search size={16} className="ml-1.5" />
-          </Button>
-
           {isAuthenticated ? (
             <>
               {/* Profile Image */}
@@ -74,6 +65,15 @@ export default function Navbar() {
                   className="size-10 rounded-xl border border-white/10 bg-zinc-800 object-cover transition-all group-hover:scale-105 group-hover:border-emerald-500/50"
                 />
               </Link>
+
+              {/* Prompts Button */}
+              <Button
+                onClick={() => router.push("/prompts")}
+                className="h-9 px-1 text-sm"
+              >
+                Prompts
+                <Search size={16} className="ml-1.5" />
+              </Button>
               
               <Button
                 onClick={() => router.push("/dashboard")}
@@ -91,6 +91,15 @@ export default function Navbar() {
               </Button>
             </>
           ) : (
+            <>
+              {/* Prompts Button */}
+              <Button
+                onClick={() => router.push("/prompts")}
+                className="h-9 px-1 text-sm"
+              >
+                Prompts
+                <Search size={16} className="ml-1.5" />
+              </Button>
               <div className="relative flex h-9 w-36 rounded-xl shadow-sm transition-shadow duration-300 has-[.login-btn:hover]:shadow-[-10px_0_20px_-2px_rgba(52,211,153,0.4)] has-[.register-btn:hover]:shadow-[10px_0_20px_-2px_rgba(52,211,153,0.4)]">
                 
                 {/* Base Green Gradient */}
@@ -122,6 +131,7 @@ export default function Navbar() {
                 </div>
 
               </div>
+            </>
           )}
         </div>
 

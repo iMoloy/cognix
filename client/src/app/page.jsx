@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Bookmark, CheckCircle2, Copy, LockKeyhole, Search, ShieldCheck, Star } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
 
 const promptRows = [
   {
@@ -39,6 +40,7 @@ const workflowItems = [
 ];
 
 export default function Home() {
+  const { isAuthenticated } = useAuth();
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#030303] selection:bg-emerald-500/30">
       
@@ -102,13 +104,15 @@ export default function Home() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center"
             >
-              <Link
-                href="/register"
-                className="group flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-8 text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(52,211,153,0.5)]"
-              >
-                Create account
-                <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />
-              </Link>
+              {!isAuthenticated && (
+                <Link
+                  href="/register"
+                  className="group flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-8 text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(52,211,153,0.5)]"
+                >
+                  Create account
+                  <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />
+                </Link>
+              )}
               <Link
                 href="/prompts"
                 className="flex h-12 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-8 text-sm font-bold text-white backdrop-blur-md transition-all hover:scale-[1.02] hover:bg-white/10"
