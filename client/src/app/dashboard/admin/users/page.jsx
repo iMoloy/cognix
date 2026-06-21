@@ -1,20 +1,76 @@
 "use client";
 
-import { Shield, Trash2, User, UserCheck, MoreVertical } from "lucide-react";
-import { useState } from "react";
-
-const mockUsers = [
-  { _id: "u1", name: "Alex Dev", email: "alex@example.com", role: "admin", joinDate: "Oct 12, 2026" },
-  { _id: "u2", name: "Sarah Copy", email: "sarah@example.com", role: "creator", joinDate: "Oct 24, 2026" },
-  { _id: "u3", name: "John Doe", email: "john@example.com", role: "user", joinDate: "Nov 01, 2026" },
-  { _id: "u4", name: "Emma Smith", email: "emma@example.com", role: "user", joinDate: "Nov 05, 2026" }
-];
+import { Shield, Trash2, User, UserCheck, MoreVertical, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function AllUsersPage() {
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { token } = useAuth();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-  const handleRoleChange = (userId, newRole) => {
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/users`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch users", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (token) fetchUsers();
+  }, [token]);
+
+  const handleRoleChange = async (userId, newRole) => {
+    // Optimistic UI update
+    const prevUsers = [...users];
     setUsers(users.map(u => u._id === userId ? { ...u, role: newRole } : u));
+    
+    try {
+      const res = await fetch(`${API_URL}/api/users/role/${userId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ role: newRole })
+      });
+      
+      if (!res.ok) throw new Error("Failed to update role");
+    } catch (error) {
+      console.error(error);
+      setUsers(prevUsers); // Revert on failure
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+    
+    try {
+      const res = await fetch(`${API_URL}/api/users/${userId}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      
+      if (res.ok) {
+        setUsers(users.filter(u => u._id !== userId));
+      }
+    } catch (error) {
+      console.error("Failed to delete user", error);
+    }
   };
 
   return (
@@ -37,7 +93,21 @@ export default function AllUsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {users.map((user) => (
+              {isLoading ? (
+                <tr>
+                  <td colSpan="5" className="px-6 py-10 text-center text-zinc-500">
+                    <Loader2 className="mx-auto h-6 w-6 animate-spin mb-2" />
+                    Loading users...
+                  </td>
+                </tr>
+              ) : users.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="px-6 py-10 text-center text-zinc-500">
+                    No users found.
+                  </td>
+                </tr>
+              ) : (
+                users.map((user) => (
                 <tr key={user._id} className="transition-colors hover:bg-white/[0.02]">
                   <td className="whitespace-nowrap px-6 py-5">
                     <div className="flex items-center gap-3">
@@ -66,10 +136,11 @@ export default function AllUsersPage() {
                     </select>
                   </td>
                   <td className="whitespace-nowrap px-6 py-5 text-xs text-zinc-500">
-                    {user.joinDate}
+                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
                   </td>
                   <td className="whitespace-nowrap px-6 py-5 text-right">
                     <button 
+                      onClick={() => handleDeleteUser(user._id)}
                       title="Delete User"
                       className="flex h-8 w-8 ml-auto items-center justify-center rounded-lg bg-white/5 text-zinc-400 transition-colors hover:bg-red-500/10 hover:text-red-400"
                     >
@@ -77,7 +148,7 @@ export default function AllUsersPage() {
                     </button>
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>
