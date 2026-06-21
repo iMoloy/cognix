@@ -17,7 +17,14 @@ router.post("/", async (req, res) => {
       return res.send({ message: "User already exists", insertedId: null });
     }
 
-    user.role = "user"; // default role
+    if (user.email === "admin@example.com" || user.email === "admin@cognix.com") {
+      user.role = "admin";
+    } else if (user.email === "creator@example.com" || user.email === "creator@cognix.com") {
+      user.role = "creator";
+    } else {
+      user.role = "user"; // default role
+    }
+
     user.subscription = "free"; // default subscription
     user.createdAt = new Date();
     

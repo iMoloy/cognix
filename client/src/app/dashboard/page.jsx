@@ -4,14 +4,11 @@ import { motion } from "framer-motion";
 import { Key, Bookmark, WalletCards, ArrowRight, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import PromptCard from "@/components/ui/PromptCard";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Mock Data for Dashboard
-const mockUser = {
-  name: "Sarah Developer",
-  email: "sarah@example.com",
-  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+const mockStats = {
   joinDate: "June 2026",
-  plan: "Pro Builder",
   stats: {
     unlocked: 12,
     saved: 45,
@@ -45,28 +42,32 @@ const mockRecentActivity = [
 ];
 
 export default function DashboardOverviewPage() {
+  const { user } = useAuth();
+
+  if (!user) return null;
+
   return (
     <div className="space-y-8">
       
       {/* Header & Profile */}
       <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white">Welcome back, {mockUser.name.split(" ")[0]}</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">Welcome back, {user.name.split(" ")[0]}</h1>
           <p className="mt-2 text-zinc-400">Here's what's happening with your prompt engineering arsenal.</p>
         </div>
         
         <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-zinc-900/40 p-4 backdrop-blur-xl">
           <img 
-            src={mockUser.avatar} 
-            alt={mockUser.name} 
-            className="h-12 w-12 rounded-full border border-white/10 bg-zinc-800"
+            src={user.photoURL} 
+            alt={user.name} 
+            className="h-12 w-12 rounded-full border border-white/10 bg-zinc-800 object-cover"
           />
           <div>
-            <div className="font-bold text-white">{mockUser.name}</div>
+            <div className="font-bold text-white">{user.name}</div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-zinc-400">Member since {mockUser.joinDate}</span>
+              <span className="text-xs font-medium text-zinc-400">Member since {mockStats.joinDate}</span>
               <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
-                {mockUser.plan}
+                {user.subscription}
               </span>
             </div>
           </div>
@@ -87,7 +88,7 @@ export default function DashboardOverviewPage() {
             </div>
             <div>
               <p className="text-sm font-bold text-zinc-500">Unlocked Prompts</p>
-              <h3 className="text-2xl font-extrabold text-white">{mockUser.stats.unlocked}</h3>
+              <h3 className="text-2xl font-extrabold text-white">{mockStats.stats.unlocked}</h3>
             </div>
           </div>
         </motion.div>
@@ -104,7 +105,7 @@ export default function DashboardOverviewPage() {
             </div>
             <div>
               <p className="text-sm font-bold text-zinc-500">Saved to Library</p>
-              <h3 className="text-2xl font-extrabold text-white">{mockUser.stats.saved}</h3>
+              <h3 className="text-2xl font-extrabold text-white">{mockStats.stats.saved}</h3>
             </div>
           </div>
         </motion.div>
@@ -121,7 +122,7 @@ export default function DashboardOverviewPage() {
             </div>
             <div>
               <p className="text-sm font-bold text-zinc-500">Total Spend</p>
-              <h3 className="text-2xl font-extrabold text-white">${mockUser.stats.spend}</h3>
+              <h3 className="text-2xl font-extrabold text-white">${mockStats.stats.spend}</h3>
             </div>
           </div>
         </motion.div>
