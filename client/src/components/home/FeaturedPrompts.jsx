@@ -16,7 +16,8 @@ export default function FeaturedPrompts() {
         const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
         const response = await axios.get(`${API_URL}/api/prompts`);
         // Sort by copies descending and take top 6
-        const sortedPrompts = response.data.sort((a, b) => (b.copies || 0) - (a.copies || 0)).slice(0, 6);
+        const promptsArray = response.data.prompts || response.data || [];
+        const sortedPrompts = promptsArray.sort((a, b) => (b.copies || 0) - (a.copies || 0)).slice(0, 6);
         setPrompts(sortedPrompts);
       } catch (error) {
         console.error("Failed to fetch prompts:", error);

@@ -3,9 +3,54 @@ import { ObjectId } from "mongodb";
 
 export const getPrompts = async (req, res, next) => {
   try {
+    const { search, category, tool, sort, page = 1, limit = 10 } = req.query;
     const db = getDatabase();
-    const prompts = await db.collection("prompts").find({}).sort({ createdAt: -1 }).toArray();
-    res.json(prompts);
+    
+    // Build filter query
+    const query = {};
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } }
+      ];
+    }
+    if (category) {
+      // Support array if multiple passed, or comma separated
+      const categories = Array.isArray(category) ? category : category.split(",");
+      query.category = { $in: categories };
+    }
+    if (tool) {
+      const tools = Array.isArray(tool) ? tool : tool.split(",");
+      query.tool = { $in: tools };
+    }
+
+    // Build sort options
+    let sortOptions = { createdAt: -1 };
+    if (sort === "Most Copied") sortOptions = { copies: -1 };
+    if (sort === "Highest Rated") sortOptions = { rating: -1 };
+    if (sort === "Newest") sortOptions = { createdAt: -1 };
+
+    // Pagination
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const limitNum = Math.max(1, parseInt(limit) || 10);
+    const skip = (pageNum - 1) * limitNum;
+    
+    const prompts = await db.collection("prompts")
+      .find(query)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(limitNum)
+      .toArray();
+
+    const totalPrompts = await db.collection("prompts").countDocuments(query);
+    const totalPages = Math.ceil(totalPrompts / limitNum);
+
+    res.json({
+      prompts,
+      totalPages,
+      currentPage: pageNum,
+      totalPrompts
+    });
   } catch (error) {
     next(error);
   }

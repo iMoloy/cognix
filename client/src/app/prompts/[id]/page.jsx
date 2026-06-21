@@ -175,13 +175,13 @@ export default function PromptDetailsPage() {
             <div className="flex flex-wrap items-center gap-6 pt-4">
               <div className="flex items-center gap-3 pr-6 border-r border-white/10">
                 <img 
-                  src={prompt.author.avatar} 
-                  alt={prompt.author.name} 
-                  className="h-10 w-10 rounded-full border border-white/10 bg-zinc-800"
+                  src={prompt.creatorImage || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(prompt.creatorName || 'user')}`} 
+                  alt={prompt.creatorName} 
+                  className="h-10 w-10 rounded-full border border-white/10 bg-zinc-800 object-cover"
                 />
                 <div>
-                  <h3 className="text-sm font-bold text-white">{prompt.author.name}</h3>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">{prompt.author.role}</p>
+                  <h3 className="text-sm font-bold text-white">{prompt.creatorName}</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">AI Prompt Creator</p>
                 </div>
               </div>
 
@@ -268,7 +268,7 @@ export default function PromptDetailsPage() {
                 </Button>
               </div>
 
-              {prompt.reviews.length === 0 ? (
+              {(!prompt.reviews || prompt.reviews.length === 0) ? (
                 <p className="text-sm text-zinc-500 italic">No reviews yet.</p>
               ) : (
                 <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
