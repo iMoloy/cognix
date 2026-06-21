@@ -6,6 +6,7 @@ import PromptCard from "@/components/ui/PromptCard";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function CreatorDetailsPage() {
   const params = useParams();
@@ -22,6 +23,7 @@ export default function CreatorDetailsPage() {
         setCreator(response.data);
       } catch (error) {
         console.error("Failed to fetch creator details:", error);
+        toast.error("Failed to fetch creator details");
       } finally {
         setLoading(false);
       }

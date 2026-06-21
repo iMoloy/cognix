@@ -3,6 +3,8 @@ import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import FloatingPremiumButton from "@/components/ui/FloatingPremiumButton";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,6 +34,7 @@ export default function RootLayout({ children }) {
           <div className="flex flex-1 flex-col">{children}</div>
           <Footer />
           <FloatingPremiumButton />
+          <ToastContainer theme="dark" position="bottom-right" />
         </AuthProvider>
       </body>
     </html>

@@ -8,13 +8,13 @@ import Button from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { uploadImage } from "@/utils/uploadImage";
+import { toast } from "react-toastify";
 
 export default function RegisterForm() {
   const router = useRouter();
   const { register, googleSignIn } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [photoFile, setPhotoFile] = useState(null);
   const [imageMode, setImageMode] = useState("local"); // "local" or "url"
   const [formData, setFormData] = useState({
@@ -38,7 +38,6 @@ export default function RegisterForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
-    setError("");
     try {
       let photoURL = "";
       if (imageMode === "local" && photoFile) {
@@ -47,31 +46,27 @@ export default function RegisterForm() {
         photoURL = formData.photoURL;
       }
       await register({ ...formData, photoURL });
+      toast.success("Account created successfully!");
       router.push("/dashboard");
     } catch (err) {
-      setError(err.message || "Failed to create account. Please try again.");
+      toast.error(err.message || "Failed to create account. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
-    setError("");
     try {
       await googleSignIn();
+      toast.success("Logged in with Google!");
       router.push("/dashboard");
     } catch (err) {
-      setError("Google sign-in failed.");
+      toast.error("Google sign-in failed.");
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {error && (
-        <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
-          {error}
-        </div>
-      )}
       <div className="space-y-2">
         <label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-zinc-400">
           Full Name

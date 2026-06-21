@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import { uploadImage } from "@/utils/uploadImage";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "react-toastify";
 
 export default function AddPromptPage() {
   const [dragActive, setDragActive] = useState(false);
@@ -64,7 +65,7 @@ export default function AddPromptPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user || !token) {
-      alert("You must be logged in.");
+      toast.error("You must be logged in.");
       return;
     }
 
@@ -109,10 +110,11 @@ export default function AddPromptPage() {
 
       if (!res.ok) throw new Error("Failed to submit prompt");
 
+      toast.success("Prompt submitted successfully and is pending review!");
       router.push("/dashboard/my-prompts");
     } catch (error) {
       console.error(error);
-      alert("Failed to submit prompt");
+      toast.error("Failed to submit prompt");
     } finally {
       setIsSubmitting(false);
     }

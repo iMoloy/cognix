@@ -7,6 +7,7 @@ import PromptCard from "@/components/ui/PromptCard";
 import PromptCardSkeleton from "@/components/ui/PromptCardSkeleton";
 import { motion } from "framer-motion";
 import Button from "@/components/ui/Button";
+import { toast } from "react-toastify";
 
 function MarketplaceContent() {
   const searchParams = useSearchParams();
@@ -53,6 +54,7 @@ function MarketplaceContent() {
         });
       } catch (error) {
         console.error("Failed to fetch prompts", error);
+        toast.error("Failed to fetch prompts");
       } finally {
         setIsLoading(false);
       }

@@ -10,8 +10,7 @@ import Button from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import ReviewModal from "@/components/ui/ReviewModal";
 import ReportModal from "@/components/ui/ReportModal";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 export default function PromptDetailsPage() {
   const params = useParams();
@@ -233,7 +232,7 @@ export default function PromptDetailsPage() {
 
   return (
     <main className="relative min-h-screen bg-[#030303] selection:bg-emerald-500/30 pb-20">
-      <ToastContainer theme="dark" />
+
       
       {/* Dynamic Background Image from Prompt */}
       <div className="pointer-events-none absolute inset-0 z-0 h-[600px] w-full overflow-hidden">

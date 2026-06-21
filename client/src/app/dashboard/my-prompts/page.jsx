@@ -5,6 +5,7 @@ import { Edit, Trash2, BarChart2, MoreVertical, CheckCircle2, Clock, Loader2, XC
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-toastify";
 
 export default function MyPromptsPage() {
   const [prompts, setPrompts] = useState([]);
@@ -21,9 +22,12 @@ export default function MyPromptsPage() {
       if (res.ok) {
         const data = await res.json();
         setPrompts(data);
+      } else {
+        toast.error("Failed to fetch your prompts");
       }
     } catch (error) {
       console.error("Failed to fetch my prompts", error);
+      toast.error("Failed to fetch your prompts");
     } finally {
       setIsLoading(false);
     }
@@ -42,9 +46,13 @@ export default function MyPromptsPage() {
       });
       if (res.ok) {
         setPrompts(prev => prev.filter(p => p._id !== id));
+        toast.success("Prompt deleted successfully");
+      } else {
+        toast.error("Failed to delete prompt");
       }
     } catch (error) {
       console.error("Failed to delete", error);
+      toast.error("Failed to delete prompt");
     }
   };
 

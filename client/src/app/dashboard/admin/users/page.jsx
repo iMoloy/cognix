@@ -3,6 +3,7 @@
 import { Shield, Trash2, User, UserCheck, MoreVertical, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "react-toastify";
 
 export default function AllUsersPage() {
   const [users, setUsers] = useState([]);
@@ -20,9 +21,12 @@ export default function AllUsersPage() {
       if (res.ok) {
         const data = await res.json();
         setUsers(data);
+      } else {
+        toast.error("Failed to fetch users.");
       }
     } catch (error) {
       console.error("Failed to fetch users", error);
+      toast.error("Failed to fetch users.");
     } finally {
       setIsLoading(false);
     }
@@ -48,8 +52,10 @@ export default function AllUsersPage() {
       });
       
       if (!res.ok) throw new Error("Failed to update role");
+      toast.success("User role updated successfully");
     } catch (error) {
       console.error(error);
+      toast.error("Failed to update user role");
       setUsers(prevUsers); // Revert on failure
     }
   };
@@ -67,9 +73,13 @@ export default function AllUsersPage() {
       
       if (res.ok) {
         setUsers(users.filter(u => u._id !== userId));
+        toast.success("User deleted successfully");
+      } else {
+        toast.error("Failed to delete user");
       }
     } catch (error) {
       console.error("Failed to delete user", error);
+      toast.error("Failed to delete user");
     }
   };
 

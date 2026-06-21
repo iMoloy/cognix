@@ -7,6 +7,7 @@ import { BrainCircuit, LayoutDashboard, LogOut, Menu, X, Search, Sparkles } from
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Button from "@/components/ui/Button";
+import { toast } from "react-toastify";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -16,6 +17,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     logout();
+    toast.success("Logged out successfully");
     router.push("/");
     setIsMobileMenuOpen(false);
   };

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Star, MessageSquare } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
+import { toast } from "react-toastify";
 
 export default function MyReviewsPage() {
   const { user } = useAuth();
@@ -22,9 +23,12 @@ export default function MyReviewsPage() {
         if (res.ok) {
           const data = await res.json();
           setReviews(data);
+        } else {
+          toast.error("Failed to fetch your reviews");
         }
       } catch (error) {
         console.error("Failed to fetch user reviews", error);
+        toast.error("Failed to fetch your reviews");
       } finally {
         setLoading(false);
       }

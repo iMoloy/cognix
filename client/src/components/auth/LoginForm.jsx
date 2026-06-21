@@ -7,6 +7,7 @@ import { LogIn, Eye, EyeOff } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -14,7 +15,6 @@ export default function LoginForm() {
   const { login, googleSignIn } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   
   const [formData, setFormData] = useState({
     email: searchParams.get("email") || "",
@@ -29,34 +29,29 @@ export default function LoginForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
-    setError("");
     try {
       await login(formData);
+      toast.success("Welcome back! Logged in successfully.");
       router.push("/dashboard");
     } catch (err) {
-      setError(err.message || "Failed to login. Check your credentials.");
+      toast.error(err.message || "Failed to login. Check your credentials.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
-    setError("");
     try {
       await googleSignIn();
+      toast.success("Logged in with Google!");
       router.push("/dashboard");
     } catch (err) {
-      setError("Google sign-in failed.");
+      toast.error("Google sign-in failed.");
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
-          {error}
-        </div>
-      )}
       <div className="space-y-2">
         <label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-zinc-400">
           Email Address

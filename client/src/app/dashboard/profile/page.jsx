@@ -6,11 +6,11 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { uploadImage } from "@/utils/uploadImage";
+import { toast } from "react-toastify";
 
 export default function ProfilePage() {
   const { user, updateProfile, loading } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
-  const [successMsg, setSuccessMsg] = useState("");
   const [photoFile, setPhotoFile] = useState(null);
   const [imageMode, setImageMode] = useState("local"); // "local" or "url"
   
@@ -62,7 +62,6 @@ export default function ProfilePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSaving(true);
-    setSuccessMsg("");
     
     try {
       let finalPhotoURL = formData.photoURL;
@@ -75,10 +74,10 @@ export default function ProfilePage() {
       await updateProfile({ ...formData, photoURL: finalPhotoURL });
       
       setIsSaving(false);
-      setSuccessMsg("Profile settings updated successfully!");
-      setTimeout(() => setSuccessMsg(""), 3000);
+      toast.success("Profile settings updated successfully!");
     } catch (err) {
       console.error(err);
+      toast.error(err.message || "Failed to update profile.");
       setIsSaving(false);
     }
   };
@@ -96,11 +95,6 @@ export default function ProfilePage() {
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <User size={18} className="text-emerald-400" /> Identity Details
           </h2>
-          {successMsg && (
-            <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
-              <CheckCircle2 size={14} /> {successMsg}
-            </span>
-          )}
         </div>
         
         <div className="p-8">

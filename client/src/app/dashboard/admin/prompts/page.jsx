@@ -5,6 +5,7 @@ import { CheckCircle, XCircle, Search, Clock, FileText, Eye, Star, Trash2, Loade
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "react-toastify";
 
 export default function AdminPromptsQueuePage() {
   const [prompts, setPrompts] = useState([]);
@@ -31,9 +32,12 @@ export default function AdminPromptsQueuePage() {
           featured: p.featured || false
         }));
         setPrompts(mappedData);
+      } else {
+        toast.error("Failed to fetch prompts");
       }
     } catch (error) {
       console.error("Failed to fetch admin prompts", error);
+      toast.error("Failed to fetch admin prompts");
     } finally {
       setIsLoading(false);
     }
@@ -57,8 +61,10 @@ export default function AdminPromptsQueuePage() {
         body: JSON.stringify({ status: newStatus })
       });
       if (!res.ok) throw new Error("Failed");
+      toast.success(`Prompt marked as ${newStatus}`);
     } catch (error) {
       console.error(error);
+      toast.error("Failed to update prompt status");
       setPrompts(prevPrompts);
     }
   };
@@ -82,8 +88,10 @@ export default function AdminPromptsQueuePage() {
         body: JSON.stringify({ featured: newFeatured })
       });
       if (!res.ok) throw new Error("Failed");
+      toast.success(newFeatured ? "Prompt featured!" : "Prompt unfeatured");
     } catch (error) {
       console.error(error);
+      toast.error("Failed to toggle feature status");
       setPrompts(prevPrompts);
     }
   };
@@ -98,9 +106,13 @@ export default function AdminPromptsQueuePage() {
       });
       if (res.ok) {
         setPrompts(prev => prev.filter(p => p.id !== id));
+        toast.success("Prompt deleted successfully");
+      } else {
+        toast.error("Failed to delete prompt");
       }
     } catch (error) {
       console.error("Failed to delete", error);
+      toast.error("Failed to delete prompt");
     }
   };
 

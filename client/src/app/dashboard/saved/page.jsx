@@ -5,6 +5,7 @@ import { Bookmark } from "lucide-react";
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "react-toastify";
 
 export default function SavedPromptsPage() {
   const { user } = useAuth();
@@ -25,9 +26,12 @@ export default function SavedPromptsPage() {
         if (res.ok) {
           const data = await res.json();
           setSavedPrompts(data);
+        } else {
+          toast.error("Failed to fetch saved prompts");
         }
       } catch (e) {
         console.error("Failed to fetch saved prompts", e);
+        toast.error("Failed to fetch saved prompts");
       } finally {
         setLoading(false);
       }

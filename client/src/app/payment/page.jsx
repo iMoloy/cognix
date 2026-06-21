@@ -6,6 +6,7 @@ import { CheckCircle2, CreditCard, ShieldCheck, Lock, ChevronRight, Loader2, Spa
 import Button from "@/components/ui/Button";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "react-toastify";
 
 const benefits = [
   "Instant access to all Private / Premium Prompts",
@@ -32,6 +33,7 @@ export default function PaymentPage() {
     setTimeout(() => {
       setIsProcessing(false);
       setIsSuccess(true);
+      toast.success("Payment Successful! You are now a Premium user.");
       upgradeToPremium();
     }, 2500);
   };

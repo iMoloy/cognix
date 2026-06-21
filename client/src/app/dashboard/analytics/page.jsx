@@ -5,8 +5,9 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Legend
 } from 'recharts';
-import { Users, FileText, Bookmark, Eye, TrendingUp, Loader2 } from "lucide-react";
+import { Users, FileText, Bookmark, Eye, TrendingUp, Loader2, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "react-toastify";
 
 export default function AnalyticsPage() {
   const { user, token, loading: authLoading } = useAuth();
@@ -53,11 +54,15 @@ export default function AnalyticsPage() {
         } else {
           const errData = await res.json().catch(() => ({}));
           console.error("Failed to fetch analytics", res.status, errData);
-          setError(`Failed to fetch analytics (Status ${res.status})`);
+          const errorMsg = `Failed to fetch analytics (Status ${res.status})`;
+          setError(errorMsg);
+          toast.error(errorMsg);
         }
       } catch (err) {
         console.error("Error fetching analytics:", err);
-        setError("Network error or server unreachable");
+        const errorMsg = "Network error or server unreachable";
+        setError(errorMsg);
+        toast.error(errorMsg);
       } finally {
         setLoading(false);
       }

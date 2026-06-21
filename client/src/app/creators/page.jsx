@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Copy, Star, Award, Search, Filter, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function CreatorsPage() {
   const [creators, setCreators] = useState([]);
@@ -18,6 +19,7 @@ export default function CreatorsPage() {
         setCreators(response.data);
       } catch (error) {
         console.error("Failed to fetch creators:", error);
+        toast.error("Failed to fetch creators");
       } finally {
         setLoading(false);
       }
