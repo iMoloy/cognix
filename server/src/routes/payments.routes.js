@@ -1,6 +1,6 @@
 import express from 'express';
 import { createPaymentIntent, savePaymentSuccess } from '../controllers/payments.controller.js';
-import verifyToken from '../middleware/verifyToken.js';
+import { verifyToken } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
