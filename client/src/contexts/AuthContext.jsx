@@ -123,10 +123,32 @@ export function AuthProvider({ children }) {
   };
 
   const updateProfile = async (updatedData) => {
-    if (user) {
-      setUser((prev) => ({ ...prev, ...updatedData }));
-      // Optional: Send to backend
+    if (!user) return;
+    
+    // 1. Update Firebase Auth Profile
+    if (updatedData.name || updatedData.photoURL !== undefined) {
+      const { currentUser } = auth;
+      if (currentUser) {
+        await updateFirebaseProfile(currentUser, {
+          displayName: updatedData.name || currentUser.displayName,
+          photoURL: updatedData.photoURL !== undefined ? updatedData.photoURL : currentUser.photoURL,
+        });
+      }
     }
+
+    // 2. Update Backend MongoDB
+    try {
+      await fetch(`${API_URL}/api/users/${user.email}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData),
+      });
+    } catch (error) {
+      console.error("Failed to update profile on backend", error);
+    }
+
+    // 3. Update React State
+    setUser((prev) => ({ ...prev, ...updatedData }));
   };
 
   const upgradeToPremium = async () => {

@@ -136,6 +136,37 @@ router.get("/:email", async (req, res) => {
   }
 });
 
+// Update User Profile by Email
+router.patch("/:email", async (req, res) => {
+  try {
+    const email = req.params.email;
+    const { name, photoURL, role } = req.body;
+    const db = getDatabase();
+    const usersCollection = db.collection("users");
+
+    const filter = { email };
+    
+    // Build update document dynamically based on provided fields
+    const updateFields = {};
+    if (name) updateFields.name = name;
+    if (photoURL !== undefined) updateFields.photoURL = photoURL;
+    if (role) updateFields.role = role;
+
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).send({ message: "No fields to update" });
+    }
+
+    const updateDoc = {
+      $set: updateFields
+    };
+    
+    const result = await usersCollection.updateOne(filter, updateDoc);
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({ message: "Failed to update profile", error });
+  }
+});
+
 // Get All Users (Admin Only)
 router.get("/", verifyToken, verifyAdmin, async (req, res) => {
   try {
