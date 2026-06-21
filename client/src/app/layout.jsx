@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
+import FloatingPremiumButton from "@/components/ui/FloatingPremiumButton";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
 
@@ -30,6 +31,7 @@ export default function RootLayout({ children }) {
           <Navbar />
           <div className="flex flex-1 flex-col">{children}</div>
           <Footer />
+          <FloatingPremiumButton />
         </AuthProvider>
       </body>
     </html>

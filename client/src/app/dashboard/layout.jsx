@@ -29,8 +29,8 @@ export default function DashboardLayout({ children }) {
   // Dynamic role-based links
   const getLinks = () => {
     const baseLinks = [
-      { name: "Profile", href: "/dashboard/profile", icon: Settings },
       { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
+      { name: "Profile", href: "/dashboard/profile", icon: Settings },
       { name: "Saved Prompts", href: "/dashboard/saved", icon: Bookmark },
       { name: "My Prompts", href: "/dashboard/my-prompts", icon: FileText },
     ];
@@ -41,8 +41,8 @@ export default function DashboardLayout({ children }) {
 
     if (activeRole === "admin") {
       return [
-        { name: "Profile", href: "/dashboard/profile", icon: Settings },
         { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
+        { name: "Profile", href: "/dashboard/profile", icon: Settings },
         { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
         { name: "Manage Users", href: "/dashboard/admin/users", icon: Users },
         { name: "All Prompts", href: "/dashboard/admin/prompts", icon: FileText },
