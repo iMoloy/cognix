@@ -17,12 +17,13 @@ export const verifyToken = (req, res, next) => {
   });
 };
 
-import User from "../models/user.model.js";
+import { getDatabase } from "../db/client.js";
 
 // Middleware to verify Admin
 export const verifyAdmin = async (req, res, next) => {
   const email = req.decoded.email;
-  const user = await User.findOne({ email });
+  const db = getDatabase();
+  const user = await db.collection("users").findOne({ email });
   const isAdmin = user?.role === "admin";
   
   if (!isAdmin) {
@@ -34,7 +35,8 @@ export const verifyAdmin = async (req, res, next) => {
 // Middleware to verify Creator or Admin
 export const verifyCreator = async (req, res, next) => {
   const email = req.decoded.email;
-  const user = await User.findOne({ email });
+  const db = getDatabase();
+  const user = await db.collection("users").findOne({ email });
   const isCreatorOrAdmin = user?.role === "creator" || user?.role === "admin";
   
   if (!isCreatorOrAdmin) {
