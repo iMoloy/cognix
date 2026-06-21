@@ -169,7 +169,20 @@ export default function PaymentPage() {
               </div>
 
               {clientSecret ? (
-                <Elements stripe={stripePromise} options={{ clientSecret }}>
+                <Elements stripe={stripePromise} options={{ 
+                  clientSecret,
+                  appearance: {
+                    theme: 'night',
+                    variables: {
+                      colorPrimary: '#34d399',
+                      colorBackground: '#18181b',
+                      colorText: '#ffffff',
+                      colorDanger: '#ef4444',
+                      fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+                      borderRadius: '8px',
+                    }
+                  } 
+                }}>
                   <CheckoutForm 
                     onSuccess={handleSuccess} 
                     isProcessing={isProcessing} 
