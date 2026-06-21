@@ -5,6 +5,13 @@ import { ArrowRight, Bookmark, CheckCircle2, Copy, LockKeyhole, Search, ShieldCh
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 
+import FeaturedPrompts from "@/components/home/FeaturedPrompts";
+import WhyChooseUs from "@/components/home/WhyChooseUs";
+import TopCreators from "@/components/home/TopCreators";
+import CustomerReviews from "@/components/home/CustomerReviews";
+import FAQSection from "@/components/home/FAQSection";
+import CTASection from "@/components/home/CTASection";
+
 const promptRows = [
   {
     title: "Product Launch Planner",
@@ -98,6 +105,20 @@ export default function Home() {
               </Link>
             </motion.div>
 
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="mt-4 flex flex-wrap items-center gap-2"
+            >
+              <span className="text-xs text-zinc-500 font-medium mr-2">Trending:</span>
+              {["SaaS Copy", "Next.js", "Midjourney", "React", "SEO"].map((tag) => (
+                <span key={tag} className="cursor-pointer rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold tracking-wider text-zinc-400 transition-colors hover:bg-emerald-500/10 hover:text-emerald-400">
+                  {tag}
+                </span>
+              ))}
+            </motion.div>
+
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -115,9 +136,10 @@ export default function Home() {
               )}
               <Link
                 href="/prompts"
-                className="flex h-12 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-8 text-sm font-bold text-white backdrop-blur-md transition-all hover:scale-[1.02] hover:bg-white/10"
+                className="group flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-8 text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(52,211,153,0.5)]"
               >
                 Browse marketplace
+                <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />
               </Link>
             </motion.div>
 
@@ -258,6 +280,14 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <FeaturedPrompts />
+      <WhyChooseUs />
+      <TopCreators />
+      <CustomerReviews />
+      <FAQSection />
+      <CTASection />
+
     </main>
   );
 }
