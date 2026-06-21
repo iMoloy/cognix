@@ -51,6 +51,23 @@ export default function PaymentPage() {
     }
   }, [token, apiUrl]);
 
+  // Hack to move Stripe test badge to the left side
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const iframes = document.querySelectorAll('iframe');
+      iframes.forEach(iframe => {
+        if (iframe.parentElement) {
+          const parent = iframe.parentElement;
+          if (parent.style.position === 'fixed' && parent.style.right) {
+            parent.style.setProperty('right', 'auto', 'important');
+            parent.style.setProperty('left', '20px', 'important');
+          }
+        }
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleSuccess = async (transactionId) => {
     try {
       const res = await fetch(`${apiUrl}/api/payments/success`, {

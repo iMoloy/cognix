@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 import Button from "@/components/ui/Button";
 import { ShieldCheck, Lock } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function CheckoutForm({ onSuccess, isProcessing, setIsProcessing }) {
+  const { user } = useAuth();
   const stripe = useStripe();
   const elements = useElements();
   const [errorMessage, setErrorMessage] = useState("");
@@ -43,6 +45,12 @@ export default function CheckoutForm({ onSuccess, isProcessing, setIsProcessing 
           options={{ 
             layout: "tabs",
             theme: "night",
+            defaultValues: {
+              billingDetails: {
+                name: user?.name || "",
+                email: user?.email || "",
+              }
+            },
             variables: {
               colorPrimary: '#10b981',
               colorBackground: '#09090b',
