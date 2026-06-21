@@ -17,7 +17,8 @@ export default function CreatorDetailsPage() {
   useEffect(() => {
     const fetchCreatorDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/users/creator/${creatorId}`);
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const response = await axios.get(`${API_URL}/api/users/creator/${creatorId}`);
         setCreator(response.data);
       } catch (error) {
         console.error("Failed to fetch creator details:", error);

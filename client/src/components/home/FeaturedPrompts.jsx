@@ -13,7 +13,8 @@ export default function FeaturedPrompts() {
   useEffect(() => {
     const fetchPrompts = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/prompts");
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const response = await axios.get(`${API_URL}/api/prompts`);
         // Sort by copies descending and take top 6
         const sortedPrompts = response.data.sort((a, b) => (b.copies || 0) - (a.copies || 0)).slice(0, 6);
         setPrompts(sortedPrompts);

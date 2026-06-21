@@ -13,7 +13,8 @@ export default function CreatorsPage() {
   useEffect(() => {
     const fetchCreators = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/users/top-creators");
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const response = await axios.get(`${API_URL}/api/users/top-creators`);
         setCreators(response.data);
       } catch (error) {
         console.error("Failed to fetch creators:", error);
