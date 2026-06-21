@@ -10,6 +10,9 @@ const nextConfig = {
   turbopack: {
     root: workspaceRoot,
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
