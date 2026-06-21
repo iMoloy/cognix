@@ -72,4 +72,41 @@ const savePaymentSuccess = async (req, res) => {
   }
 };
 
-export { createPaymentIntent, savePaymentSuccess };
+// Get Payment History
+const getPaymentHistory = async (req, res) => {
+  try {
+    const { email } = req.params;
+    
+    // Verify that the requested email matches the logged-in user's email
+    if (req.decoded.email !== email) {
+      return res.status(403).json({ message: "Forbidden access to other user's data" });
+    }
+
+    const db = getDatabase();
+    const paymentsCollection = db.collection("payments");
+
+    const payments = await paymentsCollection.find({ email }).sort({ date: -1 }).toArray();
+
+    res.status(200).json(payments);
+  } catch (error) {
+    console.error("Fetch Payment History Error:", error);
+    res.status(500).json({ message: "Failed to fetch payment history", error: error.message });
+  }
+};
+
+// Admin: Get All Payments
+const getAllPayments = async (req, res) => {
+  try {
+    const db = getDatabase();
+    const paymentsCollection = db.collection("payments");
+
+    const payments = await paymentsCollection.find().sort({ date: -1 }).toArray();
+
+    res.status(200).json(payments);
+  } catch (error) {
+    console.error("Fetch All Payments Error:", error);
+    res.status(500).json({ message: "Failed to fetch all payments", error: error.message });
+  }
+};
+
+export { createPaymentIntent, savePaymentSuccess, getPaymentHistory, getAllPayments };

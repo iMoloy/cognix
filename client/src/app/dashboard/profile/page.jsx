@@ -9,10 +9,12 @@ import { uploadImage } from "@/utils/uploadImage";
 import { toast } from "react-toastify";
 
 export default function ProfilePage() {
-  const { user, updateProfile, loading } = useAuth();
+  const { user, token, updateProfile, loading } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [photoFile, setPhotoFile] = useState(null);
   const [imageMode, setImageMode] = useState("local"); // "local" or "url"
+  const [payments, setPayments] = useState([]);
+  const [loadingPayments, setLoadingPayments] = useState(false);
   
   const [formData, setFormData] = useState({
     name: user?.name || "",
@@ -29,8 +31,28 @@ export default function ProfilePage() {
         email: user.email || "",
         role: user.role || "",
       });
+      fetchPayments();
     }
   }, [user]);
+
+  const fetchPayments = async () => {
+    if (!user?.email || !token) return;
+    setLoadingPayments(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const res = await fetch(`${apiUrl}/api/payments/history/${user.email}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPayments(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch payments", err);
+    } finally {
+      setLoadingPayments(false);
+    }
+  };
 
   if (loading || !user) {
     return (
@@ -245,6 +267,54 @@ export default function ProfilePage() {
               <Key size={16} className="transition-transform group-hover:scale-110" />
               Upgrade for $5
             </Link>
+          )}
+        </div>
+      </div>
+
+      {/* Payment History Card */}
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/40 shadow-2xl backdrop-blur-xl">
+        <div className="border-b border-white/5 bg-white/[0.02] px-8 py-6">
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            Payment History
+          </h2>
+        </div>
+        
+        <div className="p-8">
+          {loadingPayments ? (
+            <div className="flex justify-center py-6">
+              <Loader2 className="animate-spin text-emerald-400" />
+            </div>
+          ) : payments.length === 0 ? (
+            <p className="text-sm text-zinc-500 text-center py-6">No payment history found.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm text-zinc-400">
+                <thead className="text-xs uppercase text-zinc-500 bg-white/5">
+                  <tr>
+                    <th className="px-4 py-3 rounded-tl-lg">Date</th>
+                    <th className="px-4 py-3">Transaction ID</th>
+                    <th className="px-4 py-3">Amount</th>
+                    <th className="px-4 py-3 rounded-tr-lg">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {payments.map((payment, i) => (
+                    <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
+                      <td className="px-4 py-3 text-white">
+                        {new Date(payment.date).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3 font-mono text-xs">{payment.transactionId}</td>
+                      <td className="px-4 py-3 font-bold text-emerald-400">${(payment.amount / 100).toFixed(2)}</td>
+                      <td className="px-4 py-3">
+                        <span className="bg-emerald-500/10 text-emerald-400 text-xs px-2 py-1 rounded-md uppercase font-bold">
+                          {payment.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>
