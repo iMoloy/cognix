@@ -12,6 +12,7 @@ import usersRoutes from "./routes/users.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
 import reviewsRoutes from "./routes/reviews.routes.js";
 import reportsRoutes from "./routes/reports.routes.js";
+import paymentsRoutes from "./routes/payments.routes.js";
 
 const app = express();
 
@@ -49,6 +50,7 @@ app.use("/api/users", usersRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/reviews", reviewsRoutes);
 app.use("/api/reports", reportsRoutes);
+app.use("/api/payments", paymentsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

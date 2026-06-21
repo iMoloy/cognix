@@ -7,6 +7,11 @@ import Button from "@/components/ui/Button";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-toastify";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+import CheckoutForm from "@/components/ui/CheckoutForm";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_placeholder");
 
 const benefits = [
   "Instant access to all Private / Premium Prompts",
@@ -17,25 +22,57 @@ const benefits = [
 ];
 
 export default function PaymentPage() {
-  const { upgradeToPremium } = useAuth();
+  const { user, token, upgradeToPremium } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [clientSecret, setClientSecret] = useState("");
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvc, setCvc] = useState("");
+  // Fetch client secret when component mounts
+  useState(() => {
+    const fetchClientSecret = async () => {
+      try {
+        const res = await fetch(`${apiUrl}/api/payments/create-intent`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ price: 500 }), // $5.00
+        });
+        const data = await res.json();
+        setClientSecret(data.clientSecret);
+      } catch (error) {
+        console.error("Failed to fetch payment intent:", error);
+      }
+    };
+    if (token) {
+      fetchClientSecret();
+    }
+  }, [token, apiUrl]);
 
-  const handlePayment = (e) => {
-    e.preventDefault();
-    setIsProcessing(true);
-    
-    // Simulate API call to Stripe
-    setTimeout(() => {
-      setIsProcessing(false);
-      setIsSuccess(true);
-      toast.success("Payment Successful! You are now a Premium user.");
-      upgradeToPremium();
-    }, 2500);
+  const handleSuccess = async (transactionId) => {
+    try {
+      const res = await fetch(`${apiUrl}/api/payments/success`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          email: user?.email,
+          transactionId,
+          amount: 500
+        })
+      });
+      if (res.ok) {
+        setIsSuccess(true);
+        toast.success("Payment Successful! You are now a Premium user.");
+        upgradeToPremium();
+      }
+    } catch (e) {
+      toast.error("Failed to process payment success");
+    }
   };
 
   if (isSuccess) {
@@ -131,113 +168,20 @@ export default function PaymentPage() {
                 </div>
               </div>
 
-              <form onSubmit={handlePayment} className="space-y-6">
-                
-                {/* Email Address */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">Email Address</label>
-                  <input 
-                    type="email" 
-                    required
-                    placeholder="sarah@example.com"
-                    className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-all focus:border-emerald-500/50 focus:bg-white/[0.02]"
+              {clientSecret ? (
+                <Elements stripe={stripePromise} options={{ clientSecret }}>
+                  <CheckoutForm 
+                    onSuccess={handleSuccess} 
+                    isProcessing={isProcessing} 
+                    setIsProcessing={setIsProcessing} 
                   />
+                </Elements>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Loader2 className="animate-spin text-emerald-500 mb-4" size={32} />
+                  <p className="text-zinc-400 text-sm">Preparing secure payment...</p>
                 </div>
-
-                {/* Card Number */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">Card Information</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-zinc-500">
-                      <CreditCard size={18} />
-                    </div>
-                    <input 
-                      type="text" 
-                      required
-                      value={cardNumber}
-                      onChange={(e) => {
-                        let val = e.target.value.replace(/\D/g, "").slice(0, 16);
-                        // Optional: Format with spaces for better UX
-                        let formatted = val;
-                        if (val.length > 0) {
-                          formatted = val.match(/.{1,4}/g).join(" ");
-                        }
-                        setCardNumber(formatted);
-                      }}
-                      placeholder="0000 0000 0000 0000"
-                      className="w-full rounded-xl border border-white/10 bg-black/40 py-3 pl-12 pr-4 font-mono text-sm text-white placeholder-zinc-600 outline-none transition-all focus:border-emerald-500/50 focus:bg-white/[0.02]"
-                    />
-                  </div>
-                </div>
-
-                {/* Expiry & CVC */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">Expiry Date</label>
-                    <input 
-                      type="text" 
-                      required
-                      value={expiry}
-                      onChange={(e) => {
-                        let val = e.target.value.replace(/\D/g, "").slice(0, 4);
-                        
-                        if (val.length >= 2) {
-                          let month = parseInt(val.slice(0, 2), 10);
-                          if (month > 12) month = 12;
-                          if (month === 0 && val.length === 2) month = 1;
-                          
-                          let monthStr = month.toString().padStart(2, "0");
-                          val = val.length > 2 ? `${monthStr}${val.slice(2)}` : monthStr;
-                        }
-
-                        let formatted = val;
-                        if (val.length >= 3) {
-                          formatted = `${val.slice(0, 2)}/${val.slice(2, 4)}`;
-                        }
-                        setExpiry(formatted);
-                      }}
-                      placeholder="MM/YY"
-                      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 font-mono text-sm text-white placeholder-zinc-600 outline-none transition-all focus:border-emerald-500/50 focus:bg-white/[0.02]"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">CVC</label>
-                    <input 
-                      type="text" 
-                      required
-                      value={cvc}
-                      onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                      placeholder="123"
-                      className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 font-mono text-sm text-white placeholder-zinc-600 outline-none transition-all focus:border-emerald-500/50 focus:bg-white/[0.02]"
-                    />
-                  </div>
-                </div>
-
-                {/* Name on Card */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-zinc-400">Name on Card</label>
-                  <input 
-                    type="text" 
-                    required
-                    placeholder="Sarah Developer"
-                    className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-all focus:border-emerald-500/50 focus:bg-white/[0.02]"
-                  />
-                </div>
-
-                <div className="pt-4">
-                  <Button 
-                    fullWidth 
-                    isLoading={isProcessing}
-                  >
-                    <ShieldCheck size={18} className="mr-2" />
-                    {isProcessing ? "Processing..." : "Pay $5.00"}
-                  </Button>
-                  <p className="mt-4 text-center text-xs font-medium text-zinc-500 flex items-center justify-center gap-1.5">
-                    <Lock size={10} /> Payments are secure and encrypted.
-                  </p>
-                </div>
-
-              </form>
+              )}
             </div>
           </motion.div>
 
