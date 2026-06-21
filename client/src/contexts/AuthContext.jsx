@@ -1,105 +1,145 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  updateProfile as updateFirebaseProfile 
+} from "firebase/auth";
+import { auth } from "../firebase/firebase.config";
 
 const AuthContext = createContext(null);
-
-const MOCK_USERS = {
-  "admin@cognix.com": {
-    name: "Admin User",
-    email: "admin@cognix.com",
-    photoURL: "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin",
-    role: "admin",
-    subscription: "premium",
-  },
-  "creator@cognix.com": {
-    name: "Creator User",
-    email: "creator@cognix.com",
-    photoURL: "https://api.dicebear.com/7.x/avataaars/svg?seed=Creator",
-    role: "creator",
-    subscription: "premium",
-  },
-  "user@cognix.com": {
-    name: "Standard User",
-    email: "user@cognix.com",
-    photoURL: "https://api.dicebear.com/7.x/avataaars/svg?seed=User",
-    role: "user",
-    subscription: "free",
-  }
-};
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem("cognix_token");
-    const storedUser = localStorage.getItem("cognix_user");
-
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+  // Sync Firebase User with our MongoDB Database and JWT
+  const syncUserWithBackend = async (firebaseUser) => {
+    if (!firebaseUser) {
+      setUser(null);
+      setToken("");
+      localStorage.removeItem("cognix_token");
+      return;
     }
 
-    setLoading(false);
+    const userData = {
+      name: firebaseUser.displayName || "Cognix User",
+      email: firebaseUser.email,
+      photoURL: firebaseUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.email}`,
+    };
+
+    try {
+      // 1. Save or Update User in MongoDB
+      await fetch(`${API_URL}/api/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+
+      // 2. Fetch User Details (Role & Subscription)
+      const res = await fetch(`${API_URL}/api/users/${firebaseUser.email}`);
+      const dbUser = await res.json();
+
+      // 3. Generate JWT Token
+      const jwtRes = await fetch(`${API_URL}/api/jwt`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: firebaseUser.email }),
+      });
+      const jwtData = await jwtRes.json();
+      
+      if (jwtData.token) {
+        setToken(jwtData.token);
+        localStorage.setItem("cognix_token", jwtData.token);
+      }
+
+      // 4. Merge Firebase User with DB details
+      setUser({
+        ...userData,
+        role: dbUser?.role || "user",
+        subscription: dbUser?.subscription || "free",
+      });
+
+    } catch (error) {
+      console.error("Failed to sync user with backend:", error);
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setLoading(true);
+      if (currentUser) {
+        await syncUserWithBackend(currentUser);
+      } else {
+        setUser(null);
+        setToken("");
+        localStorage.removeItem("cognix_token");
+      }
+      setLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
-  const saveSession = (sessionUser, sessionToken) => {
-    setUser(sessionUser);
-    setToken(sessionToken);
-    localStorage.setItem("cognix_user", JSON.stringify(sessionUser));
-    localStorage.setItem("cognix_token", sessionToken);
-  };
-
-  const login = (formData) => {
-    // Temporary frontend session until backend auth is wired.
-    const defaultUser = {
-      name: "Cognix User",
-      email: formData.email,
-      photoURL: "https://api.dicebear.com/7.x/avataaars/svg?seed=" + formData.email,
-      role: "user",
-      subscription: "free",
-    };
-    
-    const matchedUser = MOCK_USERS[formData.email] || defaultUser;
-
-    saveSession(matchedUser, "frontend-demo-token");
-  };
-
-  const register = (formData) => {
-    // Store a local session so protected UI can be built now.
-    saveSession(
-      {
-        name: formData.name,
-        email: formData.email,
-        photoURL: formData.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.name}`,
-        role: "user",
-        subscription: "free",
-      },
-      "frontend-demo-token",
-    );
-  };
-
-  const updateProfile = (updatedData) => {
-    if (user) {
-      const newUser = { ...user, ...updatedData };
-      saveSession(newUser, token);
+  const login = async ({ email, password }) => {
+    setLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const upgradeToPremium = () => {
-    if (user) {
-      const newUser = { ...user, subscription: "premium" };
-      saveSession(newUser, token);
+  const register = async ({ name, email, photoURL, password }) => {
+    setLoading(true);
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      // Update Firebase Profile
+      await updateFirebaseProfile(result.user, {
+        displayName: name,
+        photoURL: photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`
+      });
+      // Trigger sync manually since onAuthStateChanged might fire before profile update
+      await syncUserWithBackend({ ...result.user, displayName: name, photoURL });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    setToken("");
-    localStorage.removeItem("cognix_user");
-    localStorage.removeItem("cognix_token");
+  const googleSignIn = async () => {
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateProfile = async (updatedData) => {
+    if (user) {
+      setUser((prev) => ({ ...prev, ...updatedData }));
+      // Optional: Send to backend
+    }
+  };
+
+  const upgradeToPremium = async () => {
+    if (user) {
+      setUser((prev) => ({ ...prev, subscription: "premium" }));
+      // Optional: Call backend to update subscription
+    }
+  };
+
+  const logout = async () => {
+    setLoading(true);
+    await signOut(auth);
+    setLoading(false);
   };
 
   const value = useMemo(
@@ -110,6 +150,7 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(user && token),
       login,
       register,
+      googleSignIn,
       updateProfile,
       upgradeToPremium,
       logout,
@@ -129,4 +170,3 @@ export function useAuth() {
 
   return context;
 }
-

@@ -10,9 +10,10 @@ import { motion } from "framer-motion";
 
 export default function RegisterForm() {
   const router = useRouter();
-  const { register, login } = useAuth();
+  const { register, googleSignIn } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -28,20 +29,34 @@ export default function RegisterForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-    register(formData);
-    router.push("/dashboard");
+    setError("");
+    try {
+      await register(formData);
+      router.push("/dashboard");
+    } catch (err) {
+      setError(err.message || "Failed to create account. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleGoogleLogin = () => {
-    // Mock Google Login
-    login({ email: "google-user@example.com" });
-    router.push("/dashboard");
+  const handleGoogleLogin = async () => {
+    setError("");
+    try {
+      await googleSignIn();
+      router.push("/dashboard");
+    } catch (err) {
+      setError("Google sign-in failed.");
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {error && (
+        <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+          {error}
+        </div>
+      )}
       <div className="space-y-2">
         <label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-zinc-400">
           Full Name

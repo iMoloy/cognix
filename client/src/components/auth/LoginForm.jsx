@@ -11,9 +11,10 @@ import { motion } from "framer-motion";
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = useAuth();
+  const { login, googleSignIn } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   
   const [formData, setFormData] = useState({
     email: searchParams.get("email") || "",
@@ -28,20 +29,34 @@ export default function LoginForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-    login(formData);
-    router.push("/dashboard");
+    setError("");
+    try {
+      await login(formData);
+      router.push("/dashboard");
+    } catch (err) {
+      setError(err.message || "Failed to login. Check your credentials.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleGoogleLogin = () => {
-    // Mock Google Login
-    login({ email: "google-user@example.com" });
-    router.push("/dashboard");
+  const handleGoogleLogin = async () => {
+    setError("");
+    try {
+      await googleSignIn();
+      router.push("/dashboard");
+    } catch (err) {
+      setError("Google sign-in failed.");
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+          {error}
+        </div>
+      )}
       <div className="space-y-2">
         <label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-zinc-400">
           Email Address
