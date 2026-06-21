@@ -1,47 +1,110 @@
 "use client";
 
-import { useState } from "react";
-import { CheckCircle, XCircle, Search, Clock, FileText, Eye, Star, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { CheckCircle, XCircle, Search, Clock, FileText, Eye, Star, Trash2, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { mockPrompts } from "@/lib/mockData";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function AdminPromptsQueuePage() {
-  // Map mockPrompts to include status and featured flags for the admin queue
-  const initialPrompts = mockPrompts.map((p, index) => ({
-    ...p,
-    id: p._id,
-    author: p.author.name, // Map object to string for the table
-    date: p.createdAt, // Map createdAt to date
-    status: index % 4 === 0 ? "pending" : index % 3 === 0 ? "rejected" : "approved",
-    featured: index === 2 || index === 5
-  }));
-
-  const [prompts, setPrompts] = useState(initialPrompts);
+  const [prompts, setPrompts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filter, setFilter] = useState("all"); // 'all', 'pending', 'approved', 'rejected'
+  const [filter, setFilter] = useState("all");
 
-  const handleStatusChange = (id, newStatus) => {
-    setPrompts(prev => 
-      prev.map(prompt => 
-        prompt.id === id ? { ...prompt, status: newStatus } : prompt
-      )
-    );
-  };
+  const { token } = useAuth();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-  const handleToggleFeature = (id) => {
-    setPrompts(prev => 
-      prev.map(prompt => 
-        prompt.id === id ? { ...prompt, featured: !prompt.featured } : prompt
-      )
-    );
-  };
-
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this prompt?")) {
-      setPrompts(prev => prev.filter(prompt => prompt.id !== id));
+  const fetchPrompts = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/prompts/admin/all`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const mappedData = data.map(p => ({
+          ...p,
+          id: p._id,
+          author: p.author?.name || "Unknown",
+          date: p.createdAt ? new Date(p.createdAt).toLocaleDateString() : "N/A",
+          status: p.status || "approved", // legacy prompts without status are approved
+          featured: p.featured || false
+        }));
+        setPrompts(mappedData);
+      }
+    } catch (error) {
+      console.error("Failed to fetch admin prompts", error);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (token) fetchPrompts();
+  }, [token]);
+
+  const handleStatusChange = async (id, newStatus) => {
+    const prevPrompts = [...prompts];
+    setPrompts(prev => prev.map(p => p.id === id ? { ...p, status: newStatus } : p));
+    
+    try {
+      const res = await fetch(`${API_URL}/api/prompts/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (!res.ok) throw new Error("Failed");
+    } catch (error) {
+      console.error(error);
+      setPrompts(prevPrompts);
+    }
+  };
+
+  const handleToggleFeature = async (id) => {
+    const promptToToggle = prompts.find(p => p.id === id);
+    if (!promptToToggle || promptToToggle.status !== "approved") return;
+
+    const newFeatured = !promptToToggle.featured;
+    const prevPrompts = [...prompts];
+    
+    setPrompts(prev => prev.map(p => p.id === id ? { ...p, featured: newFeatured } : p));
+    
+    try {
+      const res = await fetch(`${API_URL}/api/prompts/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ featured: newFeatured })
+      });
+      if (!res.ok) throw new Error("Failed");
+    } catch (error) {
+      console.error(error);
+      setPrompts(prevPrompts);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this prompt?")) return;
+    
+    try {
+      const res = await fetch(`${API_URL}/api/prompts/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setPrompts(prev => prev.filter(p => p.id !== id));
+      }
+    } catch (error) {
+      console.error("Failed to delete", error);
+    }
+  };
+
+
 
   const filteredPrompts = prompts.filter(prompt => {
     const matchesSearch = prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -124,7 +187,14 @@ export default function AdminPromptsQueuePage() {
             </thead>
             <tbody className="divide-y divide-white/5">
               <AnimatePresence>
-                {filteredPrompts.length === 0 ? (
+                {isLoading ? (
+                  <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    <td colSpan={5} className="px-6 py-16 text-center">
+                      <Loader2 className="mx-auto h-8 w-8 animate-spin text-emerald-500 mb-4" />
+                      <h3 className="text-lg font-bold text-white">Loading Queue...</h3>
+                    </td>
+                  </motion.tr>
+                ) : filteredPrompts.length === 0 ? (
                   <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                     <td colSpan={5} className="px-6 py-16 text-center">
                       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800/50 border border-white/5">

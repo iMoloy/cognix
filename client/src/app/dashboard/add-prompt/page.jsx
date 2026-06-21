@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { UploadCloud, Image as ImageIcon, Send, Sparkles, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import { uploadImage } from "@/utils/uploadImage";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function AddPromptPage() {
   const [dragActive, setDragActive] = useState(false);
@@ -11,6 +13,27 @@ export default function AddPromptPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageMode, setImageMode] = useState("local"); // "local" or "url"
   const [imageURL, setImageURL] = useState("");
+
+  const { user, token } = useAuth();
+  const router = useRouter();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+  // Form State
+  const [formData, setFormData] = useState({
+    title: "",
+    tool: "chatgpt",
+    description: "",
+    instruction: "", // Maps to "Prompt Content"
+    category: "engineering",
+    level: "beginner",
+    visibility: "public",
+    tags: ""
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -40,20 +63,56 @@ export default function AddPromptPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!user || !token) {
+      alert("You must be logged in.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       let finalImageURL = "";
       if (imageMode === "local" && selectedFile) {
         finalImageURL = await uploadImage(selectedFile);
-        console.log("Uploaded Image URL:", finalImageURL);
       } else if (imageMode === "url" && imageURL) {
         finalImageURL = imageURL;
       }
-      // Here you would normally send the rest of the form data to your backend
-      alert("Prompt submitted successfully with image: " + (finalImageURL || "None"));
+
+      // Format payload
+      const tagsArray = formData.tags.split(",").map(t => t.trim()).filter(Boolean);
+      const price = formData.visibility === "private" ? 4.99 : 0; // Simple pricing logic
+
+      const payload = {
+        title: formData.title,
+        tool: formData.tool,
+        description: formData.description,
+        instruction: formData.instruction,
+        category: formData.category,
+        level: formData.level,
+        price,
+        tags: tagsArray,
+        image: finalImageURL || "https://images.unsplash.com/photo-1620712943543-bcc4688e7485", // Fallback image
+        creatorId: user._id,
+        author: {
+          name: user.name,
+          image: user.photoURL || `https://ui-avatars.com/api/?name=${user.name}`
+        }
+      };
+
+      const res = await fetch(`${API_URL}/api/prompts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error("Failed to submit prompt");
+
+      router.push("/dashboard/my-prompts");
     } catch (error) {
       console.error(error);
-      alert("Failed to upload image or submit prompt");
+      alert("Failed to submit prompt");
     } finally {
       setIsSubmitting(false);
     }
@@ -75,13 +134,22 @@ export default function AddPromptPage() {
               <label className="text-sm font-bold text-white">Prompt Title</label>
               <input 
                 type="text" 
+                name="title"
+                required
+                value={formData.title}
+                onChange={handleInputChange}
                 placeholder="e.g., Next.js 14 API Architect"
                 className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition-all focus:border-emerald-500/50 focus:bg-white/[0.02]"
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-bold text-white">AI Tool</label>
-              <select className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-all focus:border-emerald-500/50 appearance-none">
+              <select 
+                name="tool"
+                value={formData.tool}
+                onChange={handleInputChange}
+                className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-all focus:border-emerald-500/50 appearance-none"
+              >
                 <option value="chatgpt" className="bg-zinc-900 text-white">ChatGPT</option>
                 <option value="claude" className="bg-zinc-900 text-white">Claude 3</option>
                 <option value="gemini" className="bg-zinc-900 text-white">Gemini</option>
@@ -95,6 +163,10 @@ export default function AddPromptPage() {
             <label className="text-sm font-bold text-white">Description</label>
             <textarea 
               rows={3}
+              name="description"
+              required
+              value={formData.description}
+              onChange={handleInputChange}
               placeholder="Briefly describe what this prompt does..."
               className="w-full resize-none rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition-all focus:border-emerald-500/50 focus:bg-white/[0.02]"
             />
@@ -110,6 +182,10 @@ export default function AddPromptPage() {
             </label>
             <textarea 
               rows={6}
+              name="instruction"
+              required
+              value={formData.instruction}
+              onChange={handleInputChange}
               placeholder="Paste the actual prompt here..."
               className="w-full resize-y rounded-xl border border-white/10 bg-black/40 px-4 py-3 font-mono text-sm text-white placeholder-zinc-600 outline-none transition-all focus:border-emerald-500/50 focus:bg-black"
             />
@@ -119,7 +195,12 @@ export default function AddPromptPage() {
           <div className="grid gap-6 md:grid-cols-3">
             <div className="space-y-2">
               <label className="text-sm font-bold text-white">Category</label>
-              <select className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-all focus:border-emerald-500/50 appearance-none">
+              <select 
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-all focus:border-emerald-500/50 appearance-none"
+              >
                 <option value="engineering" className="bg-zinc-900 text-white">Engineering</option>
                 <option value="marketing" className="bg-zinc-900 text-white">Marketing</option>
                 <option value="design" className="bg-zinc-900 text-white">Design</option>
@@ -128,7 +209,12 @@ export default function AddPromptPage() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-bold text-white">Difficulty</label>
-              <select className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-all focus:border-emerald-500/50 appearance-none">
+              <select 
+                name="level"
+                value={formData.level}
+                onChange={handleInputChange}
+                className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-all focus:border-emerald-500/50 appearance-none"
+              >
                 <option value="beginner" className="bg-zinc-900 text-white">Beginner</option>
                 <option value="intermediate" className="bg-zinc-900 text-white">Intermediate</option>
                 <option value="pro" className="bg-zinc-900 text-white">Pro</option>
@@ -136,7 +222,12 @@ export default function AddPromptPage() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-bold text-white">Visibility</label>
-              <select className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-all focus:border-emerald-500/50 appearance-none">
+              <select 
+                name="visibility"
+                value={formData.visibility}
+                onChange={handleInputChange}
+                className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-all focus:border-emerald-500/50 appearance-none"
+              >
                 <option value="public" className="bg-zinc-900 text-white">Public (Free)</option>
                 <option value="private" className="bg-zinc-900 text-white">Private (Premium)</option>
               </select>
@@ -148,6 +239,9 @@ export default function AddPromptPage() {
             <label className="text-sm font-bold text-white">Tags (Comma separated)</label>
             <input 
               type="text" 
+              name="tags"
+              value={formData.tags}
+              onChange={handleInputChange}
               placeholder="react, nextjs, typescript..."
               className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition-all focus:border-emerald-500/50 focus:bg-white/[0.02]"
             />
