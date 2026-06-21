@@ -3,12 +3,12 @@
 import { CheckCircle2, Shield, User, Crown, Key, Camera, Save, Loader2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { uploadImage } from "@/utils/uploadImage";
 
 export default function ProfilePage() {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, loading } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [photoFile, setPhotoFile] = useState(null);
@@ -21,7 +21,27 @@ export default function ProfilePage() {
     role: user?.role || "",
   });
 
-  if (!user) return null;
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        photoURL: user.photoURL || "",
+        email: user.email || "",
+        role: user.role || "",
+      });
+    }
+  }, [user]);
+
+  if (loading || !user) {
+    return (
+      <div className="flex h-[60vh] w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 animate-spin text-emerald-400" />
+          <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest animate-pulse">Loading Profile</p>
+        </div>
+      </div>
+    );
+  }
 
   const isPremium = user.subscription === "premium";
   const isAdmin = user.role === "admin";

@@ -64,41 +64,45 @@ export default function TopCreators() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="group relative flex flex-col items-center rounded-2xl border border-white/5 bg-zinc-900/40 p-8 backdrop-blur-sm transition-all hover:border-emerald-500/30 hover:bg-zinc-900/60 hover:-translate-y-2"
             >
-              <div className="absolute top-0 right-0 p-4">
-                <Award size={20} className="text-amber-500 opacity-0 transition-opacity group-hover:opacity-100" />
-              </div>
-              <div className="relative mb-6 h-24 w-24 rounded-full border-2 border-white/10 p-1 transition-all group-hover:border-emerald-400">
-                <img
-                  src={creator.image}
-                  alt={creator.name}
-                  className="h-full w-full rounded-full object-cover"
-                />
-              </div>
-              <h3 className="text-lg font-bold text-zinc-100 group-hover:text-emerald-300 transition-colors">
-                {creator.name}
-              </h3>
-              <p className="mt-1 text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                {creator.role}
-              </p>
-              
-              <div className="mt-6 flex items-center justify-center gap-6 border-t border-white/5 pt-6 w-full">
-                <div className="flex flex-col items-center">
-                  <span className="flex items-center gap-1.5 text-sm font-bold text-zinc-300">
-                    <Copy size={14} className="text-zinc-500" />
-                    {creator.copies}
-                  </span>
-                  <span className="text-[10px] text-zinc-600 uppercase tracking-widest mt-1">Copies</span>
+              <Link
+                href={`/creators/${creator._id}`}
+                className="group relative flex h-full flex-col items-center rounded-2xl border border-white/5 bg-zinc-900/40 p-8 backdrop-blur-sm transition-all hover:border-emerald-500/30 hover:bg-zinc-900/60 hover:-translate-y-2"
+              >
+                <div className="absolute top-0 right-0 p-4">
+                  <Award size={20} className="text-amber-500 opacity-0 transition-opacity group-hover:opacity-100" />
                 </div>
-                <div className="flex flex-col items-center">
-                  <span className="flex items-center gap-1.5 text-sm font-bold text-zinc-300">
-                    <Star size={14} className="text-amber-500" />
-                    {creator.rating}
-                  </span>
-                  <span className="text-[10px] text-zinc-600 uppercase tracking-widest mt-1">Rating</span>
+                <div className="relative mb-6 h-24 w-24 rounded-full border-2 border-white/10 p-1 transition-all group-hover:border-emerald-400">
+                  <img
+                    src={creator.image}
+                    alt={creator.name}
+                    className="h-full w-full rounded-full object-cover"
+                  />
                 </div>
-              </div>
+                <h3 className="text-lg font-bold text-zinc-100 group-hover:text-emerald-300 transition-colors">
+                  {creator.name}
+                </h3>
+                <p className="mt-1 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                  {creator.role}
+                </p>
+                
+                <div className="mt-6 flex items-center justify-center gap-6 border-t border-white/5 pt-6 w-full">
+                  <div className="flex flex-col items-center">
+                    <span className="flex items-center gap-1.5 text-sm font-bold text-zinc-300">
+                      <Copy size={14} className="text-zinc-500" />
+                      {creator.copies}
+                    </span>
+                    <span className="text-[10px] text-zinc-600 uppercase tracking-widest mt-1">Copies</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="flex items-center gap-1.5 text-sm font-bold text-zinc-300">
+                      <Star size={14} className="text-amber-500" />
+                      {creator.rating}
+                    </span>
+                    <span className="text-[10px] text-zinc-600 uppercase tracking-widest mt-1">Rating</span>
+                  </div>
+                </div>
+              </Link>
             </motion.div>
           ))}
         </div>

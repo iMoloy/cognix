@@ -36,23 +36,27 @@ export function AuthProvider({ children }) {
     };
 
     try {
-      // 1. Save or Update User in MongoDB
+      // 1. Start JWT Generation in parallel immediately
+      const jwtPromise = fetch(`${API_URL}/api/jwt`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: firebaseUser.email }),
+      });
+
+      // 2. Save or Update User in MongoDB
       await fetch(`${API_URL}/api/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
       });
 
-      // 2. Fetch User Details (Role & Subscription)
-      const res = await fetch(`${API_URL}/api/users/${firebaseUser.email}`);
-      const dbUser = await res.json();
+      // 3. Fetch User Details & await JWT in parallel
+      const [userRes, jwtRes] = await Promise.all([
+        fetch(`${API_URL}/api/users/${firebaseUser.email}`),
+        jwtPromise
+      ]);
 
-      // 3. Generate JWT Token
-      const jwtRes = await fetch(`${API_URL}/api/jwt`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: firebaseUser.email }),
-      });
+      const dbUser = await userRes.json();
       const jwtData = await jwtRes.json();
       
       if (jwtData.token) {
