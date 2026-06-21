@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { UploadCloud, Image as ImageIcon, Send, Sparkles } from "lucide-react";
+import { UploadCloud, Image as ImageIcon, Send, Sparkles, Loader2 } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { uploadImage } from "@/utils/uploadImage";
 
 export default function AddPromptPage() {
   const [dragActive, setDragActive] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageMode, setImageMode] = useState("local"); // "local" or "url"
+  const [imageURL, setImageURL] = useState("");
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -23,15 +27,35 @@ export default function AddPromptPage() {
     e.stopPropagation();
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      // Mocking image selection
-      setSelectedImage(e.dataTransfer.files[0].name);
+      setSelectedFile(e.dataTransfer.files[0]);
     }
   };
 
   const handleChange = (e) => {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
-      setSelectedImage(e.target.files[0].name);
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      let finalImageURL = "";
+      if (imageMode === "local" && selectedFile) {
+        finalImageURL = await uploadImage(selectedFile);
+        console.log("Uploaded Image URL:", finalImageURL);
+      } else if (imageMode === "url" && imageURL) {
+        finalImageURL = imageURL;
+      }
+      // Here you would normally send the rest of the form data to your backend
+      alert("Prompt submitted successfully with image: " + (finalImageURL || "None"));
+    } catch (error) {
+      console.error(error);
+      alert("Failed to upload image or submit prompt");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -43,7 +67,7 @@ export default function AddPromptPage() {
       </div>
 
       <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl md:p-8">
-        <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-8" onSubmit={handleSubmit}>
           
           {/* Title & AI Tool */}
           <div className="grid gap-6 md:grid-cols-2">
@@ -58,10 +82,10 @@ export default function AddPromptPage() {
             <div className="space-y-2">
               <label className="text-sm font-bold text-white">AI Tool</label>
               <select className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-all focus:border-emerald-500/50 appearance-none">
-                <option value="chatgpt">ChatGPT</option>
-                <option value="claude">Claude 3</option>
-                <option value="gemini">Gemini</option>
-                <option value="midjourney">Midjourney</option>
+                <option value="chatgpt" className="bg-zinc-900 text-white">ChatGPT</option>
+                <option value="claude" className="bg-zinc-900 text-white">Claude 3</option>
+                <option value="gemini" className="bg-zinc-900 text-white">Gemini</option>
+                <option value="midjourney" className="bg-zinc-900 text-white">Midjourney</option>
               </select>
             </div>
           </div>
@@ -96,25 +120,25 @@ export default function AddPromptPage() {
             <div className="space-y-2">
               <label className="text-sm font-bold text-white">Category</label>
               <select className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-all focus:border-emerald-500/50 appearance-none">
-                <option value="engineering">Engineering</option>
-                <option value="marketing">Marketing</option>
-                <option value="design">Design</option>
-                <option value="writing">Writing</option>
+                <option value="engineering" className="bg-zinc-900 text-white">Engineering</option>
+                <option value="marketing" className="bg-zinc-900 text-white">Marketing</option>
+                <option value="design" className="bg-zinc-900 text-white">Design</option>
+                <option value="writing" className="bg-zinc-900 text-white">Writing</option>
               </select>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-bold text-white">Difficulty</label>
               <select className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-all focus:border-emerald-500/50 appearance-none">
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="pro">Pro</option>
+                <option value="beginner" className="bg-zinc-900 text-white">Beginner</option>
+                <option value="intermediate" className="bg-zinc-900 text-white">Intermediate</option>
+                <option value="pro" className="bg-zinc-900 text-white">Pro</option>
               </select>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-bold text-white">Visibility</label>
               <select className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-all focus:border-emerald-500/50 appearance-none">
-                <option value="public">Public (Free)</option>
-                <option value="private">Private (Premium)</option>
+                <option value="public" className="bg-zinc-900 text-white">Public (Free)</option>
+                <option value="private" className="bg-zinc-900 text-white">Private (Premium)</option>
               </select>
             </div>
           </div>
@@ -131,50 +155,73 @@ export default function AddPromptPage() {
 
           {/* Thumbnail Image Upload */}
           <div className="space-y-2">
-            <label className="text-sm font-bold text-white">Thumbnail Image</label>
-            <div 
-              className={`relative flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-10 transition-all ${
-                dragActive ? "border-emerald-400 bg-emerald-500/5" : "border-zinc-700 bg-black/20 hover:border-emerald-500/30 hover:bg-white/[0.02]"
-              }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-            >
-              <input 
-                type="file" 
-                accept="image/*"
-                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                onChange={handleChange}
-              />
-              
-              {selectedImage ? (
-                <div className="flex flex-col items-center gap-2 text-emerald-400">
-                  <ImageIcon size={40} className="opacity-80" />
-                  <span className="text-sm font-bold">{selectedImage}</span>
-                  <span className="text-xs text-emerald-500/70">Click or drag to replace</span>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center gap-3 text-zinc-400">
-                  <div className="rounded-full bg-white/5 p-4 ring-1 ring-white/10">
-                    <UploadCloud size={32} />
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm font-bold text-white">Click to upload or drag and drop</p>
-                    <p className="mt-1 text-xs text-zinc-500">SVG, PNG, JPG or GIF (max. 2MB)</p>
-                  </div>
-                </div>
-              )}
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-bold text-white">Thumbnail Image</label>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setImageMode("local")} className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase transition-colors ${imageMode === "local" ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-zinc-500 hover:text-zinc-300"}`}>Upload</button>
+                <button type="button" onClick={() => setImageMode("url")} className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase transition-colors ${imageMode === "url" ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-zinc-500 hover:text-zinc-300"}`}>URL</button>
+              </div>
             </div>
+            
+            {imageMode === "local" ? (
+              <div 
+                className={`relative flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-10 transition-all ${
+                  dragActive ? "border-emerald-400 bg-emerald-500/5" : "border-zinc-700 bg-black/20 hover:border-emerald-500/30 hover:bg-white/[0.02]"
+                }`}
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+              >
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                  onChange={handleChange}
+                />
+                
+                {selectedFile ? (
+                  <div className="flex flex-col items-center gap-2 text-emerald-400">
+                    <img 
+                      src={URL.createObjectURL(selectedFile)} 
+                      alt="Preview" 
+                      className="h-20 w-20 object-cover rounded-lg border border-emerald-500/30"
+                    />
+                    <span className="text-sm font-bold truncate max-w-[200px]">{selectedFile.name}</span>
+                    <span className="text-xs text-emerald-500/70">Click or drag to replace</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-3 text-zinc-400">
+                    <div className="rounded-full bg-white/5 p-4 ring-1 ring-white/10">
+                      <UploadCloud size={32} />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-bold text-white">Click to upload or drag and drop</p>
+                      <p className="mt-1 text-xs text-zinc-500">SVG, PNG, JPG or GIF (max. 2MB)</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <input 
+                type="url" 
+                value={imageURL}
+                onChange={(e) => setImageURL(e.target.value)}
+                placeholder="https://example.com/thumbnail.jpg"
+                className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition-all focus:border-emerald-500/50 focus:bg-white/[0.02]"
+              />
+            )}
           </div>
 
           {/* Submit Button */}
           <div className="pt-4 border-t border-white/10">
             <Button 
+              type="submit"
+              isLoading={isSubmitting}
               className="w-full sm:w-auto px-10 py-4 text-base"
             >
               <Send size={18} className="mr-2" />
-              Submit Prompt for Review
+              {isSubmitting ? "Uploading..." : "Submit Prompt for Review"}
             </Button>
             <p className="mt-3 text-xs text-zinc-500">
               By submitting, you agree to our prompt quality guidelines. Approvals usually take 24 hours.

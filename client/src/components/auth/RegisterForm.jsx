@@ -7,6 +7,7 @@ import { UserPlus, Eye, EyeOff } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
+import { uploadImage } from "@/utils/uploadImage";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -14,6 +15,8 @@ export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [photoFile, setPhotoFile] = useState(null);
+  const [imageMode, setImageMode] = useState("local"); // "local" or "url"
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -26,12 +29,24 @@ export default function RegisterForm() {
     setFormData((current) => ({ ...current, [name]: value }));
   };
 
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setPhotoFile(e.target.files[0]);
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
     setError("");
     try {
-      await register(formData);
+      let photoURL = "";
+      if (imageMode === "local" && photoFile) {
+        photoURL = await uploadImage(photoFile);
+      } else if (imageMode === "url" && formData.photoURL) {
+        photoURL = formData.photoURL;
+      }
+      await register({ ...formData, photoURL });
       router.push("/dashboard");
     } catch (err) {
       setError(err.message || "Failed to create account. Please try again.");
@@ -90,18 +105,45 @@ export default function RegisterForm() {
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="photoURL" className="text-xs font-bold uppercase tracking-widest text-zinc-400">
-          Photo URL <span className="text-zinc-600">(Optional)</span>
-        </label>
-        <input
-          id="photoURL"
-          name="photoURL"
-          type="url"
-          value={formData.photoURL}
-          onChange={handleChange}
-          className="h-12 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-medium text-white outline-none backdrop-blur-md transition-all placeholder:text-zinc-600 focus:border-emerald-500/50 focus:bg-white/10 focus:shadow-[0_0_20px_rgba(52,211,153,0.15)]"
-          placeholder="https://example.com/avatar.jpg"
-        />
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+            Profile Picture <span className="text-zinc-600">(Optional)</span>
+          </label>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setImageMode("local")} className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase transition-colors ${imageMode === "local" ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-zinc-500 hover:text-zinc-300"}`}>Upload</button>
+            <button type="button" onClick={() => setImageMode("url")} className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase transition-colors ${imageMode === "url" ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-zinc-500 hover:text-zinc-300"}`}>URL</button>
+          </div>
+        </div>
+        
+        {imageMode === "local" ? (
+          <div className="flex items-center gap-4">
+            {photoFile && (
+              <img 
+                src={URL.createObjectURL(photoFile)} 
+                alt="Preview" 
+                className="w-12 h-12 rounded-full object-cover border-2 border-emerald-500/30"
+              />
+            )}
+            <input
+              id="photoFile"
+              name="photoFile"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="block w-full text-sm text-zinc-400 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/10 file:text-emerald-400 hover:file:bg-emerald-500/20 transition-all cursor-pointer bg-white/5 border border-white/10 rounded-xl"
+            />
+          </div>
+        ) : (
+          <input
+            id="photoURL"
+            name="photoURL"
+            type="url"
+            value={formData.photoURL}
+            onChange={handleChange}
+            className="h-12 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-medium text-white outline-none backdrop-blur-md transition-all placeholder:text-zinc-600 focus:border-emerald-500/50 focus:bg-white/10 focus:shadow-[0_0_20px_rgba(52,211,153,0.15)]"
+            placeholder="https://example.com/avatar.jpg"
+          />
+        )}
       </div>
 
       <div className="space-y-2">

@@ -5,11 +5,14 @@ import Button from "@/components/ui/Button";
 import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { uploadImage } from "@/utils/uploadImage";
 
 export default function ProfilePage() {
   const { user, updateProfile } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  const [photoFile, setPhotoFile] = useState(null);
+  const [imageMode, setImageMode] = useState("local"); // "local" or "url"
   
   const [formData, setFormData] = useState({
     name: user?.name || "",
@@ -28,17 +31,36 @@ export default function ProfilePage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setPhotoFile(e.target.files[0]);
+      // Show local preview immediately
+      setFormData(prev => ({ ...prev, photoURL: URL.createObjectURL(e.target.files[0]) }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSaving(true);
     setSuccessMsg("");
     
-    setTimeout(() => {
-      updateProfile(formData);
+    try {
+      let finalPhotoURL = formData.photoURL;
+      if (imageMode === "local" && photoFile) {
+        finalPhotoURL = await uploadImage(photoFile);
+      } else if (imageMode === "url" && formData.photoURL) {
+        finalPhotoURL = formData.photoURL;
+      }
+      
+      await updateProfile({ ...formData, photoURL: finalPhotoURL });
+      
       setIsSaving(false);
       setSuccessMsg("Profile settings updated successfully!");
       setTimeout(() => setSuccessMsg(""), 3000);
-    }, 800);
+    } catch (err) {
+      console.error(err);
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -97,16 +119,32 @@ export default function ProfilePage() {
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 ml-1">Profile Image URL</label>
-                <input 
-                  type="url" 
-                  name="photoURL"
-                  value={formData.photoURL}
-                  onChange={handleChange}
-                  placeholder="https://..."
-                  className="h-12 w-full rounded-xl border border-white/10 bg-black/40 px-4 text-sm font-medium text-white outline-none transition-colors focus:border-emerald-500/50 focus:bg-black/60"
-                />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 ml-1">Profile Image</label>
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => setImageMode("local")} className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase transition-colors ${imageMode === "local" ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-zinc-500 hover:text-zinc-300"}`}>Upload</button>
+                    <button type="button" onClick={() => setImageMode("url")} className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase transition-colors ${imageMode === "url" ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-zinc-500 hover:text-zinc-300"}`}>URL</button>
+                  </div>
+                </div>
+                
+                {imageMode === "local" ? (
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="block w-full text-sm text-zinc-400 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-white/5 file:text-emerald-400 hover:file:bg-white/10 transition-all cursor-pointer border border-white/10 bg-black/40 rounded-xl"
+                  />
+                ) : (
+                  <input 
+                    type="url" 
+                    name="photoURL"
+                    value={formData.photoURL}
+                    onChange={handleChange}
+                    placeholder="https://example.com/avatar.jpg"
+                    className="h-12 w-full rounded-xl border border-white/10 bg-black/40 px-4 text-sm font-medium text-white outline-none transition-colors focus:border-emerald-500/50 focus:bg-black/60"
+                  />
+                )}
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2 pt-2">
@@ -131,9 +169,9 @@ export default function ProfilePage() {
                       onChange={handleChange}
                       className="h-12 w-full rounded-xl border border-white/10 bg-black/40 px-4 text-sm font-medium text-white outline-none transition-colors focus:border-emerald-500/50 capitalize"
                     >
-                      <option value="user">user</option>
-                      <option value="creator">creator</option>
-                      <option value="admin">admin</option>
+                      <option value="user" className="bg-zinc-900 text-white">user</option>
+                      <option value="creator" className="bg-zinc-900 text-white">creator</option>
+                      <option value="admin" className="bg-zinc-900 text-white">admin</option>
                     </select>
                   ) : (
                     <div className="h-12 w-full flex items-center rounded-xl border border-white/5 bg-white/5 px-4 text-sm font-medium text-zinc-400 capitalize">
