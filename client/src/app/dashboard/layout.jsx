@@ -29,25 +29,25 @@ export default function DashboardLayout({ children }) {
   // Dynamic role-based links
   const getLinks = () => {
     const baseLinks = [
+      { name: "Profile", href: "/dashboard/profile", icon: Settings },
       { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
       { name: "Saved Prompts", href: "/dashboard/saved", icon: Bookmark },
       { name: "My Prompts", href: "/dashboard/my-prompts", icon: FileText },
-      { name: "Profile", href: "/dashboard/profile", icon: Settings },
     ];
 
     if (activeRole === "creator") {
-      baseLinks.splice(3, 0, { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 });
+      baseLinks.splice(2, 0, { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 });
     }
 
     if (activeRole === "admin") {
       return [
+        { name: "Profile", href: "/dashboard/profile", icon: Settings },
         { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
         { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
         { name: "Manage Users", href: "/dashboard/admin/users", icon: Users },
         { name: "All Prompts", href: "/dashboard/admin/prompts", icon: FileText },
         { name: "Reported", href: "/dashboard/admin/reports", icon: AlertTriangle },
         { name: "Payments", href: "/dashboard/admin/payments", icon: CreditCard },
-        { name: "Profile", href: "/dashboard/profile", icon: Settings },
       ];
     }
 

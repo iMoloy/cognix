@@ -9,6 +9,7 @@ import healthRoutes from "./routes/health.routes.js";
 import promptsRoutes from "./routes/prompts.routes.js";
 import jwtRoutes from "./routes/jwt.routes.js";
 import usersRoutes from "./routes/users.routes.js";
+import analyticsRoutes from "./routes/analytics.routes.js";
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use("/api/health", healthRoutes);
 app.use("/api/prompts", promptsRoutes);
 app.use("/api/jwt", jwtRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

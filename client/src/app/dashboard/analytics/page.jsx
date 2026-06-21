@@ -1,32 +1,95 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Legend
 } from 'recharts';
-import { Users, FileText, Bookmark, Eye, TrendingUp, Shield } from "lucide-react";
-
-// Mock Data
-const promptGrowthData = [
-  { name: 'Mon', prompts: 4 },
-  { name: 'Tue', prompts: 7 },
-  { name: 'Wed', prompts: 12 },
-  { name: 'Thu', prompts: 18 },
-  { name: 'Fri', prompts: 25 },
-  { name: 'Sat', prompts: 30 },
-  { name: 'Sun', prompts: 42 },
-];
-
-const platformActivityData = [
-  { name: 'Week 1', users: 120, prompts: 45, reviews: 30 },
-  { name: 'Week 2', users: 250, prompts: 80, reviews: 65 },
-  { name: 'Week 3', users: 400, prompts: 150, reviews: 110 },
-  { name: 'Week 4', users: 600, prompts: 220, reviews: 180 },
-];
+import { Users, FileText, Bookmark, Eye, TrendingUp, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function AnalyticsPage() {
-  const [activeRole, setActiveRole] = useState("admin"); // Mock role state for preview
+  const { user, token, loading: authLoading } = useAuth();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Use the actual user role instead of mock state
+  // Fallback to "creator" if user is "creator" or "admin", but here admin is separate.
+  const activeRole = user?.role || "user";
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      // Don't try fetching until auth is completely resolved
+      if (authLoading) return;
+      
+      // If no user or token after auth resolves, we can't fetch
+      if (!user || !token) {
+        setLoading(false);
+        setError("You must be logged in to view analytics.");
+        return;
+      }
+      
+      try {
+        setLoading(true);
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        
+        let url = `${API_URL}/api/analytics`;
+        // If user is creator, fetch their specific stats. If admin, fetch global stats.
+        if (activeRole === "creator") {
+          url += `?creatorId=${user._id}`;
+        }
+
+        const res = await fetch(url, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        if (res.ok) {
+          const result = await res.json();
+          setData(result);
+          setError(null);
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          console.error("Failed to fetch analytics", res.status, errData);
+          setError(`Failed to fetch analytics (Status ${res.status})`);
+        }
+      } catch (err) {
+        console.error("Error fetching analytics:", err);
+        setError("Network error or server unreachable");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalytics();
+  }, [user, token, activeRole, authLoading]);
+
+  if (loading) {
+    return (
+      <div className="flex h-[60vh] w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 animate-spin text-emerald-400" />
+          <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest animate-pulse">Loading Analytics</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="flex h-[60vh] w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/10 text-red-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+          </div>
+          <h2 className="text-xl font-bold text-white">Error Loading Analytics</h2>
+          <p className="text-zinc-400">{error || "No data received from server."}</p>
+        </div>
+      </div>
+    );
+  }
 
   const renderCreatorAnalytics = () => (
     <div className="space-y-8">
@@ -39,10 +102,7 @@ export default function AnalyticsPage() {
               <FileText size={20} />
             </div>
           </div>
-          <p className="mt-4 text-3xl font-black text-white">42</p>
-          <div className="mt-2 flex items-center gap-1 text-xs font-bold text-emerald-400">
-            <TrendingUp size={14} /> +12% from last week
-          </div>
+          <p className="mt-4 text-3xl font-black text-white">{data.totalPrompts || 0}</p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl">
@@ -52,10 +112,7 @@ export default function AnalyticsPage() {
               <Eye size={20} />
             </div>
           </div>
-          <p className="mt-4 text-3xl font-black text-white">1,248</p>
-          <div className="mt-2 flex items-center gap-1 text-xs font-bold text-emerald-400">
-            <TrendingUp size={14} /> +8% from last week
-          </div>
+          <p className="mt-4 text-3xl font-black text-white">{data.totalCopies || 0}</p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl">
@@ -65,19 +122,16 @@ export default function AnalyticsPage() {
               <Bookmark size={20} />
             </div>
           </div>
-          <p className="mt-4 text-3xl font-black text-white">356</p>
-          <div className="mt-2 flex items-center gap-1 text-xs font-bold text-emerald-400">
-            <TrendingUp size={14} /> +24% from last week
-          </div>
+          <p className="mt-4 text-3xl font-black text-white">{data.totalBookmarks || 0}</p>
         </div>
       </div>
 
       {/* Creator Charts */}
       <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl">
-        <h3 className="mb-6 text-lg font-bold text-white">Prompt Growth (Last 7 Days)</h3>
+        <h3 className="mb-6 text-lg font-bold text-white">Prompt Growth (Mocked)</h3>
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={promptGrowthData}>
+            <AreaChart data={data.promptGrowthData || []}>
               <defs>
                 <linearGradient id="colorPrompts" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#34d399" stopOpacity={0.3}/>
@@ -110,10 +164,7 @@ export default function AnalyticsPage() {
               <Users size={20} />
             </div>
           </div>
-          <p className="mt-4 text-3xl font-black text-white">1,842</p>
-          <div className="mt-2 flex items-center gap-1 text-xs font-bold text-emerald-400">
-            <TrendingUp size={14} /> +18% this month
-          </div>
+          <p className="mt-4 text-3xl font-black text-white">{data.totalUsers || 0}</p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl">
@@ -123,10 +174,7 @@ export default function AnalyticsPage() {
               <FileText size={20} />
             </div>
           </div>
-          <p className="mt-4 text-3xl font-black text-white">4,209</p>
-          <div className="mt-2 flex items-center gap-1 text-xs font-bold text-emerald-400">
-            <TrendingUp size={14} /> +32% this month
-          </div>
+          <p className="mt-4 text-3xl font-black text-white">{data.totalPrompts || 0}</p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl">
@@ -136,19 +184,16 @@ export default function AnalyticsPage() {
               <span className="font-bold">$</span>
             </div>
           </div>
-          <p className="mt-4 text-3xl font-black text-white">$4,500</p>
-          <div className="mt-2 flex items-center gap-1 text-xs font-bold text-emerald-400">
-            <TrendingUp size={14} /> +15% this month
-          </div>
+          <p className="mt-4 text-3xl font-black text-white">${data.totalRevenue || 0}</p>
         </div>
       </div>
 
       {/* Admin Charts */}
       <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl">
-        <h3 className="mb-6 text-lg font-bold text-white">Platform Activity Overview</h3>
+        <h3 className="mb-6 text-lg font-bold text-white">Platform Activity Overview (Mocked)</h3>
         <div className="h-[350px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={platformActivityData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+            <BarChart data={data.platformActivityData || []} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
               <XAxis dataKey="name" stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} />
               <YAxis stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} />
@@ -167,6 +212,18 @@ export default function AnalyticsPage() {
     </div>
   );
 
+  if (activeRole === "user") {
+    return (
+      <div className="flex h-[60vh] w-full items-center justify-center">
+        <div className="text-center space-y-4">
+          <Shield className="mx-auto h-12 w-12 text-zinc-500" />
+          <h2 className="text-xl font-bold text-white">Access Denied</h2>
+          <p className="text-zinc-400">You must be a Creator or Admin to view analytics.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -175,20 +232,8 @@ export default function AnalyticsPage() {
           <p className="mt-2 text-zinc-400">Analyze performance and track key metrics.</p>
         </div>
         
-        {/* Local Role Switcher for Analytics Page Demo */}
-        <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/40 p-1 backdrop-blur-md">
-          <button 
-            onClick={() => setActiveRole("creator")}
-            className={`rounded-lg px-4 py-2 text-sm font-bold transition-all ${activeRole === "creator" ? "bg-emerald-500/20 text-emerald-400" : "text-zinc-500 hover:text-emerald-400"}`}
-          >
-            Creator View
-          </button>
-          <button 
-            onClick={() => setActiveRole("admin")}
-            className={`rounded-lg px-4 py-2 text-sm font-bold transition-all ${activeRole === "admin" ? "bg-emerald-500/20 text-emerald-400" : "text-zinc-500 hover:text-emerald-400"}`}
-          >
-            Admin View
-          </button>
+        <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2">
+          <span className="text-sm font-bold text-emerald-400 capitalize">{activeRole} View Active</span>
         </div>
       </div>
 
