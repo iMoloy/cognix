@@ -17,7 +17,7 @@ export default function SavedPromptsPage() {
       if (!user?.email) return;
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("cognix_token");
         const res = await fetch(`${apiUrl}/api/users/bookmarks/${user.email}`, {
           headers: {
             Authorization: `Bearer ${token}`

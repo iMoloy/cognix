@@ -9,6 +9,8 @@ import {
   deletePrompt
 } from "../controllers/prompts.controller.js";
 import { verifyToken, verifyAdmin, verifyCreator } from "../middleware/auth.middleware.js";
+import { ObjectId } from "mongodb";
+import { getDatabase } from "../db/client.js";
 
 const router = Router();
 

@@ -59,12 +59,12 @@ export default function ReportModal({ isOpen, onClose, promptTitle, onSubmit }) 
                 className="w-full rounded-xl border border-white/10 bg-zinc-900/50 px-4 py-3 text-sm text-white outline-none transition-all focus:border-rose-500/50 focus:ring-1 focus:ring-rose-500/50"
                 required
               >
-                <option value="" disabled>Select a reason...</option>
-                <option value="broken">Broken or incorrect instruction</option>
-                <option value="inappropriate">Inappropriate content</option>
-                <option value="spam">Spam or misleading</option>
-                <option value="plagiarism">Plagiarism / Stolen Prompt</option>
-                <option value="other">Other</option>
+                <option value="" disabled className="bg-zinc-900">Select a reason...</option>
+                <option value="broken" className="bg-zinc-900">Broken or incorrect instruction</option>
+                <option value="inappropriate" className="bg-zinc-900">Inappropriate content</option>
+                <option value="spam" className="bg-zinc-900">Spam or misleading</option>
+                <option value="plagiarism" className="bg-zinc-900">Plagiarism / Stolen Prompt</option>
+                <option value="other" className="bg-zinc-900">Other</option>
               </select>
             </div>
 

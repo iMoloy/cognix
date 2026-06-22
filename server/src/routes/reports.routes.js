@@ -57,4 +57,19 @@ router.patch("/:id", verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
+// Delete a report (Dismiss or Admin Action)
+router.delete("/:id", verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const db = getDatabase();
+    const reportsCollection = db.collection("reports");
+    
+    const query = { _id: new ObjectId(id) };
+    const result = await reportsCollection.deleteOne(query);
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({ message: "Failed to delete report", error });
+  }
+});
+
 export default router;

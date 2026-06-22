@@ -170,12 +170,13 @@ export default function MyPromptsPage() {
                       >
                         <BarChart2 size={16} />
                       </Link>
-                      <button 
-                        title="Edit Prompt (Coming Soon)"
-                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-zinc-400 transition-colors hover:bg-emerald-500/10 hover:text-emerald-400 active:scale-95 cursor-not-allowed opacity-50"
+                      <Link 
+                        href={`/dashboard/edit-prompt/${prompt._id}`}
+                        title="Edit Prompt"
+                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-zinc-400 transition-colors hover:bg-emerald-500/10 hover:text-emerald-400 active:scale-95"
                       >
                         <Edit size={16} />
-                      </button>
+                      </Link>
                       <button 
                         onClick={() => handleDelete(prompt._id)}
                         title="Delete Prompt"

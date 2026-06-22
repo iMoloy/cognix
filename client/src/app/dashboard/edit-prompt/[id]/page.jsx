@@ -2,50 +2,56 @@
 
 import { useState } from "react";
 import { UploadCloud, Image as ImageIcon, Send, Sparkles, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Button from "@/components/ui/Button";
 import { uploadImage } from "@/utils/uploadImage";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-toastify";
 
-export default function AddPromptPage() {
+export default function EditPromptPage() {
+  const params = useParams();
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageMode, setImageMode] = useState("local"); // "local" or "url"
   const [imageURL, setImageURL] = useState("");
-  const [limitReached, setLimitReached] = useState(false);
-  const [checkingLimit, setCheckingLimit] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { user, token } = useAuth();
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-  // Check if limit reached
+  // Fetch Existing Prompt Data
   useEffect(() => {
-    const checkLimit = async () => {
-      if (!user || !token) return;
-      const isPremium = user.subscription === "premium" || user.role === "admin";
-      if (isPremium) {
-        setCheckingLimit(false);
-        return;
-      }
+    const fetchPrompt = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/prompts/creator/${user._id}`);
+        const res = await fetch(`${API_URL}/api/prompts/${params.id}`);
         if (res.ok) {
-          const prompts = await res.json();
-          if (prompts.length >= 3) {
-            setLimitReached(true);
-          }
+          const data = await res.json();
+          setFormData({
+            title: data.title || "",
+            tool: data.tool || "chatgpt",
+            description: data.description || "",
+            instruction: data.instruction || "",
+            category: data.category || "engineering",
+            level: data.level || "beginner",
+            visibility: data.price > 0 ? "private" : "public",
+            tags: data.tags ? data.tags.join(", ") : ""
+          });
+          setImageURL(data.image || "");
+          setImageMode("url");
+        } else {
+          toast.error("Failed to load prompt data");
+          router.push("/dashboard/my-prompts");
         }
       } catch (err) {
-        console.error("Failed to check limits", err);
+        console.error(err);
       } finally {
-        setCheckingLimit(false);
+        setIsLoading(false);
       }
     };
-    checkLimit();
-  }, [user, token, API_URL]);
+    if (params.id) fetchPrompt();
+  }, [params.id, API_URL, router]);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -119,16 +125,11 @@ export default function AddPromptPage() {
         level: formData.level,
         price,
         tags: tagsArray,
-        image: finalImageURL || "https://images.unsplash.com/photo-1620712943543-bcc4688e7485", // Fallback image
-        creatorId: user._id,
-        author: {
-          name: user.name,
-          image: user.photoURL || `https://ui-avatars.com/api/?name=${user.name}`
-        }
+        image: finalImageURL || imageURL
       };
 
-      const res = await fetch(`${API_URL}/api/prompts`, {
-        method: "POST",
+      const res = await fetch(`${API_URL}/api/prompts/${params.id}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
@@ -138,14 +139,14 @@ export default function AddPromptPage() {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || "Failed to submit prompt");
+        throw new Error(errData.message || "Failed to update prompt");
       }
 
-      toast.success("Prompt submitted successfully and is pending review!");
+      toast.success("Prompt updated successfully! It is now pending review.");
       router.push("/dashboard/my-prompts");
     } catch (error) {
       console.error(error);
-      toast.error(error.message || "Failed to submit prompt");
+      toast.error(error.message || "Failed to update prompt");
     } finally {
       setIsSubmitting(false);
     }
@@ -154,26 +155,13 @@ export default function AddPromptPage() {
   return (
     <div className="max-w-4xl space-y-8">
       <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-white">Add New Prompt</h1>
-        <p className="mt-2 text-zinc-400">Share your best AI prompts with the community. All submissions are reviewed by moderators.</p>
+        <h1 className="text-3xl font-extrabold tracking-tight text-white">Edit Prompt</h1>
+        <p className="mt-2 text-zinc-400">Update your prompt details. Note: Editing will return the prompt to a 'pending' state for moderation review.</p>
       </div>
 
-      {checkingLimit ? (
+      {isLoading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
-        </div>
-      ) : limitReached ? (
-        <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-8 text-center backdrop-blur-xl">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/20 text-red-500 mb-4">
-            <Sparkles size={32} />
-          </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Limit Reached</h2>
-          <p className="text-zinc-400 mb-6 max-w-md mx-auto">
-            Free users can only submit up to 3 prompts. You have reached your limit. Upgrade to Premium to unlock unlimited submissions and private prompts.
-          </p>
-          <Button onClick={() => router.push("/payment")} className="px-8 py-3 bg-gradient-to-r from-amber-400 to-orange-500 text-black">
-            Upgrade to Premium for $5
-          </Button>
         </div>
       ) : (
       <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl md:p-8">
@@ -366,7 +354,7 @@ export default function AddPromptPage() {
               className="w-full sm:w-auto px-10 py-4 text-base"
             >
               <Send size={18} className="mr-2" />
-              {isSubmitting ? "Uploading..." : "Submit Prompt for Review"}
+              {isSubmitting ? "Updating..." : "Update Prompt"}
             </Button>
             <p className="mt-3 text-xs text-zinc-500">
               By submitting, you agree to our prompt quality guidelines. Approvals usually take 24 hours.

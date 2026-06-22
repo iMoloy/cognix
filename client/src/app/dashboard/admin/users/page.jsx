@@ -8,19 +8,28 @@ import { toast } from "react-toastify";
 export default function AllUsersPage() {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
   const { token } = useAuth();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/users`, {
+      const res = await fetch(`${API_URL}/api/users?page=${currentPage}&limit=${limit}`, {
         headers: {
           "Authorization": `Bearer ${token}`
         }
       });
       if (res.ok) {
         const data = await res.json();
-        setUsers(data);
+        // Adjust depending on whether the backend was updated to return pagination object or array
+        if (data.users) {
+          setUsers(data.users);
+          setTotalPages(data.totalPages || 1);
+        } else {
+          setUsers(data);
+        }
       } else {
         toast.error("Failed to fetch users.");
       }
@@ -34,7 +43,7 @@ export default function AllUsersPage() {
 
   useEffect(() => {
     if (token) fetchUsers();
-  }, [token]);
+  }, [token, currentPage]);
 
   const handleRoleChange = async (userId, newRole) => {
     // Optimistic UI update
@@ -161,6 +170,29 @@ export default function AllUsersPage() {
               )))}
             </tbody>
           </table>
+        </div>
+        
+        {/* Pagination Controls */}
+        <div className="flex flex-col sm:flex-row items-center justify-between border-t border-white/5 bg-black/20 px-6 py-4 gap-4">
+          <div className="text-xs text-zinc-500 font-medium">
+            Showing Page <span className="font-bold text-white">{currentPage}</span> of <span className="font-bold text-white">{totalPages || 1}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1 || isLoading}
+              className="rounded-lg bg-white/5 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages || isLoading}
+              className="rounded-lg bg-white/5 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>

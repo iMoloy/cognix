@@ -170,7 +170,7 @@ router.patch("/:email", async (req, res) => {
 // Toggle Bookmark Prompt (Logged in user)
 router.post("/bookmark", verifyToken, async (req, res) => {
   try {
-    const email = req.user?.email; // from verifyToken middleware
+    const email = req.decoded?.email; // from verifyToken middleware
     const { promptId } = req.body;
     
     if (!email || !promptId) {
@@ -229,13 +229,25 @@ router.get("/bookmarks/:email", verifyToken, async (req, res) => {
   }
 });
 
-// Get All Users (Admin Only)
+// Get All Users (Admin Only) with Pagination
 router.get("/", verifyToken, verifyAdmin, async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
     const db = getDatabase();
     const usersCollection = db.collection("users");
-    const users = await usersCollection.find().toArray();
-    res.send(users);
+    
+    const totalUsers = await usersCollection.countDocuments();
+    const users = await usersCollection.find().skip(skip).limit(limit).toArray();
+    
+    res.send({
+      users,
+      totalUsers,
+      totalPages: Math.ceil(totalUsers / limit),
+      currentPage: page
+    });
   } catch (error) {
     res.status(500).send({ message: "Failed to fetch users", error });
   }

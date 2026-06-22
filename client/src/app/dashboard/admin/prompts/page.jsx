@@ -12,6 +12,11 @@ export default function AdminPromptsQueuePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("all");
+  
+  // Rejection Modal State
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [rejectingPromptId, setRejectingPromptId] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState("");
 
   const { token } = useAuth();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -47,18 +52,23 @@ export default function AdminPromptsQueuePage() {
     if (token) fetchPrompts();
   }, [token]);
 
-  const handleStatusChange = async (id, newStatus) => {
+  const handleStatusChange = async (id, newStatus, reason = "") => {
     const prevPrompts = [...prompts];
     setPrompts(prev => prev.map(p => p.id === id ? { ...p, status: newStatus } : p));
     
     try {
+      const payload = { status: newStatus };
+      if (newStatus === "rejected" && reason) {
+        payload.rejectionReason = reason;
+      }
+
       const res = await fetch(`${API_URL}/api/prompts/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error("Failed");
       toast.success(`Prompt marked as ${newStatus}`);
@@ -67,6 +77,23 @@ export default function AdminPromptsQueuePage() {
       toast.error("Failed to update prompt status");
       setPrompts(prevPrompts);
     }
+  };
+
+  const handleRejectSubmit = () => {
+    if (!rejectionReason.trim()) {
+      toast.error("Please provide a rejection reason.");
+      return;
+    }
+    handleStatusChange(rejectingPromptId, "rejected", rejectionReason);
+    setIsRejectModalOpen(false);
+    setRejectingPromptId(null);
+    setRejectionReason("");
+  };
+
+  const closeRejectModal = () => {
+    setIsRejectModalOpen(false);
+    setRejectingPromptId(null);
+    setRejectionReason("");
   };
 
   const handleToggleFeature = async (id) => {
@@ -302,7 +329,10 @@ export default function AdminPromptsQueuePage() {
                           {/* Reject Action */}
                           {prompt.status !== "rejected" && (
                             <button 
-                              onClick={() => handleStatusChange(prompt.id, "rejected")}
+                              onClick={() => {
+                                setRejectingPromptId(prompt.id);
+                                setIsRejectModalOpen(true);
+                              }}
                               title="Reject"
                               className="flex h-8 w-8 items-center justify-center rounded-lg border border-rose-500/20 bg-rose-500/10 text-rose-400 transition-all hover:bg-rose-500/20 hover:scale-110"
                             >
@@ -329,6 +359,50 @@ export default function AdminPromptsQueuePage() {
           </table>
         </div>
       </div>
+
+      {/* Rejection Modal */}
+      <AnimatePresence>
+        {isRejectModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0a0a0a] shadow-2xl p-6"
+            >
+              <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                <XCircle className="text-rose-500" />
+                Reject Prompt
+              </h3>
+              <p className="text-sm text-zinc-400 mb-6">
+                Please provide a reason for rejecting this prompt. The creator will see this feedback.
+              </p>
+              
+              <textarea
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="e.g. Prompt instructions are too vague..."
+                className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-rose-500/50 min-h-[100px] resize-y mb-6"
+              />
+              
+              <div className="flex justify-end gap-3">
+                <button 
+                  onClick={closeRejectModal}
+                  className="px-4 py-2 text-sm font-bold text-zinc-400 hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleRejectSubmit}
+                  className="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-sm font-bold shadow-lg shadow-rose-500/20 transition-all hover:scale-105"
+                >
+                  Confirm Rejection
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

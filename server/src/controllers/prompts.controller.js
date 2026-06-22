@@ -114,6 +114,24 @@ export const getCreatorPrompts = async (req, res, next) => {
 export const createPrompt = async (req, res, next) => {
   try {
     const db = getDatabase();
+    
+    // Enforcement: Free users can only add 3 prompts
+    const email = req.decoded.email;
+    const user = await db.collection("users").findOne({ email });
+    
+    if (user) {
+      const isPremium = user.subscription === "premium" || user.role === "admin";
+      if (!isPremium) {
+        const promptCount = await db.collection("prompts").countDocuments({ creatorId: user._id.toString() });
+        if (promptCount >= 3) {
+          return res.status(403).json({ 
+            message: "Free users can only add 3 prompts. Please upgrade to premium.",
+            limitReached: true
+          });
+        }
+      }
+    }
+
     const newPrompt = {
       ...req.body,
       status: "pending",
@@ -157,6 +175,7 @@ export const updatePrompt = async (req, res, next) => {
     if (isOwner && !isAdmin) {
       updates.status = "pending";
       delete updates.featured; // Owners can't feature their own prompts
+      delete updates.rejectionReason; // Remove previous rejection reason
     }
 
     const result = await db.collection("prompts").updateOne(

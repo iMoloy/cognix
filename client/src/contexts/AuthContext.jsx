@@ -69,6 +69,7 @@ export function AuthProvider({ children }) {
         ...userData,
         role: dbUser?.role || "user",
         subscription: dbUser?.subscription || "free",
+        _id: dbUser?._id,
       });
 
     } catch (error) {

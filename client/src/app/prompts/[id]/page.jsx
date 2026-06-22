@@ -72,16 +72,21 @@ export default function PromptDetailsPage() {
 
   const handleCopy = async (text) => {
     try {
-      await navigator.clipboard.writeText(text);
+      try {
+        await navigator.clipboard.writeText(text);
+        toast.success("Prompt copied to clipboard!");
+      } catch (clipboardError) {
+        console.error("Clipboard API failed:", clipboardError);
+        toast.info("Prompt selected. Please copy manually.");
+      }
       
-      // Increment copy count
+      // Increment copy count regardless of clipboard API success
       const res = await fetch(`${apiUrl}/api/prompts/${promptId}/copy`, {
         method: "POST"
       });
       if (res.ok) {
         setPrompt(prev => ({ ...prev, copies: (prev.copies || 0) + 1 }));
       }
-      toast.success("Prompt copied to clipboard!");
     } catch (error) {
       toast.error("Failed to copy prompt.");
     }
@@ -94,7 +99,7 @@ export default function PromptDetailsPage() {
       return;
     }
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("cognix_token");
       const res = await fetch(`${apiUrl}/api/users/bookmark`, {
         method: "POST",
         headers: {
@@ -122,7 +127,7 @@ export default function PromptDetailsPage() {
 
   const handleReviewSubmit = async ({ rating, review }) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("cognix_token");
       const res = await fetch(`${apiUrl}/api/reviews`, {
         method: "POST",
         headers: {
@@ -155,7 +160,7 @@ export default function PromptDetailsPage() {
 
   const handleReportSubmit = async ({ reason, details }) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("cognix_token");
       const res = await fetch(`${apiUrl}/api/reports`, {
         method: "POST",
         headers: {

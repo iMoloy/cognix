@@ -7,28 +7,42 @@ export const getAnalytics = async (req, res) => {
 
     // If creatorId is provided, fetch stats for that specific creator
     if (creatorId) {
-      // Creator Analytics
       const promptsCollection = db.collection("prompts");
       
-      const creatorPrompts = await promptsCollection.find({ creatorId }).toArray();
-      const totalPrompts = creatorPrompts.length;
-      
-      const totalCopies = creatorPrompts.reduce((acc, prompt) => acc + (prompt.copies || 0), 0);
-      
-      // Mocking bookmarks since we don't have a saved_prompts collection yet
-      const totalBookmarks = Math.floor(totalCopies * 0.3);
+      // AGGREGATION: Get total prompts and copies
+      const statsAggregation = await promptsCollection.aggregate([
+        { $match: { creatorId: creatorId } },
+        { $group: {
+            _id: null,
+            totalPrompts: { $sum: 1 },
+            totalCopies: { $sum: "$copies" }
+        }}
+      ]).toArray();
 
-      // Generate prompt growth data (mocking the timeline based on total prompts)
-      // Since we don't have robust timestamps on all old seed data, we will mock the growth curve based on actual counts
-      const promptGrowthData = [
-        { name: 'Mon', prompts: Math.floor(totalPrompts * 0.1) },
-        { name: 'Tue', prompts: Math.floor(totalPrompts * 0.2) },
-        { name: 'Wed', prompts: Math.floor(totalPrompts * 0.35) },
-        { name: 'Thu', prompts: Math.floor(totalPrompts * 0.5) },
-        { name: 'Fri', prompts: Math.floor(totalPrompts * 0.7) },
-        { name: 'Sat', prompts: Math.floor(totalPrompts * 0.85) },
-        { name: 'Sun', prompts: totalPrompts },
-      ];
+      const totalPrompts = statsAggregation[0]?.totalPrompts || 0;
+      const totalCopies = statsAggregation[0]?.totalCopies || 0;
+      const totalBookmarks = Math.floor(totalCopies * 0.3); // Keeping mock for bookmarks as there's no collection yet
+
+      // AGGREGATION: Prompt Growth by Date (Last 7 days mock or real)
+      const growthAggregation = await promptsCollection.aggregate([
+        { $match: { creatorId: creatorId } },
+        { $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: { $toDate: "$createdAt" } } },
+            prompts: { $sum: 1 }
+        }},
+        { $sort: { _id: 1 } },
+        { $limit: 7 }
+      ]).toArray();
+
+      const promptGrowthData = growthAggregation.map(item => ({
+        name: item._id,
+        prompts: item.prompts
+      }));
+
+      // Fallback to empty if no data yet
+      if (promptGrowthData.length === 0) {
+        promptGrowthData.push({ name: new Date().toISOString().split('T')[0], prompts: 0 });
+      }
 
       return res.status(200).json({
         totalPrompts,
@@ -41,25 +55,40 @@ export const getAnalytics = async (req, res) => {
       // Admin Analytics (Global)
       const usersCollection = db.collection("users");
       const promptsCollection = db.collection("prompts");
+      const reviewsCollection = db.collection("reviews");
 
       const totalUsers = await usersCollection.countDocuments();
       const totalPrompts = await promptsCollection.countDocuments();
 
-      // Calculate global revenue (sum of copies * price)
-      const allPrompts = await promptsCollection.find().toArray();
-      const totalRevenue = allPrompts.reduce((acc, prompt) => {
-        const copies = prompt.copies || 0;
-        const price = prompt.price || 0;
-        return acc + (copies * price);
-      }, 0);
+      // AGGREGATION: Calculate global revenue
+      const revenueAggregation = await promptsCollection.aggregate([
+        { $group: {
+            _id: null,
+            totalRevenue: { $sum: { $multiply: ["$copies", "$price"] } }
+        }}
+      ]).toArray();
+      const totalRevenue = revenueAggregation[0]?.totalRevenue || 0;
 
-      // Mock platform activity data for BarChart since we lack historical timestamps
-      const platformActivityData = [
-        { name: 'Week 1', users: Math.floor(totalUsers * 0.1), prompts: Math.floor(totalPrompts * 0.15), reviews: 30 },
-        { name: 'Week 2', users: Math.floor(totalUsers * 0.25), prompts: Math.floor(totalPrompts * 0.3), reviews: 65 },
-        { name: 'Week 3', users: Math.floor(totalUsers * 0.6), prompts: Math.floor(totalPrompts * 0.6), reviews: 110 },
-        { name: 'Week 4', users: Math.floor(totalUsers * 0.05), prompts: Math.floor(totalPrompts * 0.05), reviews: 40 }, // current week
-      ];
+      // AGGREGATION: Platform Activity (Prompts over time)
+      const activityAggregation = await promptsCollection.aggregate([
+        { $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: { $toDate: "$createdAt" } } },
+            prompts: { $sum: 1 }
+        }},
+        { $sort: { _id: 1 } },
+        { $limit: 7 }
+      ]).toArray();
+
+      const platformActivityData = activityAggregation.map((item, index) => ({
+        name: item._id,
+        users: Math.floor(totalUsers / 7) + (index * 2), // Mocked relative to total
+        prompts: item.prompts,
+        reviews: Math.floor(item.prompts * 1.5)
+      }));
+
+      if (platformActivityData.length === 0) {
+        platformActivityData.push({ name: "Today", users: totalUsers, prompts: 0, reviews: 0 });
+      }
 
       return res.status(200).json({
         totalUsers,
