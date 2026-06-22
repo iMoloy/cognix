@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UploadCloud, Image as ImageIcon, Send, Sparkles, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";

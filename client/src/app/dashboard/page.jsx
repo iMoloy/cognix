@@ -53,7 +53,7 @@ export default function DashboardOverviewPage() {
       <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-white">Welcome back, {user.name.split(" ")[0]}</h1>
-          <p className="mt-2 text-zinc-400">Here's what's happening with your prompt engineering arsenal.</p>
+          <p className="mt-2 text-zinc-400">Here&apos;s what&apos;s happening with your prompt engineering arsenal.</p>
         </div>
         
         <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-zinc-900/40 p-4 backdrop-blur-xl">

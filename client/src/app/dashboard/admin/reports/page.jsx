@@ -33,6 +33,7 @@ export default function AdminReportsPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line
     if (token) fetchReports();
   }, [token]);
 

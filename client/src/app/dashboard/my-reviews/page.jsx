@@ -44,11 +44,11 @@ export default function MyReviewsPage() {
         <MessageSquare className="text-emerald-400" />
         My Reviews
       </h1>
-      <p className="text-zinc-400">Manage feedback you've left on prompts across the marketplace.</p>
+      <p className="text-zinc-400">Manage feedback you&apos;ve left on prompts across the marketplace.</p>
 
       {reviews.length === 0 ? (
         <div className="rounded-2xl border border-white/5 bg-zinc-900/40 p-8 text-center text-zinc-400">
-          You haven't reviewed any prompts yet.
+          You haven&apos;t written any reviews yet.
         </div>
       ) : (
         <div className="grid gap-4">
@@ -63,7 +63,7 @@ export default function MyReviewsPage() {
                   />
                 ))}
               </div>
-              <p className="text-sm leading-relaxed text-zinc-300">"{review.comment}"</p>
+              <p className="text-sm leading-relaxed text-zinc-300">&quot;{review.comment}&quot;</p>
               <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-4">
                 <span className="text-xs font-medium text-zinc-500">
                   {new Date(review.createdAt).toLocaleDateString()}

@@ -21,6 +21,18 @@ export default function EditPromptPage() {
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
+  // Form State
+  const [formData, setFormData] = useState({
+    title: "",
+    tool: "chatgpt",
+    description: "",
+    instruction: "", // Maps to "Prompt Content"
+    category: "engineering",
+    level: "beginner",
+    visibility: "public",
+    tags: ""
+  });
+
   // Fetch Existing Prompt Data
   useEffect(() => {
     const fetchPrompt = async () => {
@@ -52,18 +64,6 @@ export default function EditPromptPage() {
     };
     if (params.id) fetchPrompt();
   }, [params.id, API_URL, router]);
-
-  // Form State
-  const [formData, setFormData] = useState({
-    title: "",
-    tool: "chatgpt",
-    description: "",
-    instruction: "", // Maps to "Prompt Content"
-    category: "engineering",
-    level: "beginner",
-    visibility: "public",
-    tags: ""
-  });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -156,7 +156,7 @@ export default function EditPromptPage() {
     <div className="max-w-4xl space-y-8">
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight text-white">Edit Prompt</h1>
-        <p className="mt-2 text-zinc-400">Update your prompt details. Note: Editing will return the prompt to a 'pending' state for moderation review.</p>
+        <p className="mt-2 text-zinc-400">Update your prompt details. Note: Editing will return the prompt to a &apos;pending&apos; state for moderation review.</p>
       </div>
 
       {isLoading ? (

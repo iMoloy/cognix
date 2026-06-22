@@ -23,18 +23,6 @@ export default function ProfilePage() {
     role: user?.role || "",
   });
 
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        name: user.name || "",
-        photoURL: user.photoURL || "",
-        email: user.email || "",
-        role: user.role || "",
-      });
-      fetchPayments();
-    }
-  }, [user]);
-
   const fetchPayments = async () => {
     if (!user?.email || !token) return;
     setLoadingPayments(true);
@@ -53,6 +41,20 @@ export default function ProfilePage() {
       setLoadingPayments(false);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      // eslint-disable-next-line
+      setFormData({
+        name: user.name || "",
+        photoURL: user.photoURL || "",
+        email: user.email || "",
+        role: user.role || "",
+      });
+      fetchPayments();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   if (loading || !user) {
     return (

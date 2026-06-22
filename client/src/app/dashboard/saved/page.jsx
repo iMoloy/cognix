@@ -64,7 +64,7 @@ export default function SavedPromptsPage() {
           </div>
           <h3 className="text-xl font-bold text-white">Your library is empty</h3>
           <p className="mt-2 max-w-sm text-sm text-zinc-400">
-            You haven't saved any prompts yet. Explore the marketplace and bookmark your favorites to access them here.
+            You haven&apos;t saved any prompts yet. Explore the marketplace and bookmark your favorites to access them here.
           </p>
         </div>
       )}

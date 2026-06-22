@@ -62,7 +62,7 @@ export default function MyReviewsPage() {
                 </div>
                 
                 <p className="text-sm text-zinc-300 leading-relaxed max-w-2xl">
-                  "{review.comment}"
+                  &quot;{review.comment}&quot;
                 </p>
               </div>
               
@@ -79,7 +79,7 @@ export default function MyReviewsPage() {
           </div>
           <h3 className="text-xl font-bold text-white">No reviews yet</h3>
           <p className="mt-2 max-w-sm text-sm text-zinc-400">
-            You haven't reviewed any prompts. Help the community by rating the prompts you try!
+            You haven&apos;t reviewed any prompts. Help the community by rating the prompts you try!
           </p>
         </div>
       )}

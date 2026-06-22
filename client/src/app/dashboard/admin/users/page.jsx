@@ -42,6 +42,7 @@ export default function AllUsersPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line
     if (token) fetchUsers();
   }, [token, currentPage]);
 

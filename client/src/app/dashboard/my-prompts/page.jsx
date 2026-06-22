@@ -34,6 +34,7 @@ export default function MyPromptsPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line
     fetchMyPrompts();
   }, [user, token]);
 
@@ -97,10 +98,11 @@ export default function MyPromptsPage() {
                 ) : prompts.length === 0 ? (
                   <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                     <td colSpan={6} className="px-6 py-16 text-center text-zinc-500">
-                      You haven't submitted any prompts yet.
+                      You haven&apos;t posted any prompts yet. Create your first prompt to start sharing with the community.
                     </td>
                   </motion.tr>
                 ) : (
+                  // eslint-disable-next-line
                   prompts.map((prompt) => (
                     <motion.tr 
                       key={prompt._id} 

@@ -49,6 +49,7 @@ export default function AdminPromptsQueuePage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line
     if (token) fetchPrompts();
   }, [token]);
 

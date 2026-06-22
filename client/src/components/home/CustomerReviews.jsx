@@ -65,7 +65,7 @@ export default function CustomerReviews() {
               </div>
               
               <p className="relative z-10 text-zinc-300 leading-relaxed font-medium">
-                "{review.text}"
+                &quot;{review.text}&quot;
               </p>
               
               <div className="mt-8 flex items-center gap-4">
