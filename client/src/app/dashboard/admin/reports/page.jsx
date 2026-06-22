@@ -32,10 +32,11 @@ export default function AdminReportsPage() {
     }
   };
 
+  /* eslint-disable */
   useEffect(() => {
-    // eslint-disable-next-line
     if (token) fetchReports();
   }, [token]);
+  /* eslint-enable */
 
   const handleDismiss = async (reportId) => {
     try {

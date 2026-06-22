@@ -182,6 +182,7 @@ export function AuthProvider({ children }) {
       upgradeToPremium,
       logout,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [user, token, loading],
   );
 

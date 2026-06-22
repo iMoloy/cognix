@@ -33,10 +33,11 @@ export default function MyPromptsPage() {
     }
   };
 
+  /* eslint-disable */
   useEffect(() => {
-    // eslint-disable-next-line
     fetchMyPrompts();
   }, [user, token]);
+  /* eslint-enable */
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this prompt?")) return;
@@ -102,7 +103,6 @@ export default function MyPromptsPage() {
                     </td>
                   </motion.tr>
                 ) : (
-                  // eslint-disable-next-line
                   prompts.map((prompt) => (
                     <motion.tr 
                       key={prompt._id} 

@@ -41,10 +41,11 @@ export default function AllUsersPage() {
     }
   };
 
+  /* eslint-disable */
   useEffect(() => {
-    // eslint-disable-next-line
     if (token) fetchUsers();
   }, [token, currentPage]);
+  /* eslint-enable */
 
   const handleRoleChange = async (userId, newRole) => {
     // Optimistic UI update

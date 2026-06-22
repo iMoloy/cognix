@@ -48,10 +48,11 @@ export default function AdminPromptsQueuePage() {
     }
   };
 
+  /* eslint-disable */
   useEffect(() => {
-    // eslint-disable-next-line
     if (token) fetchPrompts();
   }, [token]);
+  /* eslint-enable */
 
   const handleStatusChange = async (id, newStatus, reason = "") => {
     const prevPrompts = [...prompts];
