@@ -139,16 +139,18 @@ function MarketplaceContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-            className="mt-10 flex max-w-2xl items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-2 shadow-2xl backdrop-blur-xl transition-all focus-within:border-emerald-500/50 focus-within:bg-white/[0.05]"
+            className="mt-10 flex flex-col sm:flex-row max-w-2xl sm:items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-2 shadow-2xl backdrop-blur-xl transition-all focus-within:border-emerald-500/50 focus-within:bg-white/[0.05]"
           >
-            <Search className="ml-3 text-zinc-500" size={22} />
-            <input
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="h-12 flex-1 bg-transparent text-base text-zinc-100 placeholder-zinc-500 outline-none"
-              placeholder="Search by title, keyword, or AI tool..."
-            />
-            <Button type="submit" className="h-12 px-8 shrink-0">
+            <div className="flex flex-1 items-center px-3 sm:px-0 w-full">
+              <Search className="sm:ml-3 mr-3 sm:mr-0 text-zinc-500 shrink-0" size={20} />
+              <input
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="h-12 flex-1 bg-transparent text-sm sm:text-base text-zinc-100 placeholder-zinc-500 outline-none w-full"
+                placeholder="Search by title, keyword, or AI tool..."
+              />
+            </div>
+            <Button type="submit" className="h-12 w-full sm:w-auto px-8 shrink-0">
               Search
             </Button>
           </motion.form>
@@ -313,7 +315,7 @@ function MarketplaceContent() {
                         onClick={() => setPage(p)}
                         className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition-all ${
                           p === metadata.currentPage 
-                            ? "bg-emerald-500/20 text-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.2)]" 
+                            ? "bg-[length:200%_auto] animate-gradient-x bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.4)]" 
                             : "text-zinc-400 hover:bg-white/10 hover:text-emerald-400"
                         }`}
                       >

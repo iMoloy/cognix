@@ -133,7 +133,7 @@ export default function AnalyticsPage() {
 
       {/* Creator Charts */}
       <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl">
-        <h3 className="mb-6 text-lg font-bold text-white">Prompt Growth (Mocked)</h3>
+        <h3 className="mb-6 text-lg font-bold text-white">Prompt Growth</h3>
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data.promptGrowthData || []}>
@@ -215,7 +215,7 @@ export default function AnalyticsPage() {
 
       {/* Admin Charts */}
       <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl">
-        <h3 className="mb-6 text-lg font-bold text-white">Platform Activity Overview (Mocked)</h3>
+        <h3 className="mb-6 text-lg font-bold text-white">Platform Activity Overview</h3>
         <div className="h-[350px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.platformActivityData || []} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>

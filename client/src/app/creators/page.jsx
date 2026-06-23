@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Copy, Star, Award, Search, Filter, Loader2 } from "lucide-react";
+import { Copy, Star, Award, Search, Filter, Loader2, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -10,6 +10,8 @@ import { toast } from "react-toastify";
 export default function CreatorsPage() {
   const [creators, setCreators] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("copies");
 
   useEffect(() => {
     const fetchCreators = async () => {
@@ -26,6 +28,16 @@ export default function CreatorsPage() {
     };
     fetchCreators();
   }, []);
+
+  const filteredCreators = creators
+    .filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                 (c.specialties && c.specialties.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))))
+    .sort((a, b) => {
+      if (sortBy === "copies") return (b.copies || 0) - (a.copies || 0);
+      if (sortBy === "rating") return (parseFloat(b.rating) || 0) - (parseFloat(a.rating) || 0);
+      if (sortBy === "promptsCount") return (b.promptsCount || 0) - (a.promptsCount || 0);
+      return 0;
+    });
 
   return (
     <div className="min-h-screen bg-[#030303] pt-28 pb-20 px-4 sm:px-6 lg:px-8">
@@ -55,14 +67,24 @@ export default function CreatorsPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
               <input
                 type="text"
-                placeholder="Search creators..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search name or skill..."
                 className="w-full rounded-xl border border-white/10 bg-zinc-900/50 py-2.5 pl-10 pr-4 text-sm text-white placeholder-zinc-500 outline-none focus:border-emerald-500/50 focus:bg-white/5 transition-all"
               />
             </div>
-            <button className="flex h-[42px] items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/50 px-4 text-sm font-medium text-white transition-all hover:bg-white/5 shrink-0">
-              <Filter size={16} />
-              <span className="hidden sm:inline">Filter</span>
-            </button>
+            <div className="relative inline-flex shrink-0">
+              <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="appearance-none rounded-xl border border-white/10 bg-white/5 py-2.5 pl-4 pr-10 text-sm font-medium text-zinc-300 outline-none backdrop-blur-md transition-colors hover:border-white/20 focus:border-emerald-500/50"
+              >
+                <option value="copies" className="bg-zinc-900">Sort by: Most Copies</option>
+                <option value="rating" className="bg-zinc-900">Sort by: Highest Rating</option>
+                <option value="promptsCount" className="bg-zinc-900">Sort by: Most Prompts</option>
+              </select>
+              <ChevronDown size={16} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+            </div>
           </motion.div>
         </div>
 
@@ -72,7 +94,11 @@ export default function CreatorsPage() {
             <div className="col-span-full flex justify-center py-20">
               <Loader2 className="animate-spin text-emerald-500" size={32} />
             </div>
-          ) : creators.map((creator, i) => (
+          ) : filteredCreators.length === 0 ? (
+            <div className="col-span-full text-center py-20 text-zinc-500">
+              No creators match your search.
+            </div>
+          ) : filteredCreators.map((creator, i) => (
             <motion.div
               key={creator._id}
               initial={{ opacity: 0, scale: 0.95 }}

@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Bookmark, CheckCircle2, Copy, LockKeyhole, Search, ShieldCheck, Star } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, Bookmark, CheckCircle2, Copy, LockKeyhole, Search, ShieldCheck, Star, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -12,32 +14,7 @@ import CustomerReviews from "@/components/home/CustomerReviews";
 import FAQSection from "@/components/home/FAQSection";
 import CTASection from "@/components/home/CTASection";
 
-const promptRows = [
-  {
-    title: "Product Launch Planner",
-    category: "Marketing",
-    tool: "ChatGPT",
-    level: "Intermediate",
-    copies: "1,842",
-    rating: "4.9",
-  },
-  {
-    title: "UX Audit Assistant",
-    category: "Design",
-    tool: "Claude",
-    level: "Pro",
-    copies: "936",
-    rating: "4.8",
-  },
-  {
-    title: "Lesson Plan Builder",
-    category: "Education",
-    tool: "Gemini",
-    level: "Beginner",
-    copies: "721",
-    rating: "4.7",
-  },
-];
+// We will fetch promptRows dynamically now.
 
 const workflowItems = [
   "Submit prompts into a moderation queue",
@@ -48,6 +25,39 @@ const workflowItems = [
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const [livePrompts, setLivePrompts] = useState([]);
+  const [loadingPrompts, setLoadingPrompts] = useState(true);
+  const [heroSearch, setHeroSearch] = useState("");
+
+  const handleHeroSearch = (e) => {
+    e.preventDefault();
+    if (heroSearch.trim()) {
+      router.push(`/prompts?search=${encodeURIComponent(heroSearch)}`);
+    } else {
+      router.push(`/prompts`);
+    }
+  };
+
+  useEffect(() => {
+    const fetchTopPrompts = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
+        // Fetch top 3 most copied prompts
+        const res = await fetch(`${apiUrl}/api/prompts?limit=3&sort=-copies`);
+        if (res.ok) {
+          const data = await res.json();
+          setLivePrompts(data.prompts || data || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch top prompts", err);
+      } finally {
+        setLoadingPrompts(false);
+      }
+    };
+    fetchTopPrompts();
+  }, []);
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#030303] selection:bg-emerald-500/30">
       
@@ -65,6 +75,7 @@ export default function Home() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex flex-col items-center text-center lg:items-start lg:text-left"
           >
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold tracking-[0.2em] text-zinc-400 backdrop-blur-md">
               <span className="relative flex h-2 w-2">
@@ -74,42 +85,47 @@ export default function Home() {
               COGNIX PLATFORM
             </div>
             
-            <h1 className="mt-6 max-w-3xl text-4xl font-extrabold leading-[1.1] text-white sm:text-6xl lg:text-[4rem]">
+            <h1 className="mt-6 max-w-3xl text-4xl font-extrabold leading-[1.1] text-white sm:text-6xl lg:text-[4rem] mx-auto lg:mx-0">
               Curated Prompts <br className="hidden sm:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 animate-gradient-x">
                 Worth Reusing.
               </span>
             </h1>
             
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-zinc-400 font-medium">
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-zinc-400 font-medium mx-auto lg:mx-0">
               A premium marketplace built for modern engineering and design teams. Publish, review, bookmark, and monetize battle-tested AI workflows.
             </p>
 
-            <motion.div 
+            <motion.form 
+              onSubmit={handleHeroSearch}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="mt-10 flex max-w-xl items-center gap-2 sm:gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-1.5 sm:p-2 shadow-2xl backdrop-blur-xl focus-within:border-emerald-500/50 focus-within:bg-white/[0.05] transition-all"
+              className="mt-10 flex flex-col sm:flex-row max-w-xl sm:items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-2 shadow-2xl backdrop-blur-xl focus-within:border-emerald-500/50 focus-within:bg-white/[0.05] transition-all w-full mx-auto lg:mx-0"
             >
-              <Search className="ml-2 sm:ml-3 shrink-0 text-zinc-500" size={20} />
-              <input
-                className="h-10 sm:h-12 min-w-0 flex-1 bg-transparent text-sm sm:text-base text-zinc-100 placeholder-zinc-500 outline-none"
-                placeholder="Search prompt templates..."
-                aria-label="Search prompts"
-              />
-              <Link
-                href="/prompts"
-                className="flex h-10 sm:h-12 items-center justify-center rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-4 sm:px-8 text-xs sm:text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(52,211,153,0.5)] whitespace-nowrap shrink-0"
+              <div className="flex flex-1 items-center px-2 sm:px-0 w-full">
+                <Search className="sm:ml-3 mr-3 sm:mr-0 shrink-0 text-zinc-500" size={20} />
+                <input
+                  value={heroSearch}
+                  onChange={(e) => setHeroSearch(e.target.value)}
+                  className="h-10 sm:h-12 min-w-0 flex-1 bg-transparent text-sm sm:text-base text-zinc-100 placeholder-zinc-500 outline-none w-full"
+                  placeholder="Search prompt templates..."
+                  aria-label="Search prompts"
+                />
+              </div>
+              <button
+                type="submit"
+                className="flex h-12 items-center justify-center rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-[length:200%_auto] animate-gradient-x px-8 text-sm font-bold text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(52,211,153,0.5)] whitespace-nowrap shrink-0 w-full sm:w-auto"
               >
                 Search
-              </Link>
-            </motion.div>
+              </button>
+            </motion.form>
 
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="mt-4 flex flex-wrap items-center gap-2"
+              className="mt-4 flex flex-wrap items-center justify-center lg:justify-start gap-2"
             >
               <span className="text-xs text-zinc-500 font-medium mr-2">Trending:</span>
               {["SaaS Copy", "Next.js", "Midjourney", "React", "SEO"].map((tag) => (
@@ -123,7 +139,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center"
+              className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center justify-center lg:justify-start w-full sm:w-auto"
             >
               {!isAuthenticated && (
                 <Link
@@ -147,7 +163,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 0.6 }}
-              className="mt-10 sm:mt-14 grid max-w-xl grid-cols-3 divide-x divide-white/10 border-t border-white/10 pt-6 sm:pt-8"
+              className="mt-10 sm:mt-14 grid max-w-xl grid-cols-3 divide-x divide-white/10 border-t border-white/10 pt-6 sm:pt-8 w-full mx-auto lg:mx-0"
             >
               <div className="pr-2 sm:pr-0">
                 <strong className="block text-xl sm:text-3xl font-extrabold text-white">3</strong>
@@ -168,7 +184,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.95, rotateY: -10 }}
             animate={{ opacity: 1, scale: 1, rotateY: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="perspective-1000 relative"
+            className="perspective-1000 relative mx-auto lg:mx-0 w-full max-w-xl lg:max-w-none mt-10 lg:mt-0"
           >
             {/* Glowing orb behind the card */}
             <div className="absolute inset-0 left-1/2 top-1/2 h-[80%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/10 blur-[120px] opacity-20"></div>
@@ -187,37 +203,49 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="divide-y divide-white/5">
-                {promptRows.map((prompt, i) => (
-                  <motion.article 
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: 0.5 + (i * 0.1) }}
-                    key={prompt.title} 
-                    className="group flex flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between transition-colors hover:bg-white/[0.02]"
-                  >
-                    <div>
-                      <h3 className="font-bold text-zinc-100 group-hover:text-emerald-300 transition-colors">{prompt.title}</h3>
-                      <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wider text-zinc-500">
-                        <span className="text-emerald-500/80">{prompt.category}</span>
-                        <span>·</span>
-                        <span>{prompt.tool}</span>
-                        <span>·</span>
-                        <span>{prompt.level}</span>
+              <div className="divide-y divide-white/5 min-h-[200px]">
+                {loadingPrompts ? (
+                  <div className="flex h-full w-full items-center justify-center py-12">
+                    <Loader2 className="h-6 w-6 animate-spin text-emerald-500" />
+                  </div>
+                ) : livePrompts.length === 0 ? (
+                  <div className="py-8 text-center text-sm text-zinc-500">No prompts found.</div>
+                ) : (
+                  livePrompts.map((prompt, i) => (
+                    <motion.article 
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.5, delay: 0.5 + (i * 0.1) }}
+                      key={prompt._id} 
+                      className="group flex flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between transition-colors hover:bg-white/[0.02]"
+                    >
+                      <Link href={`/prompts/${prompt._id}`} className="block flex-1">
+                        <h3 className="font-bold text-zinc-100 group-hover:text-emerald-300 transition-colors">{prompt.title}</h3>
+                        <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wider text-zinc-500">
+                          <span className="text-emerald-500/80">{prompt.category}</span>
+                          <span>·</span>
+                          <span>{prompt.tool}</span>
+                          <span>·</span>
+                          {prompt.isPremium ? (
+                            <span className="text-amber-500">Premium</span>
+                          ) : (
+                            <span className="text-emerald-400">Free</span>
+                          )}
+                        </div>
+                      </Link>
+                      <div className="flex items-center gap-5 text-sm font-semibold text-zinc-400 shrink-0">
+                        <span className="flex items-center gap-1.5">
+                          <Copy size={15} className="text-zinc-600" />
+                          {prompt.copies || 0}
+                        </span>
+                        <span className="flex items-center gap-1.5 text-amber-400/90">
+                          <Star size={15} className="fill-amber-400/30 text-amber-500" />
+                          {prompt.rating || "New"}
+                        </span>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-5 text-sm font-semibold text-zinc-400">
-                      <span className="flex items-center gap-1.5">
-                        <Copy size={15} className="text-zinc-600" />
-                        {prompt.copies}
-                      </span>
-                      <span className="flex items-center gap-1.5 text-amber-400/90">
-                        <Star size={15} className="fill-amber-400/30 text-amber-500" />
-                        {prompt.rating}
-                      </span>
-                    </div>
-                  </motion.article>
-                ))}
+                    </motion.article>
+                  ))
+                )}
               </div>
 
               <div className="grid gap-4 border-t border-white/5 bg-white/[0.01] p-6 sm:grid-cols-2">

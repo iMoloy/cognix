@@ -8,19 +8,22 @@ const REVIEWS = [
     text: "Cognix completely changed my workflow. The premium prompts are worth every penny, and the bookmarking feature saves me hours every week.",
     author: "Michael T.",
     role: "Frontend Developer",
-    rating: 5
+    rating: 5,
+    avatar: "https://randomuser.me/api/portraits/men/32.jpg"
   },
   {
     text: "As a prompt engineer, this is the best platform to monetize my skills. The $5 premium unlock model converts users much better than recurring subscriptions.",
     author: "Jessica W.",
     role: "AI Creator",
-    rating: 5
+    rating: 5,
+    avatar: "https://randomuser.me/api/portraits/women/44.jpg"
   },
   {
     text: "The UI is stunning and the search filters are incredibly fast. I found exactly what I needed for my marketing campaign in seconds.",
     author: "Daniel R.",
     role: "Marketing Director",
-    rating: 5
+    rating: 5,
+    avatar: "https://randomuser.me/api/portraits/men/46.jpg"
   }
 ];
 
@@ -54,7 +57,7 @@ export default function CustomerReviews() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: i * 0.15 }}
-              className="relative rounded-2xl border border-white/5 bg-zinc-900/40 p-8 backdrop-blur-sm"
+              className="group relative rounded-2xl border border-white/5 bg-zinc-900/40 p-8 backdrop-blur-sm transition-all hover:border-emerald-500/30 hover:bg-zinc-900/60 hover:-translate-y-2"
             >
               <Quote size={40} className="absolute top-6 right-6 text-white/5" />
               
@@ -69,14 +72,15 @@ export default function CustomerReviews() {
               </p>
               
               <div className="mt-8 flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
-                  {review.author[0]}
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20 overflow-hidden">
+                  <img src={review.avatar} alt={review.author} className="h-full w-full object-cover" />
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-white">{review.author}</h4>
                   <p className="text-xs text-zinc-500">{review.role}</p>
                 </div>
               </div>
+
             </motion.div>
           ))}
         </div>

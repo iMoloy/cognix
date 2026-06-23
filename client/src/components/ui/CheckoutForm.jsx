@@ -44,20 +44,11 @@ export default function CheckoutForm({ onSuccess, isProcessing, setIsProcessing 
         <PaymentElement 
           options={{ 
             layout: "tabs",
-            theme: "night",
             defaultValues: {
               billingDetails: {
                 name: user?.name || "",
                 email: user?.email || "",
               }
-            },
-            variables: {
-              colorPrimary: '#10b981',
-              colorBackground: '#09090b',
-              colorText: '#f4f4f5',
-              colorDanger: '#ef4444',
-              fontFamily: 'inherit',
-              borderRadius: '12px',
             }
           }} 
         />

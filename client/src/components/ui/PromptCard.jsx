@@ -23,6 +23,10 @@ export default function PromptCard({ prompt, index = 0 }) {
         <img 
           src={prompt.image || "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=800&auto=format&fit=crop"} 
           alt={prompt.title} 
+          onError={(e) => {
+            e.target.onerror = null; 
+            e.target.src = "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=800&auto=format&fit=crop";
+          }}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/80 to-transparent"></div>

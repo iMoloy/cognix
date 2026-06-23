@@ -242,12 +242,10 @@ export default function PromptDetailsPage() {
       
       {/* Dynamic Background Image from Prompt */}
       <div className="pointer-events-none absolute inset-0 z-0 h-[600px] w-full overflow-hidden">
-        {prompt.image && (
-          <div 
-            className="absolute inset-0 bg-cover bg-center opacity-20 blur-3xl"
-            style={{ backgroundImage: `url(${prompt.image})` }}
-          />
-        )}
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-20 blur-3xl"
+          style={{ backgroundImage: `url(${prompt.image || "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=800&auto=format&fit=crop"})` }}
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#030303]/80 to-[#030303]" />
       </div>
 
@@ -272,15 +270,17 @@ export default function PromptDetailsPage() {
           className="flex flex-col gap-8 md:flex-row md:items-start"
         >
           {/* Cover Image Thumbnail */}
-          {prompt.image && (
-            <div className="shrink-0">
-              <img 
-                src={prompt.image} 
-                alt={prompt.title} 
-                className="h-48 w-full max-w-[320px] rounded-2xl border border-white/10 object-cover shadow-2xl md:h-64"
-              />
-            </div>
-          )}
+          <div className="shrink-0">
+            <img 
+              src={prompt.image || "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=800&auto=format&fit=crop"} 
+              alt={prompt.title} 
+              onError={(e) => {
+                e.target.onerror = null; 
+                e.target.src = "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=800&auto=format&fit=crop";
+              }}
+              className="h-48 w-full max-w-[320px] rounded-2xl border border-white/10 object-cover shadow-2xl md:h-64"
+            />
+          </div>
 
           {/* Metadata */}
           <div className="flex-1 space-y-5">

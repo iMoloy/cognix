@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Edit, Trash2, BarChart2, MoreVertical, CheckCircle2, Clock, Loader2, XCircle } from "lucide-react";
+import { Edit, Trash2, BarChart2, MoreVertical, CheckCircle2, Clock, Loader2, XCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,6 +11,11 @@ export default function MyPromptsPage() {
   const [prompts, setPrompts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user, token } = useAuth();
+  
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
 
   const fetchMyPrompts = async () => {
@@ -58,6 +63,28 @@ export default function MyPromptsPage() {
     }
   };
 
+  const totalPages = Math.ceil(prompts.length / itemsPerPage);
+  const currentPrompts = prompts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const generatePaginationNumbers = () => {
+    const current = currentPage;
+    const total = totalPages;
+    let pages = [];
+    
+    if (total <= 5) {
+      pages = Array.from({ length: total }, (_, i) => i + 1);
+    } else {
+      if (current <= 3) {
+        pages = [1, 2, 3, 4, 5];
+      } else if (current >= total - 2) {
+        pages = [total - 4, total - 3, total - 2, total - 1, total];
+      } else {
+        pages = [current - 2, current - 1, current, current + 1, current + 2];
+      }
+    }
+    return pages;
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -96,14 +123,14 @@ export default function MyPromptsPage() {
                       <h3 className="text-lg font-bold text-white">Loading Prompts...</h3>
                     </td>
                   </motion.tr>
-                ) : prompts.length === 0 ? (
+                ) : currentPrompts.length === 0 ? (
                   <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                     <td colSpan={6} className="px-6 py-16 text-center text-zinc-500">
                       You haven&apos;t posted any prompts yet. Create your first prompt to start sharing with the community.
                     </td>
                   </motion.tr>
                 ) : (
-                  prompts.map((prompt) => (
+                  currentPrompts.map((prompt) => (
                     <motion.tr 
                       key={prompt._id} 
                       layout
@@ -194,6 +221,48 @@ export default function MyPromptsPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        {!isLoading && totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between border-t border-white/5 bg-black/20 px-6 py-4 gap-4">
+            <div className="text-xs text-zinc-500 font-medium">
+              Showing Page <span className="font-bold text-white">{currentPage}</span> of <span className="font-bold text-white">{totalPages}</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-full border border-white/5 bg-white/5 p-1 backdrop-blur-md">
+              <button 
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                className="flex h-8 items-center justify-center rounded-full px-3 text-xs font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-emerald-400 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-zinc-400"
+              >
+                <ChevronLeft size={14} className="mr-1" /> Prev
+              </button>
+              
+              <div className="flex items-center gap-1">
+                {generatePaginationNumbers().map(p => (
+                  <button 
+                    key={p}
+                    onClick={() => setCurrentPage(p)}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all ${
+                      p === currentPage 
+                        ? "bg-[length:200%_auto] animate-gradient-x bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 text-zinc-950 shadow-[0_0_15px_rgba(52,211,153,0.4)]" 
+                        : "text-zinc-400 hover:bg-white/10 hover:text-emerald-400"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+
+              <button 
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                className="flex h-8 items-center justify-center rounded-full px-3 text-xs font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-emerald-400 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-zinc-400"
+              >
+                Next <ChevronRight size={14} className="ml-1" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle, XCircle, Search, Clock, FileText, Eye, Star, Trash2, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, Search, Clock, FileText, Eye, Star, Trash2, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,12 +17,20 @@ export default function AdminPromptsQueuePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("all");
   
-  // Rejection Modal State
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [rejectingPromptId, setRejectingPromptId] = useState(null);
   const [rejectionReason, setRejectionReason] = useState("");
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
+
+  // Reset pagination on filter or search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filter]);
 
   useEffect(() => {
     if (!authLoading) {
@@ -173,6 +181,28 @@ export default function AdminPromptsQueuePage() {
     return matchesSearch && matchesFilter;
   });
 
+  const totalPages = Math.ceil(filteredPrompts.length / itemsPerPage);
+  const currentPrompts = filteredPrompts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const generatePaginationNumbers = () => {
+    const current = currentPage;
+    const total = totalPages;
+    let pages = [];
+    
+    if (total <= 5) {
+      pages = Array.from({ length: total }, (_, i) => i + 1);
+    } else {
+      if (current <= 3) {
+        pages = [1, 2, 3, 4, 5];
+      } else if (current >= total - 2) {
+        pages = [total - 4, total - 3, total - 2, total - 1, total];
+      } else {
+        pages = [current - 2, current - 1, current, current + 1, current + 2];
+      }
+    }
+    return pages;
+  };
+
   const pendingCount = prompts.filter(p => p.status === "pending").length;
 
   return (
@@ -248,24 +278,24 @@ export default function AdminPromptsQueuePage() {
             <tbody className="divide-y divide-white/5">
               <AnimatePresence>
                 {isLoading ? (
-                  <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    <td colSpan={5} className="px-6 py-16 text-center">
+                  <tr>
+                    <td colSpan="5" className="px-6 py-12 text-center">
                       <Loader2 className="mx-auto h-8 w-8 animate-spin text-emerald-500 mb-4" />
-                      <h3 className="text-lg font-bold text-white">Loading Queue...</h3>
+                      <p className="text-zinc-500">Loading moderation queue...</p>
                     </td>
-                  </motion.tr>
-                ) : filteredPrompts.length === 0 ? (
-                  <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    <td colSpan={5} className="px-6 py-16 text-center">
-                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800/50 border border-white/5">
-                        <CheckCircle size={24} className="text-emerald-500/50" />
+                  </tr>
+                ) : currentPrompts.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-12 text-center">
+                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/5 mb-4">
+                        <CheckCircle className="h-6 w-6 text-zinc-500" />
                       </div>
-                      <h3 className="mt-4 text-lg font-bold text-white">All caught up!</h3>
-                      <p className="mt-1 text-sm text-zinc-500">No prompts match your current filters.</p>
+                      <p className="text-zinc-400 font-bold">Queue is empty</p>
+                      <p className="text-zinc-500 text-sm mt-1">No prompts matching your criteria.</p>
                     </td>
-                  </motion.tr>
+                  </tr>
                 ) : (
-                  filteredPrompts.map((prompt) => (
+                  currentPrompts.map((prompt) => (
                     <motion.tr 
                       key={prompt.id}
                       layout
@@ -379,6 +409,48 @@ export default function AdminPromptsQueuePage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        {!isLoading && totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between border-t border-white/5 bg-black/20 px-6 py-4 gap-4">
+            <div className="text-xs text-zinc-500 font-medium">
+              Showing Page <span className="font-bold text-white">{currentPage}</span> of <span className="font-bold text-white">{totalPages}</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-full border border-white/5 bg-white/5 p-1 backdrop-blur-md">
+              <button 
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                className="flex h-8 items-center justify-center rounded-full px-3 text-xs font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-emerald-400 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-zinc-400"
+              >
+                <ChevronLeft size={14} className="mr-1" /> Prev
+              </button>
+              
+              <div className="flex items-center gap-1">
+                {generatePaginationNumbers().map(p => (
+                  <button 
+                    key={p}
+                    onClick={() => setCurrentPage(p)}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all ${
+                      p === currentPage 
+                        ? "bg-[length:200%_auto] animate-gradient-x bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 text-zinc-950 shadow-[0_0_15px_rgba(52,211,153,0.4)]" 
+                        : "text-zinc-400 hover:bg-white/10 hover:text-emerald-400"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+
+              <button 
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                className="flex h-8 items-center justify-center rounded-full px-3 text-xs font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-emerald-400 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-zinc-400"
+              >
+                Next <ChevronRight size={14} className="ml-1" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Rejection Modal */}

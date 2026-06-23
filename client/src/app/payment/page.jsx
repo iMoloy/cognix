@@ -121,7 +121,7 @@ export default function PaymentPage() {
   }
 
   return (
-    <div className="relative min-h-[80vh] py-20 bg-[#030303]">
+    <div className="relative min-h-[80vh] py-10 sm:py-12 bg-[#030303] flex items-center">
       {/* Background Glow */}
       <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden">
         <div className="absolute left-[10%] top-[20%] h-[500px] w-[500px] rounded-full bg-emerald-500/5 blur-[150px] opacity-20" />
@@ -137,25 +137,25 @@ export default function PaymentPage() {
             transition={{ duration: 0.6 }}
             className="flex flex-col justify-center"
           >
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-emerald-400 backdrop-blur-md">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-emerald-400 backdrop-blur-md">
               <Sparkles size={14} />
               Upgrade to Premium
             </div>
             
-            <h1 className="text-5xl font-black tracking-tight text-white sm:text-6xl">
+            <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">
               Unlock the Vault.
             </h1>
             
-            <div className="mt-8 flex items-baseline gap-2">
-              <span className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">$5</span>
+            <div className="mt-6 flex items-baseline gap-2">
+              <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">$5</span>
               <span className="text-xl font-bold text-zinc-500">/ one-time</span>
             </div>
             
-            <p className="mt-6 text-lg leading-relaxed text-zinc-400 max-w-md">
+            <p className="mt-4 text-base md:text-lg leading-relaxed text-zinc-400 max-w-md">
               Stop writing prompts from scratch. Get lifetime access to our premium vault of battle-tested, highly engineered AI prompts.
             </p>
 
-            <ul className="mt-10 space-y-5">
+            <ul className="mt-6 space-y-3">
               {benefits.map((benefit, i) => (
                 <li key={i} className="flex items-start gap-4">
                   <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
@@ -177,9 +177,9 @@ export default function PaymentPage() {
             {/* Decorative Glow behind the form */}
             <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 blur-xl opacity-50"></div>
             
-            <div className="relative rounded-3xl border border-white/10 bg-zinc-950/80 p-8 shadow-2xl backdrop-blur-2xl">
-              <div className="mb-8 flex items-center justify-between border-b border-white/5 pb-6">
-                <h3 className="text-xl font-bold text-white">Payment Details</h3>
+            <div className="relative rounded-3xl border border-white/10 bg-zinc-950/80 p-5 sm:p-6 shadow-2xl backdrop-blur-2xl">
+              <div className="mb-6 flex items-center justify-between border-b border-white/5 pb-4">
+                <h3 className="text-lg font-bold text-white">Payment Details</h3>
                 <div className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-zinc-500">
                   <Lock size={12} /> Secure
                 </div>
@@ -192,11 +192,42 @@ export default function PaymentPage() {
                     theme: 'night',
                     variables: {
                       colorPrimary: '#34d399',
-                      colorBackground: '#18181b',
+                      colorBackground: 'transparent',
                       colorText: '#ffffff',
                       colorDanger: '#ef4444',
-                      fontFamily: 'ui-sans-serif, system-ui, sans-serif',
-                      borderRadius: '8px',
+                      fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      borderRadius: '12px',
+                      spacingUnit: '4px',
+                    },
+                    rules: {
+                      '.Input': {
+                        backgroundColor: '#18181b', // bg-zinc-900
+                        border: '1px solid rgba(255, 255, 255, 0.1)', // border-white/10
+                        boxShadow: 'none',
+                        transition: 'all 0.2s ease',
+                      },
+                      '.Input:focus': {
+                        border: '1px solid rgba(52, 211, 153, 0.5)', // border-emerald-500/50
+                        boxShadow: '0 0 0 1px rgba(52, 211, 153, 0.5)',
+                      },
+                      '.Tab': {
+                        backgroundColor: '#18181b',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        boxShadow: 'none',
+                        transition: 'all 0.2s ease',
+                      },
+                      '.Tab:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      },
+                      '.Tab--selected': {
+                        backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                        border: '1px solid rgba(52, 211, 153, 0.5)',
+                        color: '#34d399',
+                      },
+                      '.Label': {
+                        color: '#a1a1aa', // text-zinc-400
+                        fontWeight: '600',
+                      }
                     }
                   } 
                 }}>

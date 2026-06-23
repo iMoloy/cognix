@@ -1,6 +1,6 @@
 "use client";
 
-import { Shield, Trash2, User, UserCheck, MoreVertical, Loader2 } from "lucide-react";
+import { Shield, Trash2, User, UserCheck, MoreVertical, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
@@ -59,6 +59,25 @@ export default function AllUsersPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const generatePaginationNumbers = () => {
+    const current = currentPage;
+    const total = totalPages;
+    let pages = [];
+    
+    if (total <= 5) {
+      pages = Array.from({ length: total }, (_, i) => i + 1);
+    } else {
+      if (current <= 3) {
+        pages = [1, 2, 3, 4, 5];
+      } else if (current >= total - 2) {
+        pages = [total - 4, total - 3, total - 2, total - 1, total];
+      } else {
+        pages = [current - 2, current - 1, current, current + 1, current + 2];
+      }
+    }
+    return pages;
   };
 
   /* eslint-disable */
@@ -195,27 +214,46 @@ export default function AllUsersPage() {
         </div>
         
         {/* Pagination Controls */}
-        <div className="flex flex-col sm:flex-row items-center justify-between border-t border-white/5 bg-black/20 px-6 py-4 gap-4">
-          <div className="text-xs text-zinc-500 font-medium">
-            Showing Page <span className="font-bold text-white">{currentPage}</span> of <span className="font-bold text-white">{totalPages || 1}</span>
+        {totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between border-t border-white/5 bg-black/20 px-6 py-4 gap-4">
+            <div className="text-xs text-zinc-500 font-medium">
+              Showing Page <span className="font-bold text-white">{currentPage}</span> of <span className="font-bold text-white">{totalPages}</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-full border border-white/5 bg-white/5 p-1 backdrop-blur-md">
+              <button 
+                disabled={currentPage === 1 || isLoading}
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                className="flex h-8 items-center justify-center rounded-full px-3 text-xs font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-emerald-400 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-zinc-400"
+              >
+                <ChevronLeft size={14} className="mr-1" /> Prev
+              </button>
+              
+              <div className="flex items-center gap-1">
+                {generatePaginationNumbers().map(p => (
+                  <button 
+                    key={p}
+                    onClick={() => setCurrentPage(p)}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all ${
+                      p === currentPage 
+                        ? "bg-[length:200%_auto] animate-gradient-x bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 text-zinc-950 shadow-[0_0_15px_rgba(52,211,153,0.4)]" 
+                        : "text-zinc-400 hover:bg-white/10 hover:text-emerald-400"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+
+              <button 
+                disabled={currentPage === totalPages || isLoading}
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                className="flex h-8 items-center justify-center rounded-full px-3 text-xs font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-emerald-400 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-zinc-400"
+              >
+                Next <ChevronRight size={14} className="ml-1" />
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1 || isLoading}
-              className="rounded-lg bg-white/5 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages || isLoading}
-              className="rounded-lg bg-white/5 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
