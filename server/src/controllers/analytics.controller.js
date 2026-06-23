@@ -59,6 +59,13 @@ export const getAnalytics = async (req, res) => {
 
       const totalUsers = await usersCollection.countDocuments();
       const totalPrompts = await promptsCollection.countDocuments();
+      const totalReviews = await reviewsCollection.countDocuments();
+
+      // Get global total copies
+      const copiesAggregation = await promptsCollection.aggregate([
+        { $group: { _id: null, totalCopies: { $sum: "$copies" } } }
+      ]).toArray();
+      const totalCopies = copiesAggregation[0]?.totalCopies || 0;
 
       // AGGREGATION: Calculate global revenue
       const revenueAggregation = await promptsCollection.aggregate([
@@ -93,6 +100,8 @@ export const getAnalytics = async (req, res) => {
       return res.status(200).json({
         totalUsers,
         totalPrompts,
+        totalReviews,
+        totalCopies,
         totalRevenue,
         platformActivityData
       });

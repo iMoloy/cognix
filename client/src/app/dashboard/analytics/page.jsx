@@ -5,7 +5,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Legend
 } from 'recharts';
-import { Users, FileText, Bookmark, Eye, TrendingUp, Loader2, Shield } from "lucide-react";
+import { Users, FileText, Bookmark, Eye, TrendingUp, Loader2, Shield, MessageSquare, Copy } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-toastify";
 
@@ -161,7 +161,7 @@ export default function AnalyticsPage() {
   const renderAdminAnalytics = () => (
     <div className="space-y-8">
       {/* Admin Summary Cards */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
         <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-zinc-400">Total Users</h3>
@@ -180,6 +180,26 @@ export default function AnalyticsPage() {
             </div>
           </div>
           <p className="mt-4 text-3xl font-black text-white">{data.totalPrompts || 0}</p>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-zinc-400">Total Reviews</h3>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400">
+              <MessageSquare size={20} />
+            </div>
+          </div>
+          <p className="mt-4 text-3xl font-black text-white">{data.totalReviews || 0}</p>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-zinc-400">Total Copies</h3>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10 text-rose-400">
+              <Copy size={20} />
+            </div>
+          </div>
+          <p className="mt-4 text-3xl font-black text-white">{data.totalCopies || 0}</p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl">

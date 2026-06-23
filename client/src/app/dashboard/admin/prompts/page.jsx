@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle, XCircle, Search, Clock, FileText, Eye, Star, Trash2, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -8,6 +9,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-toastify";
 
 export default function AdminPromptsQueuePage() {
+  const { token, user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
   const [prompts, setPrompts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,8 +22,23 @@ export default function AdminPromptsQueuePage() {
   const [rejectingPromptId, setRejectingPromptId] = useState(null);
   const [rejectionReason, setRejectionReason] = useState("");
 
-  const { token } = useAuth();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user || user.role !== "admin") {
+        router.push("/login");
+      }
+    }
+  }, [user, authLoading, router]);
+
+  if (authLoading || !user || user.role !== "admin") {
+    return (
+      <div className="flex h-[60vh] w-full items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-rose-500" />
+      </div>
+    );
+  }
 
   const fetchPrompts = async () => {
     try {

@@ -18,6 +18,7 @@ function MarketplaceContent() {
   const [searchInput, setSearchInput] = useState(searchParams.get("search") || "");
   const [category, setCategory] = useState(searchParams.get("category")?.split(",") || []);
   const [tool, setTool] = useState(searchParams.get("tool")?.split(",") || []);
+  const [difficulty, setDifficulty] = useState(searchParams.get("difficulty")?.split(",") || []);
   const [sort, setSort] = useState(searchParams.get("sort") || "Most Copied");
   const [page, setPage] = useState(parseInt(searchParams.get("page")) || 1);
 
@@ -31,6 +32,7 @@ function MarketplaceContent() {
     if (search) params.set("search", search);
     if (category.length > 0) params.set("category", category.join(","));
     if (tool.length > 0) params.set("tool", tool.join(","));
+    if (difficulty.length > 0) params.set("difficulty", difficulty.join(","));
     if (sort !== "Most Copied") params.set("sort", sort);
     if (page > 1) params.set("page", page.toString());
 
@@ -63,7 +65,7 @@ function MarketplaceContent() {
     // Debounce to prevent rapid refetching while typing or clicking
     const timeoutId = setTimeout(fetchPrompts, 300);
     return () => clearTimeout(timeoutId);
-  }, [search, category, tool, sort, page, pathname, router]);
+  }, [search, category, tool, difficulty, sort, page, pathname, router]);
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
@@ -78,6 +80,11 @@ function MarketplaceContent() {
 
   const handleToolChange = (t) => {
     setTool(prev => prev.includes(t) ? prev.filter(item => item !== t) : [...prev, t]);
+    setPage(1);
+  };
+
+  const handleDifficultyChange = (d) => {
+    setDifficulty(prev => prev.includes(d) ? prev.filter(item => item !== d) : [...prev, d]);
     setPage(1);
   };
 
@@ -209,6 +216,33 @@ function MarketplaceContent() {
                   ))}
                 </div>
               </div>
+
+              <div className="h-px w-full bg-gradient-to-r from-white/10 to-transparent"></div>
+
+              {/* Difficulty Filter */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-bold text-white">Difficulty</h3>
+                <div className="flex flex-col gap-3">
+                  {[
+                    { label: "Beginner", value: "beginner" },
+                    { label: "Intermediate", value: "intermediate" },
+                    { label: "Pro", value: "pro" },
+                  ].map(({ label, value }) => (
+                    <label key={value} className="group flex cursor-pointer items-center gap-3 text-sm font-medium text-zinc-400 transition-colors hover:text-emerald-400">
+                      <div className="relative flex h-5 w-5 items-center justify-center rounded border border-white/20 bg-white/5 transition-colors group-hover:border-emerald-500/50">
+                        <input 
+                          type="checkbox" 
+                          checked={difficulty.includes(value)}
+                          onChange={() => handleDifficultyChange(value)}
+                          className="peer absolute h-full w-full cursor-pointer opacity-0" 
+                        />
+                        <div className="h-2.5 w-2.5 rounded-sm bg-emerald-500 opacity-0 transition-opacity peer-checked:opacity-100"></div>
+                      </div>
+                      {label}
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
           </aside>
 
@@ -247,7 +281,7 @@ function MarketplaceContent() {
                 <h3 className="text-xl font-bold text-white mb-2">No prompts found</h3>
                 <p className="text-zinc-400">Try adjusting your filters or search terms.</p>
                 <Button variant="secondary" className="mt-6" onClick={() => {
-                  setSearch(""); setSearchInput(""); setCategory([]); setTool([]); setSort("Most Copied"); setPage(1);
+                  setSearch(""); setSearchInput(""); setCategory([]); setTool([]); setDifficulty([]); setSort("Most Copied"); setPage(1);
                 }}>
                   Clear all filters
                 </Button>

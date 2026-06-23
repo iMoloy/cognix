@@ -288,4 +288,67 @@ router.delete("/:id", verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
+// Get User Dashboard Overview Stats (Logged in user)
+router.get("/dashboard-stats/:email", verifyToken, async (req, res) => {
+  try {
+    const email = req.params.email;
+    
+    // Verify that the requested email matches the logged-in user's email
+    if (req.decoded?.email !== email) {
+      return res.status(403).json({ message: "Forbidden access to other user's stats" });
+    }
+
+    const db = getDatabase();
+    
+    // 1. Get user document
+    const user = await db.collection("users").findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // 2. Count unlocked prompts
+    const isPremiumUser = user.subscription === "premium" || user.role === "admin" || user.role === "creator";
+    const approvedFilter = { $or: [{ status: "approved" }, { status: { $exists: false } }] };
+    
+    let unlocked = 0;
+    if (isPremiumUser) {
+      unlocked = await db.collection("prompts").countDocuments(approvedFilter);
+    } else {
+      unlocked = await db.collection("prompts").countDocuments({ 
+        ...approvedFilter, 
+        isPremium: { $ne: true } 
+      });
+    }
+
+    // 3. Count saved prompts (bookmarks)
+    const saved = user.bookmarks?.length || 0;
+
+    // 4. Calculate total spend (succeeded payments)
+    const payments = await db.collection("payments").find({ email, status: "succeeded" }).toArray();
+    const spend = payments.reduce((acc, p) => acc + (p.amount || 0), 0) / 100;
+
+    // 5. Get recent prompts (activity)
+    const recentActivity = await db.collection("prompts")
+      .find(approvedFilter)
+      .sort({ createdAt: -1 })
+      .limit(2)
+      .toArray();
+
+    // 6. Join date formatting
+    const joinDate = user.createdAt 
+      ? new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })
+      : "June 2026";
+
+    res.send({
+      joinDate,
+      stats: {
+        unlocked,
+        saved,
+        spend
+      },
+      recentActivity
+    });
+  } catch (error) {
+    res.status(500).send({ message: "Failed to fetch dashboard stats", error });
+  }
+});
+
 export default router;

@@ -3,7 +3,7 @@ import { ObjectId } from "mongodb";
 
 export const getPrompts = async (req, res, next) => {
   try {
-    const { search, category, tool, sort, page = 1, limit = 10 } = req.query;
+    const { search, category, tool, difficulty, sort, page = 1, limit = 10 } = req.query;
     const db = getDatabase();
     
     // Build filter query
@@ -34,6 +34,10 @@ export const getPrompts = async (req, res, next) => {
     if (tool) {
       const tools = Array.isArray(tool) ? tool : tool.split(",");
       query.tool = { $in: tools };
+    }
+    if (difficulty) {
+      const difficulties = Array.isArray(difficulty) ? difficulty : difficulty.split(",");
+      query.difficulty = { $in: difficulties };
     }
 
     // Build sort options

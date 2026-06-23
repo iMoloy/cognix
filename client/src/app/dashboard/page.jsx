@@ -1,48 +1,47 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Key, Bookmark, WalletCards, ArrowRight, TrendingUp } from "lucide-react";
+import { Key, Bookmark, WalletCards, ArrowRight, TrendingUp, Loader2 } from "lucide-react";
 import Link from "next/link";
 import PromptCard from "@/components/ui/PromptCard";
 import { useAuth } from "@/contexts/AuthContext";
 
-// Mock Data for Dashboard
-const mockStats = {
-  joinDate: "June 2026",
-  stats: {
-    unlocked: 12,
-    saved: 45,
-    spend: 60
-  }
-};
-
-const mockRecentActivity = [
-  {
-    _id: "101",
-    title: "Senior React Developer Interview Simulator",
-    description: "Acts as a technical interviewer asking advanced questions on React hooks, fiber architecture, and performance optimization.",
-    category: "Engineering",
-    tool: "ChatGPT",
-    rating: 4.9,
-    price: 5,
-    author: { name: "Alex Dev", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex" },
-    isPremium: true
-  },
-  {
-    _id: "102",
-    title: "Next.js 14 API Architect",
-    description: "Generate secure, perfectly typed Next.js App Router API endpoints with built-in Zod validation and error handling.",
-    category: "Architecture",
-    tool: "Claude 3.5 Sonnet",
-    rating: 5.0,
-    price: 0,
-    author: { name: "Vercel Master", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Vercel" },
-    isPremium: false
-  }
-];
-
 export default function DashboardOverviewPage() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const [statsData, setStatsData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!user || !token) return;
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const res = await fetch(`${apiUrl}/api/users/dashboard-stats/${user.email}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setStatsData(data);
+        }
+      } catch (err) {
+        console.error("Error fetching stats:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchStats();
+  }, [user, token]);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[50vh] w-full items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-emerald-400" />
+      </div>
+    );
+  }
 
   if (!user) return null;
 
@@ -58,14 +57,14 @@ export default function DashboardOverviewPage() {
         
         <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-zinc-900/40 p-4 backdrop-blur-xl">
           <img 
-            src={user.photoURL} 
-            alt={user.name} 
-            className={`h-12 w-12 rounded-full object-cover bg-zinc-800 ${user.subscription === 'premium' ? 'ring-2 ring-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.4)]' : 'border border-white/10'}`}
+             src={user.photoURL} 
+             alt={user.name} 
+             className={`h-12 w-12 rounded-full object-cover bg-zinc-800 ${user.subscription === 'premium' ? 'ring-2 ring-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.4)]' : 'border border-white/10'}`}
           />
           <div>
             <div className="font-bold text-white">{user.name}</div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-zinc-400">Member since {mockStats.joinDate}</span>
+              <span className="text-xs font-medium text-zinc-400">Member since {statsData?.joinDate}</span>
               <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
                 {user.subscription}
               </span>
@@ -88,7 +87,7 @@ export default function DashboardOverviewPage() {
             </div>
             <div>
               <p className="text-sm font-bold text-zinc-500">Unlocked Prompts</p>
-              <h3 className="text-2xl font-extrabold text-white">{mockStats.stats.unlocked}</h3>
+              <h3 className="text-2xl font-extrabold text-white">{statsData?.stats?.unlocked ?? 0}</h3>
             </div>
           </div>
         </motion.div>
@@ -105,7 +104,7 @@ export default function DashboardOverviewPage() {
             </div>
             <div>
               <p className="text-sm font-bold text-zinc-500">Saved to Library</p>
-              <h3 className="text-2xl font-extrabold text-white">{mockStats.stats.saved}</h3>
+              <h3 className="text-2xl font-extrabold text-white">{statsData?.stats?.saved ?? 0}</h3>
             </div>
           </div>
         </motion.div>
@@ -122,7 +121,7 @@ export default function DashboardOverviewPage() {
             </div>
             <div>
               <p className="text-sm font-bold text-zinc-500">Total Spend</p>
-              <h3 className="text-2xl font-extrabold text-white">${mockStats.stats.spend}</h3>
+              <h3 className="text-2xl font-extrabold text-white">${statsData?.stats?.spend ?? 0}</h3>
             </div>
           </div>
         </motion.div>
@@ -151,9 +150,13 @@ export default function DashboardOverviewPage() {
 
         {/* Reuse PromptCard for consistency */}
         <div className="grid gap-6 xl:grid-cols-2">
-          {mockRecentActivity.map((prompt, index) => (
-            <PromptCard key={prompt._id} prompt={prompt} index={index} />
-          ))}
+          {(statsData?.recentActivity || []).length === 0 ? (
+            <p className="text-zinc-500 py-6 col-span-2">No recent prompt activity yet.</p>
+          ) : (
+            (statsData?.recentActivity || []).map((prompt, index) => (
+              <PromptCard key={prompt._id} prompt={prompt} index={index} />
+            ))
+          )}
         </div>
       </motion.div>
 

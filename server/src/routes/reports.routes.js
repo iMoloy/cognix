@@ -72,4 +72,46 @@ router.delete("/:id", verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
+// Warn creator of reported prompt (Admin only)
+router.post("/:id/warn", verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const reportId = req.params.id;
+    const db = getDatabase();
+    
+    // 1. Get the report
+    const report = await db.collection("reports").findOne({ _id: new ObjectId(reportId) });
+    if (!report) return res.status(404).send({ message: "Report not found" });
+    
+    // 2. Get the prompt to find creatorId
+    const prompt = await db.collection("prompts").findOne({ _id: new ObjectId(report.promptId) });
+    if (!prompt) return res.status(404).send({ message: "Prompt not found" });
+    
+    if (prompt.creatorId) {
+      // 3. Increment warningsCount and push to warnings log for the creator
+      await db.collection("users").updateOne(
+        { _id: new ObjectId(prompt.creatorId) },
+        { 
+          $inc: { warningsCount: 1 },
+          $push: { 
+            warnings: {
+              reportId: new ObjectId(reportId),
+              promptId: prompt._id,
+              promptTitle: prompt.title,
+              reason: report.reason,
+              date: new Date()
+            }
+          }
+        }
+      );
+    }
+    
+    // 4. Delete the report as it is now resolved
+    await db.collection("reports").deleteOne({ _id: new ObjectId(reportId) });
+    
+    res.send({ message: "Creator warned and report resolved" });
+  } catch (error) {
+    res.status(500).send({ message: "Error warning creator", error });
+  }
+});
+
 export default router;

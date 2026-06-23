@@ -1,17 +1,36 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AlertTriangle, Shield, ShieldAlert, ShieldCheck, ExternalLink, Search, Trash2, CheckCircle2, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-toastify";
 
 export default function AdminReportsPage() {
+  const { token, user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { token } = useAuth();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user || user.role !== "admin") {
+        router.push("/login");
+      }
+    }
+  }, [user, authLoading, router]);
+
+  if (authLoading || !user || user.role !== "admin") {
+    return (
+      <div className="flex h-[60vh] w-full items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-rose-500" />
+      </div>
+    );
+  }
 
   const fetchReports = async () => {
     try {
@@ -80,6 +99,27 @@ export default function AdminReportsPage() {
     }
   };
 
+  const handleWarnCreator = async (reportId) => {
+    if (!confirm("Are you sure you want to warn the creator of this prompt?")) return;
+    
+    try {
+      const res = await fetch(`${API_URL}/api/reports/${reportId}/warn`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setReports(prev => prev.filter(r => r._id !== reportId));
+        toast.success("Creator warned and report resolved");
+      } else {
+        const data = await res.json();
+        toast.error(data.message || "Failed to warn creator");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to warn creator");
+    }
+  };
+
   const filteredReports = reports.filter(r => 
     r.reason.toLowerCase().includes(searchQuery.toLowerCase()) || 
     (r.promptId && r.promptId.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -139,10 +179,15 @@ export default function AdminReportsPage() {
                     
                     <div>
                       <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                        Prompt ID: {report.promptId}
-                        <button className="text-zinc-500 hover:text-white transition-colors">
+                        {report.promptTitle || `Prompt ID: ${report.promptId}`}
+                        <a 
+                          href={`/prompts/${report.promptId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-zinc-500 hover:text-white transition-colors inline-flex items-center"
+                        >
                           <ExternalLink size={14} />
-                        </button>
+                        </a>
                       </h3>
                       <p className="mt-1 text-sm text-zinc-400">
                         <span className="font-medium text-zinc-300">Reported by {report.userEmail}:</span> {report.description}
@@ -150,13 +195,20 @@ export default function AdminReportsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 md:flex-col lg:flex-row">
+                  <div className="flex flex-wrap items-center gap-3 md:flex-col lg:flex-row">
                     <button 
                       onClick={() => handleDismiss(report._id)}
                       className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 rounded-xl bg-white/5 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-white/10"
                     >
                       <CheckCircle2 size={16} className="text-emerald-400" />
                       Dismiss
+                    </button>
+                    <button 
+                      onClick={() => handleWarnCreator(report._id)}
+                      className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-2.5 text-sm font-bold text-amber-400 transition-all hover:bg-amber-500/25"
+                    >
+                      <ShieldAlert size={16} />
+                      Warn Creator
                     </button>
                     <button 
                       onClick={() => handleRemovePrompt(report.promptId, report._id)}

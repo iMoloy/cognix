@@ -2,17 +2,37 @@
 
 import { Shield, Trash2, User, UserCheck, MoreVertical, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-toastify";
 
 export default function AllUsersPage() {
+  const { token, user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 10;
-  const { token } = useAuth();
+  
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user || user.role !== "admin") {
+        router.push("/login");
+      }
+    }
+  }, [user, authLoading, router]);
+
+  if (authLoading || !user || user.role !== "admin") {
+    return (
+      <div className="flex h-[60vh] w-full items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-rose-500" />
+      </div>
+    );
+  }
 
   const fetchUsers = async () => {
     try {

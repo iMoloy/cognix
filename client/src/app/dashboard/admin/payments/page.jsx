@@ -2,13 +2,32 @@
 
 import { CreditCard, ArrowUpRight, Loader2, Copy } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-toastify";
 
 export default function AllPaymentsPage() {
-  const { token, user } = useAuth();
+  const { token, user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user || user.role !== "admin") {
+        router.push("/login");
+      }
+    }
+  }, [user, authLoading, router]);
+
+  if (authLoading || !user || user.role !== "admin") {
+    return (
+      <div className="flex h-[60vh] w-full items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-rose-500" />
+      </div>
+    );
+  }
 
   useEffect(() => {
     const fetchAllPayments = async () => {

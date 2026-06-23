@@ -169,6 +169,7 @@ export default function PromptDetailsPage() {
         },
         body: JSON.stringify({
           promptId,
+          promptTitle: prompt?.title,
           reason,
           description: details,
           userEmail: user.email
