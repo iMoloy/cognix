@@ -7,14 +7,24 @@ export const getPrompts = async (req, res, next) => {
     const db = getDatabase();
     
     // Build filter query
-    const query = {
-      $or: [{ status: "approved" }, { status: { $exists: false } }]
-    };
+    const statusFilter = { $or: [{ status: "approved" }, { status: { $exists: false } }] };
+
+    // Start with the status filter as base query
+    const query = { ...statusFilter };
+
     if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } }
+      // Use $and to keep status filter AND apply search — prevents pending prompts from leaking
+      query.$and = [
+        statusFilter,
+        {
+          $or: [
+            { title: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } },
+            { tags: { $elemMatch: { $regex: search, $options: "i" } } },
+          ]
+        }
       ];
+      delete query.$or;
     }
     if (category) {
       // Support array if multiple passed, or comma separated
