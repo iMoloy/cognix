@@ -15,7 +15,8 @@ Cognix is a premium, feature-rich web application designed for prompt engineers,
 - **Category & Engine Filters**: Filter by categories (Engineering, Marketing, Design, Product, etc.) and AI Engines.
 - **Difficulty Level Filter**: Filter prompts by **Difficulty** (Beginner, Intermediate, Pro) with complete URL parameter synchronization.
 
-### 🛡️ Access Control & Security
+### 🛡️ Access Control & Robustness
+- **Global Error Handling**: Custom `error.jsx` boundary ensures the app never crashes on page reloads or invalid routing, displaying a beautiful UI fallback instead.
 - **Client-Side Auth Guards**: Secure client-side routing on all Admin routes (`/dashboard/admin/*`). Non-admins or unauthenticated users are automatically redirected to the `/login` page.
 - **JWT & Firebase Authentication**: Role-based access control (User, Creator, Admin) enforced on both client and server via robust JWT validation.
 

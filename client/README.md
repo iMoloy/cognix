@@ -9,6 +9,8 @@ This is the frontend client for the Cognix AI Prompt Sharing & Marketplace Platf
 - **Advanced Dynamic Search & Filters**: Interactive UI for global searching and filtering across the Hero Section, Top Creators directory, Prompts Marketplace, and Admin Tables. Real-time updates and URL parameter syncing.
 - **Intelligent Pagination**: Dynamic pagination controls embedded natively in Admin tables for managing large volumes of Users, Reports, and Payments.
 - **Interactive Modals**: Includes review submission rating/comment modal, prompt reporting modal with reasons, and rejection feedback modal.
+- **Premium Responsive UI**: Tablet-optimized mobile menus with high-end grid layouts, glassmorphism styling, and dynamic auth-based button positioning.
+- **Global Error Boundaries**: Custom `error.jsx` fallback UI to gracefully handle rendering errors and deep-link reloads without application crashes.
 - **Premium Stripe Integration**: Highly customized Checkout form utilizing Stripe Payment Elements, heavily tailored via the Appearance API to match the platform's dark/emerald UI aesthetic perfectly.
 - **Analytics Visualizations**: Real-time charts using Recharts library showing Creator growth metrics and Admin platform activity statistics.
 
