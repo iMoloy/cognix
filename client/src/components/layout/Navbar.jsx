@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BrainCircuit, LayoutDashboard, LogOut, Menu, X, Search, Sparkles, Compass } from "lucide-react";
+import { BrainCircuit, LayoutDashboard, LogOut, Menu, X, Search, Sparkles, Compass, PlusCircle, Users, Bookmark } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Button from "@/components/ui/Button";
@@ -53,8 +53,8 @@ export default function Navbar() {
       <nav className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 relative">
         
         {/* Desktop Left Side: Profile & Dashboard */}
-        <div className="hidden md:flex flex-1 items-center gap-4 justify-start">
-          {isAuthenticated && (
+        <div className="hidden lg:flex flex-1 items-center gap-4 justify-start">
+          {isAuthenticated ? (
             <>
               <Link
                 href="/dashboard/profile"
@@ -69,6 +69,13 @@ export default function Navbar() {
                 />
               </Link>
               <Button
+                onClick={() => router.push("/dashboard/add-prompt")}
+                className="h-10 px-5 text-sm bg-gradient-to-r from-emerald-400 to-cyan-400 !text-zinc-950 border-0 hover:scale-[1.02] shadow-lg shadow-emerald-500/20"
+              >
+                Add Prompt
+                <PlusCircle size={16} className="ml-2" />
+              </Button>
+              <Button
                 onClick={() => router.push("/dashboard")}
                 className="h-10 px-5 text-sm"
               >
@@ -76,11 +83,19 @@ export default function Navbar() {
                 <LayoutDashboard size={16} className="ml-2" />
               </Button>
             </>
+          ) : (
+            <Button
+              onClick={() => router.push("/prompts")}
+              className="h-10 px-5 text-sm"
+            >
+              Explore
+              <Compass size={16} className="ml-1.5" />
+            </Button>
           )}
         </div>
 
         {/* Brand Logo (Left on Mobile, Center on Desktop) */}
-        <div className="flex md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-10">
+        <div className="flex lg:absolute lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 z-10">
           <Link href="/" className="group flex items-center gap-3" onClick={closeMobileMenu}>
             <div className="flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition-all group-hover:scale-105 group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10">
               <BrainCircuit size={26} color="url(#icon-gradient)" />
@@ -93,14 +108,25 @@ export default function Navbar() {
         </div>
 
         {/* Desktop Right Side: Prompts & Logout/Login */}
-        <div className="hidden md:flex flex-1 items-center gap-4 justify-end">
-          <Button
-            onClick={() => router.push("/prompts")}
-            className="h-10 px-5 text-sm"
-          >
-            Explore
-            <Compass size={16} className="ml-1.5" />
-          </Button>
+        <div className="hidden lg:flex flex-1 items-center gap-4 justify-end">
+          {isAuthenticated && (
+            <>
+              <Button
+                onClick={() => router.push("/dashboard/saved")}
+                className="h-10 px-5 text-sm"
+              >
+                Saved
+                <Bookmark size={16} className="ml-1.5" />
+              </Button>
+              <Button
+                onClick={() => router.push("/prompts")}
+                className="h-10 px-5 text-sm"
+              >
+                Explore
+                <Compass size={16} className="ml-1.5" />
+              </Button>
+            </>
+          )}
 
           {isAuthenticated ? (
             <Button
@@ -144,7 +170,7 @@ export default function Navbar() {
         </div>
 
         {/* Mobile View Toggle */}
-        <div className="flex flex-1 justify-end items-center gap-3 md:hidden">
+        <div className="flex flex-1 justify-end items-center gap-3 lg:hidden">
           {isAuthenticated && (
             <Link
               href="/dashboard/profile"
@@ -177,65 +203,94 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute left-0 right-0 top-[80px] border-b border-white/10 bg-[#030303]/95 backdrop-blur-3xl shadow-2xl md:hidden"
+            className="absolute left-0 right-0 top-[80px] border-b border-white/10 bg-[#030303]/95 backdrop-blur-3xl shadow-2xl lg:hidden"
           >
-            <div className="flex flex-col px-6 py-8 space-y-6">
+            <div className="flex flex-col px-6 py-6 space-y-6">
               
-              <Button
-                fullWidth
-                onClick={() => {
-                  router.push("/prompts");
-                  setIsMobileMenuOpen(false);
-                }}
-                className="h-11 text-sm"
-              >
-                Explore
-                <Compass size={18} className="ml-2" />
-              </Button>
+              {isAuthenticated && (
+                <Link 
+                  href="/dashboard/profile"
+                  onClick={closeMobileMenu}
+                  className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10"
+                >
+                  <img 
+                    src={user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`} 
+                    alt="Profile" 
+                    referrerPolicy="no-referrer"
+                    className={`size-12 rounded-full bg-zinc-800 object-cover ${user?.subscription === 'premium' ? 'ring-2 ring-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.4)]' : 'border border-white/10'}`}
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-base font-bold text-white">{user?.name}</span>
+                    <span className="text-sm font-medium text-zinc-500">{user?.email}</span>
+                  </div>
+                </Link>
+              )}
+
+              {/* Grid Menu Items */}
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    router.push("/prompts");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex-col h-24 gap-2 border-white/5 bg-white/[0.02]"
+                >
+                  <Compass size={24} className="text-emerald-400" />
+                  <span className="text-xs font-semibold text-zinc-300">Explore</span>
+                </Button>
+                
+                {isAuthenticated && (
+                  <>
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        router.push("/dashboard/saved");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="flex-col h-24 gap-2 border-white/5 bg-white/[0.02]"
+                    >
+                      <Bookmark size={24} className="text-emerald-400" fill="currentColor" />
+                      <span className="text-xs font-semibold text-zinc-300">Saved</span>
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        router.push("/dashboard");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="flex-col h-24 gap-2 border-white/5 bg-white/[0.02]"
+                    >
+                      <LayoutDashboard size={24} className="text-cyan-400" />
+                      <span className="text-xs font-semibold text-zinc-300">Dashboard</span>
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        router.push("/dashboard/add-prompt");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="flex-col h-24 gap-2 !shadow-emerald-500/20"
+                    >
+                      <PlusCircle size={24} className="text-zinc-950" />
+                      <span className="text-xs font-extrabold text-zinc-950">Add Prompt</span>
+                    </Button>
+                  </>
+                )}
+              </div>
 
               {isAuthenticated ? (
-                <>
-                  <Button
-                    fullWidth
-                    onClick={() => {
-                      router.push("/dashboard");
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="h-12"
-                  >
-                    Dashboard
-                    <LayoutDashboard size={16} className="ml-2" />
-                  </Button>
-                  <Button
-                    fullWidth
-                    onClick={() => {
-                      handleLogout();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="h-12"
-                    aria-label="Logout"
-                  >
-                    <LogOut size={20} />
-                  </Button>
-                  
-                  {/* Mobile Dropdown User Profile Card */}
-                  <Link 
-                    href="/dashboard/profile"
-                    onClick={closeMobileMenu}
-                    className="mt-2 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10"
-                  >
-                    <img 
-                      src={user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`} 
-                      alt="Profile" 
-                      referrerPolicy="no-referrer"
-                      className={`size-10 rounded-full bg-zinc-800 object-cover ${user?.subscription === 'premium' ? 'ring-2 ring-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.4)]' : 'border border-white/10'}`}
-                    />
-                    <div className="flex flex-col">
-                      <span className="text-sm font-bold text-white">{user?.name}</span>
-                      <span className="text-xs font-medium text-zinc-500">{user?.email}</span>
-                    </div>
-                  </Link>
-                </>
+                <Button
+                  variant="danger"
+                  fullWidth
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="h-12"
+                >
+                  <LogOut size={18} className="mr-2" />
+                  Sign Out
+                </Button>
               ) : (
                 <div className="pt-4 border-t border-white/5">
                   <div className="relative flex h-11 w-full rounded-xl shadow-sm transition-shadow duration-300 has-[.login-btn:hover]:shadow-[-10px_0_20px_-2px_rgba(52,211,153,0.4)] has-[.register-btn:hover]:shadow-[10px_0_20px_-2px_rgba(52,211,153,0.4)]">
