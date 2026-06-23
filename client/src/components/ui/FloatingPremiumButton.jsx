@@ -13,6 +13,9 @@ export default function FloatingPremiumButton() {
   // Do not show while auth is loading
   if (loading) return null;
 
+  // Do not show if the user is not logged in
+  if (!user) return null;
+
   // Do not show if the user is already premium
   if (user?.subscription === "premium") return null;
 
