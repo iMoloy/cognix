@@ -154,11 +154,17 @@ export default function DashboardLayout({ children }) {
 
               <div className="mt-2 border-t border-white/10 pt-2">
                 <Link
-                  href="/help"
-                  className="group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-zinc-400 transition-all hover:bg-white/5 hover:text-emerald-400"
+                  href="/dashboard/help"
+                  className={`group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${pathname === "/dashboard/help" ? "text-white" : "text-zinc-400 hover:bg-white/5 hover:text-emerald-400"}`}
                 >
-                  <LifeBuoy size={18} className="text-zinc-500 group-hover:text-emerald-400" />
-                  Help & Support
+                  {pathname === "/dashboard/help" && (
+                    <motion.div 
+                      layoutId="desktop-sidebar-help-active"
+                      className="absolute inset-0 rounded-xl border border-emerald-500/20 bg-emerald-500/10"
+                    />
+                  )}
+                  <LifeBuoy size={18} className={`relative z-10 transition-colors ${pathname === "/dashboard/help" ? "text-emerald-400" : "text-zinc-500 group-hover:text-emerald-400"}`} />
+                  <span className="relative z-10">Help & Support</span>
                 </Link>
               </div>
             </nav>
