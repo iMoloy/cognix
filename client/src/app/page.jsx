@@ -69,7 +69,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-center opacity-[0.03]"></div>
       </div>
 
-      <section className="relative z-10 border-b border-white/5 bg-transparent px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <section className="relative z-10 border-b border-white/5 bg-transparent px-4 pt-10 pb-20 sm:px-6 lg:px-8 lg:pt-12 lg:pb-28">
         <div className="mx-auto grid w-full max-w-7xl gap-16 lg:grid-cols-[1fr_1fr] lg:items-center">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
