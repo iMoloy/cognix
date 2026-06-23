@@ -1,49 +1,66 @@
-# Cognix
+# Cognix — AI Prompt Sharing & Marketplace Platform
 
-Cognix is a premium AI prompt sharing and marketplace platform. It allows users to discover, publish, bookmark, review, and monetize high-quality AI prompts for tools like ChatGPT, Claude, Gemini, and Midjourney.
+Cognix is a premium, feature-rich web application designed for prompt engineers, creators, and AI enthusiasts to discover, publish, bookmark, review, and monetize high-quality AI prompts for popular engines like ChatGPT, Claude, Gemini, and Midjourney.
 
-## Features
+---
 
-- **Prompt Marketplace**: Browse and search through a rich collection of public and premium prompts.
-- **Premium Unlock**: Users can unlock premium prompts using Stripe.
-- **Creator Dashboard**: Manage published prompts, track earnings, and respond to reviews.
-- **Admin Dashboard**: Moderation tools to manage users, approve/reject prompts, and handle reports.
-- **Social Features**: Bookmark favorites, leave ratings & reviews, and copy prompts to clipboard.
+## 🚀 Key Features
 
-## Tech Stack
+### 🔍 Search & Filtering (Marketplace)
+- **Advanced Search**: Search for prompts by Title, Description, or Tags. Secure search query design prevents unpublished/pending prompts from leaking.
+- **Category & Engine Filters**: Filter by categories (Engineering, Marketing, Design, Product, etc.) and AI Engines.
+- **Difficulty Level Filter**: Filter prompts by **Difficulty** (Beginner, Intermediate, Pro) with complete URL parameter synchronization.
 
-- **Frontend**: Next.js 14 (App Router), React, Tailwind CSS, Framer Motion
+### 🛡️ Access Control & Security
+- **Client-Side Auth Guards**: Secure client-side routing on all Admin routes (`/dashboard/admin/users`, `/dashboard/admin/reports`, `/dashboard/admin/payments`, `/dashboard/admin/prompts`). Non-admins or unauthenticated users are automatically redirected to the `/login` page.
+- **JWT & Firebase Authentication**: Role-based access control (User, Creator, Admin) enforced on both client and server.
+
+### ⚠️ Community Moderation & "Warn Creator"
+- **Report System**: Users can report prompts violating marketplace guidelines with details.
+- **Admin Moderation Queue**: Admins can dismiss reports, remove prompts, or **Warn the Creator** (which increments the creator's warning count, logs the warning reason, and resolves the report).
+
+### 📊 Dynamic User & Admin Dashboards
+- **Dynamic Stats Overview**: The user dashboard renders live database statistics:
+  - **Unlocked Prompts**: Total prompts accessible based on subscription state.
+  - **Saved to Library**: Count of bookmarks.
+  - **Total Spend**: Total money spent on premium subscriptions.
+  - **Recent Activity**: Renders live lists of the latest approved prompts on the platform.
+- **Advanced Admin Analytics**: Tracks global registered users, platform prompts, total copies count (calculated via MongoDB aggregation), total reviews, and platform revenue.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 14 (App Router), React, Tailwind CSS, Framer Motion, Recharts
 - **Backend**: Node.js, Express.js
-- **Database**: MongoDB & Mongoose
-- **Authentication**: Firebase Auth + JWT (Custom Claims)
-- **Payments**: Stripe Checkout
+- **Database**: MongoDB
+- **Authentication**: Firebase Authentication + Custom JWT Validation
+- **Payments**: Stripe SDK (Payment Intents API)
 
-## Environment Variables Setup
+---
 
-You will need to create two `.env` files based on the provided `.env.example` templates.
+## ⚙️ Environment Setup
 
-### 1. Server Setup (`server/.env`)
+Ensure you create the configuration files in their respective folders:
 
-Create a `.env` file in the `server` directory and add the following keys:
-
+### 1. Server Configuration (`server/.env`)
+Create a `.env` file in the `server` directory:
 ```env
 NODE_ENV=development
 PORT=5000
 CLIENT_ORIGIN=http://localhost:3000
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net
-DB_NAME=cognix
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net
+DB_NAME=cognix_db
 ACCESS_TOKEN_SECRET=your_jwt_secret_key
 STRIPE_SECRET_KEY=your_stripe_secret_key
 ```
 
-### 2. Client Setup (`client/.env.local`)
-
-Create a `.env.local` file in the `client` directory and add the following keys:
-
+### 2. Client Configuration (`client/.env.local`)
+Create a `.env.local` file in the `client` directory:
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
 
-# Firebase Config (Get this from Firebase Console)
+# Firebase Configuration
 NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
@@ -51,26 +68,29 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 
-# ImgBB API Key (For image uploads)
+# Image Upload (ImgBB)
 NEXT_PUBLIC_IMGBB_API_KEY=your_imgbb_api_key
 
-# Stripe Publishable Key
+# Stripe Payment
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 ```
 
-## Running the Application Locally
+---
 
-Run the following commands from the root directory to start the development servers:
+## 💻 Running the Project Locally
 
+### 1. Run Backend Server
 ```bash
-# Start the backend server (runs on port 5000)
-npm run dev:server
-
-# Start the frontend Next.js app (runs on port 3000)
-npm run dev:client
+cd server
+npm install
+npm run dev
 ```
+The server will start on `http://localhost:5000`.
 
-To build the client for production:
+### 2. Run Frontend Client
 ```bash
-npm run build:client
+cd client
+npm install
+npm run dev
 ```
+The application will open on `http://localhost:3000`.

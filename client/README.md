@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Cognix Client (Next.js Application)
 
-## Getting Started
+This is the frontend client for the Cognix AI Prompt Sharing & Marketplace Platform, built with Next.js 14 (App Router).
 
-First, run the development server:
+## 🚀 Key Client Features
+
+- **Dynamic Navigation & Dashboard Shell**: Responsive side navigation with dynamic links dependent on the user's role (User, Creator, Admin).
+- **Client Auth Guards**: Active check for Admin role on routing `/dashboard/admin/*` to automatically redirect unauthenticated or standard users.
+- **Marketplace Filters**: Interactive sidebar filters for categories, AI Engine tools, and **Difficulty level** (Beginner, Intermediate, Pro), fully synced in real-time with URL parameters.
+- **Interactive Modals**: Includes review submission rating/comment modal, prompt reporting modal with reasons, and rejection feedback modal.
+- **Stripe Integration**: Checkout form utilizing Stripe Payment Elements.
+- **Analytics Visualizations**: Real-time charts using Recharts library showing Creator growth metrics and Admin platform activity statistics.
+
+## 🛠️ Tech Stack & Dependencies
+
+- **Framework**: Next.js 14 (App Router)
+- **Styling**: Tailwind CSS
+- **Icons**: Lucide React
+- **Animations**: Framer Motion
+- **Charts**: Recharts
+- **Auth Service**: Firebase Client SDK
+
+## ⚙️ Environment Variables
+
+Create a `.env.local` file in the root of the `client` directory:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000
+
+# Firebase Configuration
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+
+# ImgBB API (Image upload)
+NEXT_PUBLIC_IMGBB_API_KEY=your_imgbb_api_key
+
+# Stripe Payment
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+```
+
+## 💻 Getting Started
+
+Run the following commands inside the `client` directory:
 
 ```bash
+# Install dependencies
+npm install
+
+# Run the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
