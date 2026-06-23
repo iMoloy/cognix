@@ -92,7 +92,7 @@ input {
 
 /* Gradient backgrounds for the icons */
 .Toastify__toast--success .Toastify__toast-icon {
-  background: linear-gradient(135deg, #a855f7, #ec4899) !important; /* Match image */
+  background: linear-gradient(135deg, #34d399, #22d3ee) !important; /* Emerald to Cyan */
 }
 
 .Toastify__toast--error .Toastify__toast-icon {
@@ -106,7 +106,7 @@ input {
 
 /* The gradient progress bar from the image */
 .Toastify__progress-bar {
-  background: linear-gradient(to right, #2dd4bf, #3b82f6, #a855f7, #ec4899) !important;
+  background: linear-gradient(to right, #34d399, #22d3ee, #34d399) !important;
   height: 4px !important;
   bottom: 0 !important;
   border-bottom-left-radius: 8px !important;
