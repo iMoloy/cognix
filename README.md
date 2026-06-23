@@ -9,25 +9,27 @@ Cognix is a premium, feature-rich web application designed for prompt engineers,
 
 ## 🚀 Key Features
 
-### 🔍 Search & Filtering (Marketplace)
-- **Advanced Search**: Search for prompts by Title, Description, or Tags. Secure search query design prevents unpublished/pending prompts from leaking.
+### 🔍 Advanced Search & Dynamic Filtering
+- **Global Dynamic Search**: Search functionality is implemented across the platform (Hero Section, Prompts Marketplace, Top Creators, and Admin Dashboards) updating in real-time.
+- **Top Creators Directory**: Dedicated page to find creators, sortable by "Most Copies", "Highest Rating", and "Most Prompts", with a unified UI filter design.
 - **Category & Engine Filters**: Filter by categories (Engineering, Marketing, Design, Product, etc.) and AI Engines.
 - **Difficulty Level Filter**: Filter prompts by **Difficulty** (Beginner, Intermediate, Pro) with complete URL parameter synchronization.
 
 ### 🛡️ Access Control & Security
-- **Client-Side Auth Guards**: Secure client-side routing on all Admin routes (`/dashboard/admin/users`, `/dashboard/admin/reports`, `/dashboard/admin/payments`, `/dashboard/admin/prompts`). Non-admins or unauthenticated users are automatically redirected to the `/login` page.
-- **JWT & Firebase Authentication**: Role-based access control (User, Creator, Admin) enforced on both client and server.
+- **Client-Side Auth Guards**: Secure client-side routing on all Admin routes (`/dashboard/admin/*`). Non-admins or unauthenticated users are automatically redirected to the `/login` page.
+- **JWT & Firebase Authentication**: Role-based access control (User, Creator, Admin) enforced on both client and server via robust JWT validation.
 
 ### ⚠️ Community Moderation & "Warn Creator"
-- **Report System**: Users can report prompts violating marketplace guidelines with details.
+- **Report System**: Users can report prompts violating marketplace guidelines with detailed reasoning.
 - **Admin Moderation Queue**: Admins can dismiss reports, remove prompts, or **Warn the Creator** (which increments the creator's warning count, logs the warning reason, and resolves the report).
 
+### 💳 Premium Monetization & Stripe
+- **Pro Builder Subscription**: Users can upgrade to a premium tier via a beautifully customized Stripe Elements checkout that perfectly matches the dark/emerald UI of the website.
+- **Transaction Logs**: Admins can view and track paginated Stripe transaction logs.
+
 ### 📊 Dynamic User & Admin Dashboards
-- **Dynamic Stats Overview**: The user dashboard renders live database statistics:
-  - **Unlocked Prompts**: Total prompts accessible based on subscription state.
-  - **Saved to Library**: Count of bookmarks.
-  - **Total Spend**: Total money spent on premium subscriptions.
-  - **Recent Activity**: Renders live lists of the latest approved prompts on the platform.
+- **Dynamic Stats Overview**: The user dashboard renders live database statistics (Unlocked Prompts, Saved to Library, Total Spend, Recent Activity).
+- **Intelligent Pagination**: Dynamic pagination across Admin tables (Payments, Reports, Users) that elegantly hides controls when data sets are small.
 - **Advanced Admin Analytics**: Tracks global registered users, platform prompts, total copies count (calculated via MongoDB aggregation), total reviews, and platform revenue.
 
 ---
@@ -38,7 +40,7 @@ Cognix is a premium, feature-rich web application designed for prompt engineers,
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB
 - **Authentication**: Firebase Authentication + Custom JWT Validation
-- **Payments**: Stripe SDK (Payment Intents API)
+- **Payments**: Stripe SDK (Payment Intents API & React Stripe Elements)
 
 ---
 

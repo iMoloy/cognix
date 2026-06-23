@@ -10,7 +10,7 @@ This is the backend API server for the Cognix AI Prompt Sharing & Marketplace Pl
 - `POST /api/prompts/:id/copy` - Increment copy count metric for a prompt.
 
 ### 🛡️ User Endpoints (Authenticated)
-- `POST /api/users` - Create/register a new user or sync their Firebase Auth session.
+- `POST /api/users` - Create/register a new user or sync their Firebase Auth session. Generates robust JWT authentication tokens.
 - `GET /api/users/:email` - Get details of a registered user by email.
 - `PATCH /api/users/:email` - Update user profile information.
 - `POST /api/users/bookmark` - Toggle bookmarking for a specific prompt ID.
@@ -30,11 +30,15 @@ This is the backend API server for the Cognix AI Prompt Sharing & Marketplace Pl
 - `POST /api/reports/:id/warn` - Warn prompt creator (increments warnings count on creator, logs warning details, and removes report from queue).
 - `DELETE /api/reports/:id` - Dismiss / delete a report record.
 - `GET /api/payments/all` - Fetch all platform transactions.
-- `GET /api/analytics` - Fetch platform-wide analytics stats (Total Users, Total Prompts, Total Reviews, Total Copies, and platform revenue details).
+- `GET /api/analytics` - Fetch platform-wide analytics stats (Total Users, Total Prompts, Total Reviews, Total Copies, and platform revenue details computed via MongoDB aggregation).
+
+### 💳 Stripe Endpoints
+- `POST /api/payments/create-intent` - Generates a secure Stripe Payment Intent client secret for Premium upgrades.
+- `POST /api/payments/success` - Validates successful Stripe checkout and upgrades user to Premium.
 
 ## 🛠️ Middleware Enforcements
 
-- **`verifyToken`**: Validates custom JWT headers.
+- **`verifyToken`**: Validates custom JWT headers created securely on auth events.
 - **`verifyCreator`**: Validates that user has "creator" or "admin" clearance.
 - **`verifyAdmin`**: Restricts routes exclusively to users possessing the "admin" role.
 
