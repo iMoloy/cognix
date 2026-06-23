@@ -13,7 +13,7 @@ export default function FeaturedPrompts() {
   useEffect(() => {
     const fetchPrompts = async () => {
       try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
         const response = await axios.get(`${API_URL}/api/prompts`);
         // Sort by copies descending and take top 6
         const promptsArray = response.data.prompts || response.data || [];

@@ -44,7 +44,7 @@ function MarketplaceContent() {
     const fetchPrompts = async () => {
       setIsLoading(true);
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
         const res = await fetch(`${apiUrl}/api/prompts${queryString ? `?${queryString}` : ""}`);
         const data = await res.json();
         const promptsArray = Array.isArray(data) ? data : (data.prompts || []);

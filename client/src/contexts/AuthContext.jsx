@@ -13,7 +13,7 @@ import {
 import { auth } from "../firebase/firebase.config";
 
 const AuthContext = createContext(null);
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);

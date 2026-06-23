@@ -27,7 +27,7 @@ export default function ProfilePage() {
     if (!user?.email || !token) return;
     setLoadingPayments(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
       const res = await fetch(`${apiUrl}/api/payments/history/${user.email}`, {
         headers: { Authorization: `Bearer ${token}` }
       });

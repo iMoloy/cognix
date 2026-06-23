@@ -33,7 +33,7 @@ export default function AnalyticsPage() {
       
       try {
         setLoading(true);
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
         
         let url = `${API_URL}/api/analytics`;
         // If user is creator, fetch their specific stats. If admin, fetch global stats.

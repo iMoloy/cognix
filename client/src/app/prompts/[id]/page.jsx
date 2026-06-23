@@ -24,7 +24,7 @@ export default function PromptDetailsPage() {
   const [isFetching, setIsFetching] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
 
   // Auth Protection - Redirect if not logged in
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function PromptDetailsPage() {
     const fetchPrompt = async () => {
       try {
         if (!promptId) return;
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
         const res = await fetch(`${apiUrl}/api/prompts/${promptId}`);
         if (!res.ok) throw new Error("Prompt not found");
         const data = await res.json();

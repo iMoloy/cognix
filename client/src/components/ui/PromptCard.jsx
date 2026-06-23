@@ -10,13 +10,13 @@ export default function PromptCard({ prompt, index = 0 }) {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-zinc-900/40 p-6 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]"
+      className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-zinc-900/40 p-6 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_15px_30px_rgba(16,185,129,0.1),0_20px_45px_-15px_rgba(0,0,0,0.6)]"
     >
       {/* Animated gradient border effect */}
-      <div className="absolute inset-0 z-0 rounded-2xl border border-white/5 transition-colors duration-500 group-hover:border-white/10"></div>
+      <div className="absolute inset-0 z-0 rounded-2xl border border-white/5 transition-colors duration-500 group-hover:border-emerald-500/20"></div>
       
       {/* Subtle background glow on hover */}
-      <div className="absolute inset-0 z-0 rounded-2xl bg-gradient-to-br from-emerald-500/0 via-transparent to-emerald-500/0 opacity-0 transition-opacity duration-700 group-hover:from-emerald-500/5 group-hover:to-transparent group-hover:opacity-40"></div>
+      <div className="absolute inset-0 z-0 rounded-2xl bg-gradient-to-br from-emerald-500/0 via-transparent to-emerald-500/0 opacity-0 transition-opacity duration-700 group-hover:from-emerald-500/10 group-hover:to-transparent group-hover:opacity-40"></div>
 
       {/* Card Image Thumbnail */}
       <div className="relative z-10 -mx-6 -mt-6 mb-6 h-40 overflow-hidden border-b border-white/5">

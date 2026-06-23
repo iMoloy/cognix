@@ -11,7 +11,7 @@ export default function MyPromptsPage() {
   const [prompts, setPrompts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user, token } = useAuth();
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
 
   const fetchMyPrompts = async () => {
     if (!user?._id || !token) return;

@@ -13,7 +13,7 @@ export default function TopCreators() {
   useEffect(() => {
     const fetchTopCreators = async () => {
       try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
         const response = await axios.get(`${API_URL}/api/users/top-creators`);
         setCreators(response.data.slice(0, 4)); // Only show top 4 on home page
       } catch (error) {
@@ -76,6 +76,7 @@ export default function TopCreators() {
                   <img
                     src={creator.image}
                     alt={creator.name}
+                    referrerPolicy="no-referrer"
                     className="h-full w-full rounded-full object-cover"
                   />
                 </div>

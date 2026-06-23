@@ -2,6 +2,9 @@
 
 Cognix is a premium, feature-rich web application designed for prompt engineers, creators, and AI enthusiasts to discover, publish, bookmark, review, and monetize high-quality AI prompts for popular engines like ChatGPT, Claude, Gemini, and Midjourney.
 
+- **GitHub Repository**: [https://github.com/iMoloy/cognix](https://github.com/iMoloy/cognix)
+- **Live Deployment Link**: [https://cognix-client.vercel.app](https://cognix-client.vercel.app)
+
 ---
 
 ## 🚀 Key Features

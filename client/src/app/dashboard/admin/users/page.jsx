@@ -16,7 +16,7 @@ export default function AllUsersPage() {
   const [totalPages, setTotalPages] = useState(1);
   const limit = 10;
   
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
 
   useEffect(() => {
     if (!authLoading) {

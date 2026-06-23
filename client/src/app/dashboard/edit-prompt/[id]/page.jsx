@@ -19,7 +19,7 @@ export default function EditPromptPage() {
 
   const { user, token } = useAuth();
   const router = useRouter();
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
 
   // Form State
   const [formData, setFormData] = useState({
