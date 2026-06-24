@@ -18,7 +18,7 @@ export default function ProfilePage() {
   
   const [formData, setFormData] = useState({
     name: user?.name || "",
-    photoURL: user?.photoURL || "",
+    photoURL: user?.image || user?.photoURL || "",
     email: user?.email || "",
     role: user?.role || "",
   });
@@ -47,7 +47,7 @@ export default function ProfilePage() {
       // eslint-disable-next-line
       setFormData({
         name: user.name || "",
-        photoURL: user.photoURL || "",
+        photoURL: user.image || user.photoURL || "",
         email: user.email || "",
         role: user.role || "",
       });
@@ -128,7 +128,7 @@ export default function ProfilePage() {
             <div className="flex flex-col items-center gap-4">
               <div className="relative group">
                 <img 
-                  src={formData.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.name}`} 
+                  src={formData.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(formData.name || "User")}`} 
                   alt="Profile" 
                   className={`h-32 w-32 rounded-full bg-zinc-800 object-cover transition-opacity group-hover:opacity-50 ${isPremium ? 'border-4 border-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.4)]' : 'border-4 border-white/5'}`}
                 />

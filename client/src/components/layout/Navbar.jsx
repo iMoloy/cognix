@@ -62,7 +62,7 @@ export default function Navbar() {
                 title="View Profile"
               >
                 <img 
-                  src={user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`} 
+                  src={user?.image || user?.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`} 
                   alt="Profile" 
                   referrerPolicy="no-referrer"
                   className={`size-10 rounded-xl bg-zinc-800 object-cover transition-all group-hover:scale-105 ${user?.subscription === 'premium' ? 'ring-2 ring-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.4)]' : 'border border-white/10 group-hover:border-emerald-500/50'}`}
@@ -178,7 +178,7 @@ export default function Navbar() {
               className="group relative"
             >
               <img 
-                src={user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`} 
+                src={user?.image || user?.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`} 
                 alt="Profile" 
                 referrerPolicy="no-referrer"
                 className={`size-10 rounded-xl bg-zinc-800 object-cover transition-all active:scale-95 ${user?.subscription === 'premium' ? 'ring-2 ring-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.4)]' : 'border border-white/10'}`}
@@ -214,7 +214,7 @@ export default function Navbar() {
                   className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10"
                 >
                   <img 
-                    src={user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`} 
+                    src={user?.image || user?.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${user?.name}`} 
                     alt="Profile" 
                     referrerPolicy="no-referrer"
                     className={`size-12 rounded-full bg-zinc-800 object-cover ${user?.subscription === 'premium' ? 'ring-2 ring-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.4)]' : 'border border-white/10'}`}

@@ -62,7 +62,7 @@ export default function DashboardOverviewPage() {
         
         <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-zinc-900/40 p-4 backdrop-blur-xl">
           <img 
-             src={user.photoURL} 
+             src={user.image || user.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name || "User")}`} 
              alt={user.name} 
              className={`h-12 w-12 rounded-full object-cover bg-zinc-800 ${user.subscription === 'premium' ? 'ring-2 ring-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.4)]' : 'border border-white/10'}`}
           />

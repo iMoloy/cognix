@@ -169,7 +169,7 @@ export default function AllUsersPage() {
                     <div className="flex items-center gap-3">
                       <div className="flex h-8 w-8 overflow-hidden items-center justify-center rounded-full bg-zinc-800 text-zinc-400 shrink-0">
                         <img 
-                          src={user.image || user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.name || 'user')}`} 
+                          src={user.image || user.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name || 'user')}`} 
                           alt={user.name} 
                           className="h-full w-full object-cover"
                         />

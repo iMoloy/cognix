@@ -125,7 +125,7 @@ export default function AddPromptPage() {
         creatorId: user._id,
         author: {
           name: user.name,
-          image: user.photoURL || `https://ui-avatars.com/api/?name=${user.name}`
+          image: user.image || user.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name || "User")}`
         }
       };
 

@@ -300,7 +300,7 @@ async function run() {
         rating: Number((Math.random() * 1.5 + 3.5).toFixed(1)), // 3.5 to 5.0
         creatorId: randomUser._id.toString(),
         creatorName: randomUser.name,
-        creatorImage: randomUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(randomUser.name || "User")}`,
+        creatorImage: randomUser.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(randomUser.name || "User")}`,
         tags: [template.tool, template.category, template.level],
         createdAt: new Date(Date.now() - Math.floor(Math.random() * 10000000000)),
         updatedAt: new Date()
@@ -334,7 +334,7 @@ async function run() {
             rating: Number((Math.random() * 1.5 + 3.5).toFixed(1)),
             creatorId: randomUser._id.toString(),
             creatorName: randomUser.name,
-            creatorImage: randomUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(randomUser.name || "User")}`,
+            creatorImage: randomUser.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(randomUser.name || "User")}`,
             tags: [tool, category, level],
             createdAt: new Date(),
             updatedAt: new Date()

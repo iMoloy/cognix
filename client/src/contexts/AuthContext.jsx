@@ -63,7 +63,7 @@ export function AuthProvider({ children }) {
       email,
       password,
       name,
-      image: photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`
+      image: photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name || email)}`
     });
     
     if (error) {
