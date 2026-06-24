@@ -36,6 +36,14 @@ Cognix is a premium, feature-rich web application designed for prompt engineers,
 - **Intelligent Pagination**: Dynamic pagination across Admin tables (Payments, Reports, Users) that elegantly hides controls when data sets are small.
 - **Advanced Admin Analytics**: Tracks global registered users, platform prompts, total copies count (calculated via MongoDB aggregation), total reviews, and platform revenue.
 
+### ✨ Additional Features (Optional Requirements)
+- **Rich Text & Markdown Rendering**: Built-in support for rendering rich markdown content with React Quill New.
+- **Direct PDF Download**: Export prompt details flawlessly to PDF using `html-to-image` and `jspdf`.
+- **Prompt Forking**: "Copy to Edit" capability allowing creators to fork existing prompts directly to their workspace.
+- **Trending Sort Algorithm**: Complex aggregation algorithms that rank prompts by combining copies and ratings.
+- **Infinite Scrolling**: Replaced traditional pagination with smooth infinite scroll to browse the prompts feed efficiently.
+- **Global Dynamic Toasts**: Integrated real-time dynamic toast notifications (React Toastify) for all user actions with promise-based loaders.
+
 ---
 
 ## 🛠️ Tech Stack
