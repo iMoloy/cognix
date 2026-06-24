@@ -1,11 +1,9 @@
 import { betterAuth } from "better-auth";
-import { jwt } from "better-auth/plugins";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
 import { database } from "../db/client.js";
 import { env } from "../config/env.js";
 
 export const auth = betterAuth({
-  plugins: [jwt()],
   baseURL: process.env.BETTER_AUTH_URL 
     ? process.env.BETTER_AUTH_URL 
     : "http://localhost:5000/api/auth",
