@@ -3,10 +3,11 @@ import { mongodbAdapter } from "@better-auth/mongo-adapter";
 import { database } from "../db/client.js";
 import { env } from "../config/env.js";
 
+const base = process.env.BETTER_AUTH_URL || "http://localhost:5000";
+const authUrl = base.endsWith("/api/auth") ? base : `${base}/api/auth`;
+
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL 
-    ? process.env.BETTER_AUTH_URL 
-    : "http://localhost:5000/api/auth",
+  baseURL: authUrl,
   trustedOrigins: env.clientOrigins,
   advanced: {
     defaultCookieAttributes: {
