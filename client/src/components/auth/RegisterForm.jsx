@@ -58,8 +58,8 @@ export default function RegisterForm() {
   const handleGoogleLogin = async () => {
     try {
       await googleSignIn();
-      toast.success("Logged in with Google!");
-      router.push("/dashboard");
+      // authClient will automatically redirect to Google
+      // and then to /dashboard on success
     } catch (err) {
       toast.error("Google sign-in failed.");
     }
