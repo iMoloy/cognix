@@ -2,24 +2,17 @@ import { MongoClient } from "mongodb";
 import { env } from "../config/env.js";
 import { createDatabaseIndexes } from "./indexes.js";
 
-let client;
-let database;
+export let client = env.mongodbUri ? new MongoClient(env.mongodbUri) : null;
+export let database = client ? client.db(env.databaseName) : null;
 
 export const connectDatabase = async () => {
-  if (!env.mongodbUri) {
+  if (!client) {
     console.warn("MONGODB_URI is not set. Database connection skipped.");
     return null;
   }
 
-  if (database) {
-    return database;
-  }
-
-  client = new MongoClient(env.mongodbUri);
-
   try {
     await client.connect();
-    database = client.db(env.databaseName);
 
     // Keep required indexes ready before feature routes start using collections.
     await createDatabaseIndexes(database);

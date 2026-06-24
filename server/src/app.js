@@ -3,11 +3,12 @@ import { env } from "./config/env.js";
 import { getApiInfo } from "./controllers/health.controller.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { notFound } from "./middleware/notFound.js";
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "./auth/auth.js";
 
 // Routes
 import healthRoutes from "./routes/health.routes.js";
 import promptsRoutes from "./routes/prompts.routes.js";
-import jwtRoutes from "./routes/jwt.routes.js";
 import usersRoutes from "./routes/users.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
 import reviewsRoutes from "./routes/reviews.routes.js";
@@ -42,10 +43,24 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/", getApiInfo);
 
-// API Routes
+app.use("/api/auth", async (req, res, next) => {
+  if (req.method === "POST" && (req.path.includes("delete") || req.path.includes("remove"))) {
+    try {
+      const session = await auth.api.getSession({
+        headers: req.headers
+      });
+      if (session && session.user && session.user.email === "master@cognix.com") {
+        return res.status(403).json({ error: "Master account cannot be deleted." });
+      }
+    } catch (error) {
+      // ignore
+    }
+  }
+  next();
+});
+app.use("/api/auth", toNodeHandler(auth));
 app.use("/api/health", healthRoutes);
 app.use("/api/prompts", promptsRoutes);
-app.use("/api/jwt", jwtRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/reviews", reviewsRoutes);

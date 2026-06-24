@@ -1,26 +1,32 @@
-import jwt from "jsonwebtoken";
+import { auth } from "../auth/auth.js";
+import { getDatabase } from "../db/client.js";
 
-// Middleware to verify JWT Token
-export const verifyToken = (req, res, next) => {
-  if (!req.headers.authorization) {
-    return res.status(401).send({ message: "unauthorized access" });
-  }
-
-  const token = req.headers.authorization.split(" ")[1];
-  
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
+// Middleware to verify Better Auth Session
+export const verifyToken = async (req, res, next) => {
+  try {
+    const sessionData = await auth.api.getSession({
+      headers: req.headers
+    });
+    
+    if (!sessionData || !sessionData.session) {
       return res.status(401).send({ message: "unauthorized access" });
     }
-    req.decoded = decoded;
-    next();
-  });
-};
 
-import { getDatabase } from "../db/client.js";
+    // Attach user and session to request
+    req.decoded = sessionData.user;
+    req.session = sessionData.session;
+    next();
+  } catch (err) {
+    return res.status(401).send({ message: "unauthorized access" });
+  }
+};
 
 // Middleware to verify Admin
 export const verifyAdmin = async (req, res, next) => {
+  if (!req.decoded) {
+    return res.status(401).send({ message: "unauthorized access" });
+  }
+  
   const email = req.decoded.email;
   const db = getDatabase();
   const user = await db.collection("users").findOne({ email });
@@ -34,6 +40,10 @@ export const verifyAdmin = async (req, res, next) => {
 
 // Middleware to verify Creator or Admin
 export const verifyCreator = async (req, res, next) => {
+  if (!req.decoded) {
+    return res.status(401).send({ message: "unauthorized access" });
+  }
+
   const email = req.decoded.email;
   const db = getDatabase();
   const user = await db.collection("users").findOne({ email });

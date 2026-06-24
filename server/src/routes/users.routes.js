@@ -280,6 +280,12 @@ router.delete("/:id", verifyToken, verifyAdmin, async (req, res) => {
     const db = getDatabase();
     const usersCollection = db.collection("users");
     
+    // PREVENT DELETING MASTER ADMIN
+    const userToDelete = await usersCollection.findOne({ _id: new ObjectId(id) });
+    if (userToDelete && userToDelete.email === "master@cognix.com") {
+      return res.status(403).send({ message: "Master account cannot be deleted." });
+    }
+    
     const query = { _id: new ObjectId(id) };
     const result = await usersCollection.deleteOne(query);
     res.send(result);

@@ -21,6 +21,18 @@ export default function LoginForm() {
     password: searchParams.get("password") || "",
   });
 
+  useEffect(() => {
+    const errorParam = searchParams.get("error");
+    if (errorParam) {
+      if (errorParam === "oauth_failed" || errorParam === "true") {
+        toast.error("Google authentication failed. Please try again.");
+      } else {
+        toast.error(`Authentication error: ${errorParam.replace(/_/g, " ")}`);
+      }
+      router.replace("/login");
+    }
+  }, [searchParams, router]);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((current) => ({ ...current, [name]: value }));

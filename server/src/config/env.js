@@ -15,4 +15,5 @@ export const env = {
   clientOrigins: parseOrigins(process.env.CLIENT_ORIGIN),
   mongodbUri: process.env.MONGODB_URI || "",
   databaseName: process.env.DB_NAME || "cognix",
+  betterAuthSecret: process.env.BETTER_AUTH_SECRET || "cognix-super-secret-key-123",
 };
