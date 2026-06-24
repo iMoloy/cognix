@@ -4,16 +4,29 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { authClient } from "../lib/auth-client";
 
 const AuthContext = createContext(null);
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
+
+// The configured backend URL (baked in at build time)
+const BACKEND_URL = (process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com").replace(/\/$/, "");
 
 if (typeof window !== "undefined") {
   const originalFetch = window.fetch;
   window.fetch = async function (...args) {
     let [resource, config] = args;
-    if (typeof resource === "string" && (resource.startsWith(API_URL) || resource.startsWith("http://localhost:5000"))) {
-      config = config || {};
-      config.credentials = "include";
+
+    if (typeof resource === "string") {
+      // Rewrite direct backend URL → go through Next.js rewrite proxy (same-origin → cookies work!)
+      const sources = [BACKEND_URL, "http://localhost:5000"];
+      for (const src of sources) {
+        if (resource.startsWith(src)) {
+          resource = window.location.origin + resource.slice(src.length);
+          break;
+        }
+      }
     }
+
+    config = config || {};
+    config.credentials = "include";
+
     return originalFetch(resource, config);
   };
 }
@@ -87,7 +100,7 @@ export function AuthProvider({ children }) {
     }
 
     try {
-      await fetch(`${API_URL}/api/users/${user.email}`, {
+      await fetch(`${BACKEND_URL}/api/users/${user.email}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData),
