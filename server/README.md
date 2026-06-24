@@ -9,8 +9,8 @@ This is the backend API server for the Cognix AI Prompt Sharing & Marketplace Pl
 - `GET /api/prompts/:id` - Get details of a single prompt by its ID (including user reviews).
 - `POST /api/prompts/:id/copy` - Increment copy count metric for a prompt.
 
-### 🛡️ User Endpoints (Authenticated)
-- `POST /api/users` - Create/register a new user or sync their Firebase Auth session. Generates robust JWT authentication tokens.
+### 🛡️ Authentication Endpoints (Better Auth)
+- `/api/auth/*` - Full authentication suite managed by Better Auth (Sign in, Sign up, Session, Google OAuth, etc.).
 - `GET /api/users/:email` - Get details of a registered user by email.
 - `PATCH /api/users/:email` - Update user profile information.
 - `POST /api/users/bookmark` - Toggle bookmarking for a specific prompt ID.
@@ -25,7 +25,7 @@ This is the backend API server for the Cognix AI Prompt Sharing & Marketplace Pl
 - `GET /api/prompts/admin/all` - Fetch all prompts in the system for review (pending, approved, rejected).
 - `GET /api/users` - Fetch a paginated table list of registered users.
 - `PATCH /api/users/role/:id` - Update a user's role (User, Creator, Admin).
-- `DELETE /api/users/:id` - Terminate a user account.
+- `DELETE /api/users/:id` - Terminate a user account (NOTE: Master Admin account is strictly protected and cannot be deleted).
 - `GET /api/reports` - Fetch reported prompts moderation list.
 - `POST /api/reports/:id/warn` - Warn prompt creator (increments warnings count on creator, logs warning details, and removes report from queue).
 - `DELETE /api/reports/:id` - Dismiss / delete a report record.
@@ -36,9 +36,11 @@ This is the backend API server for the Cognix AI Prompt Sharing & Marketplace Pl
 - `POST /api/payments/create-intent` - Generates a secure Stripe Payment Intent client secret for Premium upgrades.
 - `POST /api/payments/success` - Validates successful Stripe checkout and upgrades user to Premium.
 
-## 🛠️ Middleware Enforcements
+## 🛠️ Security Enforcements
 
-- **`verifyToken`**: Validates custom JWT headers created securely on auth events.
+- **`Better Auth Rate Limiting`**: Built-in brute force protection and request throttling.
+- **`Master Admin Protection`**: API middleware strictly prevents deletion of the master account.
+- **`verifyToken`**: Validates JWT session tokens.
 - **`verifyCreator`**: Validates that user has "creator" or "admin" clearance.
 - **`verifyAdmin`**: Restricts routes exclusively to users possessing the "admin" role.
 
@@ -52,7 +54,14 @@ PORT=5000
 CLIENT_ORIGIN=http://localhost:3000
 MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net
 DB_NAME=cognix_db
-ACCESS_TOKEN_SECRET=your_jwt_secret_key
+
+# Better Auth Configuration
+BETTER_AUTH_SECRET=your_super_secret_auth_key
+BETTER_AUTH_URL=http://localhost:5000
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
+GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
+
+# Stripe Config
 STRIPE_SECRET_KEY=your_stripe_secret_key
 ```
 

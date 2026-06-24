@@ -15,10 +15,13 @@ Cognix is a premium, feature-rich web application designed for prompt engineers,
 - **Category & Engine Filters**: Filter by categories (Engineering, Marketing, Design, Product, etc.) and AI Engines.
 - **Difficulty Level Filter**: Filter prompts by **Difficulty** (Beginner, Intermediate, Pro) with complete URL parameter synchronization.
 
-### 🛡️ Access Control & Robustness
+### 🛡️ Access Control, Security & Robustness
+- **Better Auth Integration**: Highly secure authentication system featuring full Google OAuth integration with automatic account linking.
+- **Brute Force Protection**: Global and route-specific Rate Limiting implemented directly to mitigate high-velocity credential stuffing attacks.
+- **Master Admin Protection**: Strict server-side router protections guarantee that the Master Admin account can never be deleted from the system.
 - **Global Error Handling**: Custom `error.jsx` boundary ensures the app never crashes on page reloads or invalid routing, displaying a beautiful UI fallback instead.
 - **Client-Side Auth Guards**: Secure client-side routing on all Admin routes (`/dashboard/admin/*`). Non-admins or unauthenticated users are automatically redirected to the `/login` page.
-- **JWT & Firebase Authentication**: Role-based access control (User, Creator, Admin) enforced on both client and server via robust JWT validation.
+- **JWT Validation**: Role-based access control (User, Creator, Admin) enforced on both client and server via robust JWT validation.
 
 ### ⚠️ Community Moderation & "Warn Creator"
 - **Report System**: Users can report prompts violating marketplace guidelines with detailed reasoning.
@@ -40,7 +43,7 @@ Cognix is a premium, feature-rich web application designed for prompt engineers,
 - **Frontend**: Next.js 14 (App Router), React, Tailwind CSS, Framer Motion, Recharts
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB
-- **Authentication**: Firebase Authentication + Custom JWT Validation
+- **Authentication**: Better Auth (JWT, OAuth)
 - **Payments**: Stripe SDK (Payment Intents API & React Stripe Elements)
 
 ---
@@ -57,7 +60,14 @@ PORT=5000
 CLIENT_ORIGIN=http://localhost:3000
 MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net
 DB_NAME=cognix_db
-ACCESS_TOKEN_SECRET=your_jwt_secret_key
+
+# Better Auth Configuration
+BETTER_AUTH_SECRET=your_super_secret_auth_key
+BETTER_AUTH_URL=http://localhost:5000
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
+GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
+
+# Stripe Config
 STRIPE_SECRET_KEY=your_stripe_secret_key
 ```
 
@@ -66,15 +76,7 @@ Create a `.env.local` file in the `client` directory:
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
 
-# Firebase Configuration
-NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-
-# Image Upload (ImgBB)
+# ImgBB API (Image upload)
 NEXT_PUBLIC_IMGBB_API_KEY=your_imgbb_api_key
 
 # Stripe Payment

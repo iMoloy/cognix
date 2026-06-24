@@ -21,7 +21,7 @@ This is the frontend client for the Cognix AI Prompt Sharing & Marketplace Platf
 - **Icons**: Lucide React
 - **Animations**: Framer Motion
 - **Charts**: Recharts
-- **Auth Service**: Firebase Client SDK
+- **Auth Service**: Better Auth Client SDK
 - **Payments**: @stripe/react-stripe-js
 
 ## ⚙️ Environment Variables
@@ -30,14 +30,6 @@ Create a `.env.local` file in the root of the `client` directory:
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
-
-# Firebase Configuration
-NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 
 # ImgBB API (Image upload)
 NEXT_PUBLIC_IMGBB_API_KEY=your_imgbb_api_key

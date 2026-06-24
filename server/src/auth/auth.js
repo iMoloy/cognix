@@ -6,8 +6,8 @@ import { env } from "../config/env.js";
 
 export const auth = betterAuth({
   plugins: [jwt()],
-  baseURL: process.env.API_URL 
-    ? `${process.env.API_URL}/api/auth` 
+  baseURL: process.env.BETTER_AUTH_URL 
+    ? process.env.BETTER_AUTH_URL 
     : "http://localhost:5000/api/auth",
   trustedOrigins: env.clientOrigins,
   advanced: {
