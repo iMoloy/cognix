@@ -3,14 +3,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, LockKeyhole, Sparkles, Star, Copy, Eye, BookmarkPlus, CalendarDays, TerminalSquare, MessageSquare, AlertTriangle, User as UserIcon } from "lucide-react";
+import { ArrowLeft, LockKeyhole, Sparkles, Star, Copy, Eye, BookmarkPlus, CalendarDays, TerminalSquare, MessageSquare, AlertTriangle, User as UserIcon, Share2, Download, GitFork, Play } from "lucide-react";
 import { motion } from "framer-motion";
 import CopyToClipboard from "@/components/ui/CopyToClipboard";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/contexts/AuthContext";
 import ReviewModal from "@/components/ui/ReviewModal";
 import ReportModal from "@/components/ui/ReportModal";
+import TestPromptModal from "@/components/ui/TestPromptModal";
 import { toast } from "react-toastify";
+import { TwitterShareButton, LinkedinShareButton, FacebookShareButton, TwitterIcon, LinkedinIcon, FacebookIcon } from "react-share";
+import ReactMarkdown from "react-markdown";
 
 export default function PromptDetailsPage() {
   const params = useParams();
@@ -19,6 +22,8 @@ export default function PromptDetailsPage() {
 
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
+  const [isTestOpen, setIsTestOpen] = useState(false);
+  const [isForking, setIsForking] = useState(false);
 
   const [prompt, setPrompt] = useState(null);
   const [isFetching, setIsFetching] = useState(true);
@@ -39,7 +44,6 @@ export default function PromptDetailsPage() {
     const fetchPrompt = async () => {
       try {
         if (!promptId) return;
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
         const res = await fetch(`${apiUrl}/api/prompts/${promptId}`);
         if (!res.ok) throw new Error("Prompt not found");
         const data = await res.json();
@@ -176,6 +180,68 @@ export default function PromptDetailsPage() {
     }
   };
 
+  const handleDownloadPDF = async () => {
+    const element = document.getElementById("prompt-payload");
+    if (!element) return;
+
+    const generatePdfTask = async () => {
+      const { toPng } = await import("html-to-image");
+      const { jsPDF } = await import("jspdf");
+      
+      const originalClasses = element.className;
+      element.className = "relative overflow-hidden bg-zinc-950 p-4";
+      
+      const dataUrl = await toPng(element, { quality: 0.95, pixelRatio: 2 });
+      
+      element.className = originalClasses;
+      
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4"
+      });
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (element.offsetHeight * pdfWidth) / element.offsetWidth;
+      
+      pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`${prompt?.title || 'prompt'}.pdf`);
+    };
+
+    toast.promise(generatePdfTask(), {
+      pending: "Generating PDF...",
+      success: "PDF downloaded successfully!",
+      error: "Failed to generate PDF"
+    }).catch(err => console.error("PDF Download error:", err));
+  };
+
+  const handleFork = async () => {
+    if (!user) {
+      toast.error("Please login to fork prompts.");
+      return;
+    }
+    setIsForking(true);
+    try {
+      const res = await fetch(`${apiUrl}/api/prompts/${promptId}/fork`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userEmail: user.email, userName: user.name })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        toast.success("Prompt forked successfully!");
+        router.push(`/dashboard/edit-prompt/${data.newPromptId}`);
+      } else {
+        toast.error("Failed to fork prompt.");
+      }
+    } catch (e) {
+      toast.error("Error forking prompt.");
+    } finally {
+      setIsForking(false);
+    }
+  };
+
   // Dynamic Access Logic
   const isPremiumUser = user?.subscription === "premium" || user?.role === "admin" || user?.role === "creator";
   const hasAccess = prompt ? (!prompt.isPremium || isPremiumUser) : false;
@@ -227,10 +293,11 @@ export default function PromptDetailsPage() {
     );
   }
 
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+
   return (
     <main className="relative min-h-screen bg-[#030303] selection:bg-emerald-500/30 pb-20">
 
-      
       {/* Dynamic Background Image from Prompt */}
       <div className="pointer-events-none absolute inset-0 z-0 h-[600px] w-full overflow-hidden">
         <div 
@@ -292,15 +359,16 @@ export default function PromptDetailsPage() {
             <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
               {prompt.title}
             </h1>
-            <p className="max-w-2xl text-lg leading-relaxed text-zinc-400">
-              {prompt.description}
-            </p>
+            <div className="max-w-2xl text-lg leading-relaxed text-zinc-400 prose prose-invert prose-emerald">
+              {/* Markdown Support for Description */}
+              <ReactMarkdown>{prompt.description}</ReactMarkdown>
+            </div>
 
             {/* Author & Core Stats row */}
             <div className="flex flex-wrap items-center gap-6 pt-4">
               <div className="flex items-center gap-3 pr-6 border-r border-white/10">
                 <img 
-                  src={prompt.creatorImage || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(prompt.creatorName || 'user')}`} 
+                  src={prompt.creatorImage || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(prompt.creatorName || 'user')}`} 
                   alt={prompt.creatorName} 
                   className="h-10 w-10 rounded-full border border-white/10 bg-zinc-800 object-cover"
                 />
@@ -332,8 +400,37 @@ export default function PromptDetailsPage() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="space-y-8"
           >
+            {/* Action Bar */}
+            {hasAccess && (
+              <div className="flex flex-wrap items-center gap-3 p-4 rounded-2xl border border-white/10 bg-zinc-900/40 backdrop-blur-md">
+                <Button variant="ghost" onClick={handleDownloadPDF} className="text-xs bg-white/5 hover:bg-white/10">
+                  <Download size={14} className="mr-2" /> Download PDF
+                </Button>
+                <Button variant="ghost" onClick={handleFork} disabled={isForking} className="text-xs bg-white/5 hover:bg-white/10">
+                  <GitFork size={14} className="mr-2" /> {isForking ? "Forking..." : "Fork Prompt"}
+                </Button>
+                <Button variant="ghost" onClick={() => setIsTestOpen(true)} className="text-xs bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20">
+                  <Play size={14} className="mr-2" /> Test with AI
+                </Button>
+
+                {/* Social Share */}
+                <div className="ml-auto flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 mr-2">Share:</span>
+                  <TwitterShareButton url={shareUrl} title={`Check out this AI Prompt: ${prompt.title}`}>
+                    <TwitterIcon size={28} round className="opacity-80 hover:opacity-100 transition-opacity" />
+                  </TwitterShareButton>
+                  <LinkedinShareButton url={shareUrl} title={prompt.title} summary={prompt.description} source="Cognix">
+                    <LinkedinIcon size={28} round className="opacity-80 hover:opacity-100 transition-opacity" />
+                  </LinkedinShareButton>
+                  <FacebookShareButton url={shareUrl} quote={`Check out this AI Prompt: ${prompt.title}`}>
+                    <FacebookIcon size={28} round className="opacity-80 hover:opacity-100 transition-opacity" />
+                  </FacebookShareButton>
+                </div>
+              </div>
+            )}
+
             {/* Prompt Instruction Window */}
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/60 shadow-2xl backdrop-blur-xl">
+            <div id="prompt-payload" className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/60 shadow-2xl backdrop-blur-xl">
               <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] px-5 py-3">
                 <div className="flex items-center gap-2 text-sm font-bold text-zinc-300">
                   <TerminalSquare size={16} className="text-emerald-400" />
@@ -366,10 +463,15 @@ export default function PromptDetailsPage() {
                   </div>
                 )}
 
-                {/* Actual payload */}
-                <pre className={`whitespace-pre-wrap font-mono text-sm leading-relaxed text-emerald-50/90 ${!hasAccess && prompt.isPremium ? "blur-[6px] select-none opacity-40" : ""}`}>
-                  {prompt.instruction}
-                </pre>
+                {/* Actual payload with Markdown formatting */}
+                <div className={`prose prose-invert prose-emerald prose-sm max-w-none ${!hasAccess && prompt.isPremium ? "blur-[6px] select-none opacity-40" : ""}`}>
+                  {/* We process instruction as dangerouslySetInnerHTML if it has HTML from Quill, else Markdown */}
+                  {prompt.instruction?.includes('<p>') ? (
+                    <div dangerouslySetInnerHTML={{ __html: prompt.instruction }} />
+                  ) : (
+                    <ReactMarkdown>{prompt.instruction}</ReactMarkdown>
+                  )}
+                </div>
               </div>
             </div>
           </motion.div>
@@ -388,13 +490,15 @@ export default function PromptDetailsPage() {
                   <MessageSquare size={18} className="text-emerald-400" />
                   Reviews
                 </h3>
-                <Button 
-                  variant="ghost"
-                  onClick={() => setIsReviewOpen(true)}
-                  className="text-xs text-emerald-400 hover:text-emerald-300"
-                >
-                  + Add Review
-                </Button>
+                {hasAccess && (
+                  <Button 
+                    variant="ghost"
+                    onClick={() => setIsReviewOpen(true)}
+                    className="text-xs text-emerald-400 hover:text-emerald-300"
+                  >
+                    + Add Review
+                  </Button>
+                )}
               </div>
 
               {(!prompt.reviews || prompt.reviews.length === 0) ? (
@@ -463,6 +567,12 @@ export default function PromptDetailsPage() {
         onClose={() => setIsReportOpen(false)} 
         promptTitle={prompt.title} 
         onSubmit={handleReportSubmit}
+      />
+
+      <TestPromptModal 
+        isOpen={isTestOpen}
+        onClose={() => setIsTestOpen(false)}
+        promptContent={prompt.instruction}
       />
     </main>
   );

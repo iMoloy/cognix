@@ -6,7 +6,8 @@ import {
   getCreatorPrompts,
   createPrompt,
   updatePrompt,
-  deletePrompt
+  deletePrompt,
+  forkPrompt
 } from "../controllers/prompts.controller.js";
 import { verifyToken, verifyAdmin, verifyCreator } from "../middleware/auth.middleware.js";
 import { ObjectId } from "mongodb";
@@ -43,6 +44,9 @@ router.post("/:id/copy", async (req, res) => {
     res.status(500).send({ message: "Failed to increment copy count", error });
   }
 });
+
+// Fork a prompt
+router.post("/:id/fork", verifyToken, verifyCreator, forkPrompt);
 
 // Protected Routes (handled in controller for specific permissions)
 router.patch("/:id", verifyToken, updatePrompt);

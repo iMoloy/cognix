@@ -33,7 +33,7 @@ export default function CustomerReviews() {
       {/* Decorative Elements */}
       <div className="absolute top-0 right-0 h-96 w-96 rounded-full bg-cyan-500/5 blur-[100px] pointer-events-none"></div>
       
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

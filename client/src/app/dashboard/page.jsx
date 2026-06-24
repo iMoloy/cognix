@@ -145,7 +145,7 @@ export default function DashboardOverviewPage() {
             <h2 className="text-xl font-bold text-white">Recent Activity</h2>
           </div>
           <Link 
-            href="/dashboard/prompts" 
+            href="/prompts" 
             className="group flex items-center gap-2 text-sm font-bold text-zinc-400 transition-colors hover:text-emerald-400"
           >
             View all

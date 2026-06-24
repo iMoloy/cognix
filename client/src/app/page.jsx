@@ -69,8 +69,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-center opacity-[0.03]"></div>
       </div>
 
-      <section className="relative z-10 border-b border-white/5 bg-transparent px-4 pt-10 pb-20 sm:px-6 lg:px-8 lg:pt-12 lg:pb-28">
-        <div className="mx-auto grid w-full max-w-7xl gap-16 lg:grid-cols-[1fr_1fr] lg:items-center">
+      <section className="relative z-10 border-b border-white/5 bg-transparent pt-10 pb-20 lg:pt-12 lg:pb-28">
+        <div className="mx-auto grid w-full max-w-7xl px-4 sm:px-6 lg:px-8 gap-16 lg:grid-cols-[1fr_1fr] lg:items-center">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -273,8 +273,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative z-10 px-4 py-24 sm:px-6 lg:px-8">
-        <div className="mx-auto grid w-full max-w-7xl gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+      <section className="relative z-10 py-24">
+        <div className="mx-auto grid w-full max-w-7xl px-4 sm:px-6 lg:px-8 gap-12 lg:grid-cols-[0.8fr_1.2fr]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

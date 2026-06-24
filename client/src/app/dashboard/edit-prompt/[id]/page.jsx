@@ -1,12 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UploadCloud, Image as ImageIcon, Send, Sparkles, Loader2 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import Button from "@/components/ui/Button";
 import { uploadImage } from "@/utils/uploadImage";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-toastify";
+import dynamic from "next/dynamic";
+const ReactQuill = dynamic(() => import('react-quill-new'), {
+  ssr: false,
+  loading: () => <p>Loading editor...</p>,
+});
+import 'react-quill-new/dist/quill.snow.css';
 
 export default function EditPromptPage() {
   const params = useParams();
@@ -212,20 +218,19 @@ export default function EditPromptPage() {
           {/* Prompt Content */}
           <div className="space-y-2">
             <label className="text-sm font-bold flex items-center justify-between text-white">
-              <span>Prompt Content</span>
+              <span>Prompt Content (Rich Text)</span>
               <span className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                 <Sparkles size={10} /> Secret Payload
               </span>
             </label>
-            <textarea 
-              rows={6}
-              name="instruction"
-              required
-              value={formData.instruction}
-              onChange={handleInputChange}
-              placeholder="Paste the actual prompt here..."
-              className="w-full resize-y rounded-xl border border-white/10 bg-black/40 px-4 py-3 font-mono text-sm text-white placeholder-zinc-600 outline-none transition-all focus:border-emerald-500/50 focus:bg-black"
-            />
+            <div className="bg-black/40 rounded-xl overflow-hidden border border-white/10 [&_.ql-toolbar]:border-white/10 [&_.ql-toolbar]:bg-white/[0.02] [&_.ql-container]:border-none [&_.ql-editor]:min-h-[200px] [&_.ql-editor]:text-white [&_.ql-editor.ql-blank::before]:text-zinc-500 [&_.ql-stroke]:stroke-zinc-400 [&_.ql-fill]:fill-zinc-400 [&_.ql-picker]:text-zinc-400">
+              <ReactQuill 
+                theme="snow"
+                value={formData.instruction}
+                onChange={(content) => setFormData(prev => ({ ...prev, instruction: content }))}
+                placeholder="Paste the actual prompt here and format it..."
+              />
+            </div>
           </div>
 
           {/* Dropdowns: Category, Difficulty, Visibility */}

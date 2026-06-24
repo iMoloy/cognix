@@ -45,6 +45,7 @@ export const getPrompts = async (req, res, next) => {
     if (sort === "Most Copied") sortOptions = { copies: -1 };
     if (sort === "Highest Rated") sortOptions = { rating: -1 };
     if (sort === "Newest") sortOptions = { createdAt: -1 };
+    if (sort === "Trending") sortOptions = { copies: -1, rating: -1, createdAt: -1 };
 
     // Pagination
     const pageNum = Math.max(1, parseInt(page) || 1);
@@ -224,6 +225,57 @@ export const deletePrompt = async (req, res, next) => {
 
     const result = await db.collection("prompts").deleteOne({ _id: new ObjectId(id) });
     res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const forkPrompt = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!ObjectId.isValid(id)) return res.status(400).json({ message: "Invalid ID" });
+
+    const db = getDatabase();
+    const email = req.decoded.email;
+
+    const user = await db.collection("users").findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const originalPrompt = await db.collection("prompts").findOne({ _id: new ObjectId(id) });
+    if (!originalPrompt) return res.status(404).json({ message: "Prompt not found" });
+
+    // Enforcement: Free users can only add/fork 3 prompts total
+    const isPremium = user.subscription === "premium" || user.role === "admin";
+    if (!isPremium) {
+      const promptCount = await db.collection("prompts").countDocuments({ creatorId: user._id.toString() });
+      if (promptCount >= 3) {
+        return res.status(403).json({ 
+          message: "Free users can only have 3 prompts. Please upgrade to premium to fork more.",
+          limitReached: true
+        });
+      }
+    }
+
+    const forkedPrompt = {
+      ...originalPrompt,
+      title: `Fork of ${originalPrompt.title}`,
+      creatorId: user._id.toString(),
+      author: {
+        name: user.name,
+        image: user.image || user.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name || "User")}`
+      },
+      status: "pending", // Need moderation for forked versions too
+      featured: false,
+      copies: 0,
+      rating: "0.0",
+      createdAt: new Date().toISOString(),
+      forkedFrom: id
+    };
+    
+    delete forkedPrompt._id;
+
+    const result = await db.collection("prompts").insertOne(forkedPrompt);
+    res.json({ message: "Prompt forked successfully", newPromptId: result.insertedId });
   } catch (error) {
     next(error);
   }

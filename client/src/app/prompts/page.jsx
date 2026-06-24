@@ -19,12 +19,13 @@ function MarketplaceContent() {
   const [category, setCategory] = useState(searchParams.get("category")?.split(",") || []);
   const [tool, setTool] = useState(searchParams.get("tool")?.split(",") || []);
   const [difficulty, setDifficulty] = useState(searchParams.get("difficulty")?.split(",") || []);
-  const [sort, setSort] = useState(searchParams.get("sort") || "Most Copied");
+  const [sort, setSort] = useState(searchParams.get("sort") || "Trending");
   const [page, setPage] = useState(parseInt(searchParams.get("page")) || 1);
 
   const [prompts, setPrompts] = useState([]);
   const [metadata, setMetadata] = useState({ totalPages: 1, currentPage: 1, totalPrompts: 0 });
   const [isLoading, setIsLoading] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
 
   // Sync state to URL and fetch prompts
   useEffect(() => {
@@ -33,7 +34,7 @@ function MarketplaceContent() {
     if (category.length > 0) params.set("category", category.join(","));
     if (tool.length > 0) params.set("tool", tool.join(","));
     if (difficulty.length > 0) params.set("difficulty", difficulty.join(","));
-    if (sort !== "Most Copied") params.set("sort", sort);
+    if (sort !== "Trending") params.set("sort", sort);
     if (page > 1) params.set("page", page.toString());
 
     const queryString = params.toString();
@@ -42,23 +43,35 @@ function MarketplaceContent() {
     router.replace(newUrl, { scroll: false });
 
     const fetchPrompts = async () => {
-      setIsLoading(true);
+      if (page === 1) setIsLoading(true);
+      else setIsFetchingMore(true);
+
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
         const res = await fetch(`${apiUrl}/api/prompts${queryString ? `?${queryString}` : ""}`);
         const data = await res.json();
         const promptsArray = Array.isArray(data) ? data : (data.prompts || []);
-        setPrompts(promptsArray);
-        setMetadata({
-          totalPages: data.totalPages || 1,
-          currentPage: data.currentPage || 1,
-          totalPrompts: data.totalPrompts || promptsArray.length
+        
+        setPrompts(prev => {
+          let newPrompts = page === 1 ? promptsArray : [...prev, ...promptsArray];
+          // Deduplicate by _id to handle React Strict Mode or double-fetch race conditions
+          newPrompts = newPrompts.filter((p, index, self) => 
+            index === self.findIndex((t) => t._id === p._id)
+          );
+          
+          setMetadata({
+            totalPages: data.totalPages || 1,
+            currentPage: data.currentPage || 1,
+            totalPrompts: data.totalPrompts || newPrompts.length
+          });
+          return newPrompts;
         });
       } catch (error) {
         console.error("Failed to fetch prompts", error);
         toast.error("Failed to fetch prompts");
       } finally {
         setIsLoading(false);
+        setIsFetchingMore(false);
       }
     };
     
@@ -66,6 +79,20 @@ function MarketplaceContent() {
     const timeoutId = setTimeout(fetchPrompts, 300);
     return () => clearTimeout(timeoutId);
   }, [search, category, tool, difficulty, sort, page, pathname, router]);
+
+  // Infinite Scroll Observer
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 500) {
+        if (!isLoading && !isFetchingMore && metadata.currentPage < metadata.totalPages) {
+          setPage(prev => prev + 1);
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isLoading, isFetchingMore, metadata.currentPage, metadata.totalPages]);
 
   const handleSearchSubmit = (e) => {
     e?.preventDefault();
@@ -260,6 +287,7 @@ function MarketplaceContent() {
                   onChange={(e) => { setSort(e.target.value); setPage(1); }}
                   className="appearance-none rounded-xl border border-white/10 bg-white/5 py-2.5 pl-4 pr-10 text-sm font-medium text-zinc-300 outline-none backdrop-blur-md transition-colors hover:border-white/20 focus:border-emerald-500/50"
                 >
+                  <option value="Trending" className="bg-zinc-900">Sort by: Trending</option>
                   <option value="Most Copied" className="bg-zinc-900">Sort by: Most Copied</option>
                   <option value="Highest Rated" className="bg-zinc-900">Sort by: Highest Rated</option>
                   <option value="Newest" className="bg-zinc-900">Sort by: Newest</option>
@@ -269,7 +297,7 @@ function MarketplaceContent() {
             </div>
 
             {/* Grid Layout */}
-            {isLoading ? (
+            {isLoading && page === 1 ? (
               <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-2">
                 {[...Array(6)].map((_, i) => (
                   <PromptCardSkeleton key={i} />
@@ -283,7 +311,7 @@ function MarketplaceContent() {
                 <h3 className="text-xl font-bold text-white mb-2">No prompts found</h3>
                 <p className="text-zinc-400">Try adjusting your filters or search terms.</p>
                 <Button variant="secondary" className="mt-6" onClick={() => {
-                  setSearch(""); setSearchInput(""); setCategory([]); setTool([]); setDifficulty([]); setSort("Most Copied"); setPage(1);
+                  setSearch(""); setSearchInput(""); setCategory([]); setTool([]); setDifficulty([]); setSort("Trending"); setPage(1);
                 }}>
                   Clear all filters
                 </Button>
@@ -296,42 +324,15 @@ function MarketplaceContent() {
               </div>
             )}
 
-            {/* Pagination Controls */}
-            {!isLoading && metadata.totalPages > 1 && (
-              <div className="mt-16 flex justify-center">
-                <div className="flex items-center gap-2 rounded-full border border-white/5 bg-white/5 p-1 backdrop-blur-md">
-                  <button 
-                    disabled={metadata.currentPage === 1}
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    className="flex h-10 items-center justify-center rounded-full px-4 text-sm font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-emerald-400 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-zinc-400"
-                  >
-                    <ChevronLeft size={16} className="mr-1" /> Prev
-                  </button>
-                  
-                  <div className="flex items-center gap-1">
-                    {generatePaginationNumbers().map(p => (
-                      <button 
-                        key={p}
-                        onClick={() => setPage(p)}
-                        className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition-all ${
-                          p === metadata.currentPage 
-                            ? "bg-[length:200%_auto] animate-gradient-x bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 text-zinc-950 shadow-[0_0_20px_rgba(52,211,153,0.4)]" 
-                            : "text-zinc-400 hover:bg-white/10 hover:text-emerald-400"
-                        }`}
-                      >
-                        {p}
-                      </button>
-                    ))}
-                  </div>
-
-                  <button 
-                    disabled={metadata.currentPage === metadata.totalPages}
-                    onClick={() => setPage(p => Math.min(metadata.totalPages, p + 1))}
-                    className="flex h-10 items-center justify-center rounded-full px-4 text-sm font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-emerald-400 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-zinc-400"
-                  >
-                    Next <ChevronRight size={16} className="ml-1" />
-                  </button>
-                </div>
+            {/* Infinite Scroll Loader */}
+            {isFetchingMore && (
+              <div className="mt-8 flex justify-center pb-8">
+                <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+              </div>
+            )}
+            {!isFetchingMore && metadata.currentPage >= metadata.totalPages && prompts.length > 0 && (
+              <div className="mt-8 text-center text-sm text-zinc-500 pb-8">
+                You've reached the end of the list.
               </div>
             )}
           </div>
