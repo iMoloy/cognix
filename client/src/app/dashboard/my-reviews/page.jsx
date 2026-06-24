@@ -19,10 +19,9 @@ export default function MyReviewsPage() {
     const fetchReviews = async () => {
       if (!user?.email) return;
       try {
-        const token = localStorage.getItem("cognix_token");
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
         const res = await fetch(`${apiUrl}/api/reviews/user/${user.email}`, {
-          headers: { Authorization: `Bearer ${token}` }
+          credentials: "include",
         });
         if (res.ok) {
           const data = await res.json();

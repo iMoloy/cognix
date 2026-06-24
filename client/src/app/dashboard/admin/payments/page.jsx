@@ -27,12 +27,12 @@ export default function AllPaymentsPage() {
 
   useEffect(() => {
     const fetchAllPayments = async () => {
-      if (!token || user?.role !== "admin") return;
+      if (!user || user?.role !== "admin") return;
       
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
         const res = await fetch(`${apiUrl}/api/payments/all`, {
-          headers: { Authorization: `Bearer ${token}` }
+          credentials: "include",
         });
         if (res.ok) {
           const data = await res.json();
@@ -45,7 +45,7 @@ export default function AllPaymentsPage() {
       }
     };
     fetchAllPayments();
-  }, [token, user]);
+  }, [user]);
 
   if (authLoading || !user || user.role !== "admin") {
     return (

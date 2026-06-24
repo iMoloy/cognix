@@ -44,7 +44,7 @@ export default function AdminReportsPage() {
   const fetchReports = async () => {
     try {
       const res = await fetch(`${API_URL}/api/reports`, {
-        headers: { "Authorization": `Bearer ${token}` }
+        credentials: "include",
       });
       if (res.ok) {
         const data = await res.json();
@@ -62,15 +62,15 @@ export default function AdminReportsPage() {
 
   /* eslint-disable */
   useEffect(() => {
-    if (token) fetchReports();
-  }, [token]);
+    if (user) fetchReports();
+  }, [user]);
   /* eslint-enable */
 
   const handleDismiss = async (reportId) => {
     try {
       const res = await fetch(`${API_URL}/api/reports/${reportId}`, {
         method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}` }
+        credentials: "include",
       });
       if (res.ok) {
         setReports(prev => prev.filter(r => r._id !== reportId));
@@ -89,7 +89,7 @@ export default function AdminReportsPage() {
       // 1. Delete the prompt
       const delRes = await fetch(`${API_URL}/api/prompts/${promptId}`, {
         method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}` }
+        credentials: "include",
       });
       
       if (!delRes.ok) throw new Error("Failed to delete prompt");
@@ -97,7 +97,7 @@ export default function AdminReportsPage() {
       // 2. Delete the report
       await fetch(`${API_URL}/api/reports/${reportId}`, {
         method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}` }
+        credentials: "include",
       });
 
       setReports(prev => prev.filter(r => r._id !== reportId));
@@ -114,7 +114,7 @@ export default function AdminReportsPage() {
     try {
       const res = await fetch(`${API_URL}/api/reports/${reportId}/warn`, {
         method: "POST",
-        headers: { "Authorization": `Bearer ${token}` }
+        credentials: "include",
       });
       if (res.ok) {
         setReports(prev => prev.filter(r => r._id !== reportId));

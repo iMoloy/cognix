@@ -21,11 +21,8 @@ export default function SavedPromptsPage() {
       if (!user?.email) return;
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
-        const token = localStorage.getItem("cognix_token");
         const res = await fetch(`${apiUrl}/api/users/bookmarks/${user.email}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          credentials: "include",
         });
         if (res.ok) {
           const data = await res.json();

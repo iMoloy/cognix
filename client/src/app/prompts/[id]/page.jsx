@@ -99,13 +99,10 @@ export default function PromptDetailsPage() {
       return;
     }
     try {
-      const token = localStorage.getItem("cognix_token");
       const res = await fetch(`${apiUrl}/api/users/bookmark`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ promptId })
       });
       
@@ -127,13 +124,10 @@ export default function PromptDetailsPage() {
 
   const handleReviewSubmit = async ({ rating, review }) => {
     try {
-      const token = localStorage.getItem("cognix_token");
       const res = await fetch(`${apiUrl}/api/reviews`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           promptId,
           rating,
@@ -160,13 +154,10 @@ export default function PromptDetailsPage() {
 
   const handleReportSubmit = async ({ reason, details }) => {
     try {
-      const token = localStorage.getItem("cognix_token");
       const res = await fetch(`${apiUrl}/api/reports`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           promptId,
           promptTitle: prompt?.title,

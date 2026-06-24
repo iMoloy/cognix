@@ -51,7 +51,7 @@ export default function AdminPromptsQueuePage() {
   const fetchPrompts = async () => {
     try {
       const res = await fetch(`${API_URL}/api/prompts/admin/all`, {
-        headers: { "Authorization": `Bearer ${token}` }
+        credentials: "include",
       });
       if (res.ok) {
         const data = await res.json();
@@ -77,8 +77,8 @@ export default function AdminPromptsQueuePage() {
 
   /* eslint-disable */
   useEffect(() => {
-    if (token) fetchPrompts();
-  }, [token]);
+    if (user) fetchPrompts();
+  }, [user]);
   /* eslint-enable */
 
   const handleStatusChange = async (id, newStatus, reason = "") => {
@@ -93,10 +93,8 @@ export default function AdminPromptsQueuePage() {
 
       const res = await fetch(`${API_URL}/api/prompts/${id}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error("Failed");
@@ -137,10 +135,8 @@ export default function AdminPromptsQueuePage() {
     try {
       const res = await fetch(`${API_URL}/api/prompts/${id}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ featured: newFeatured })
       });
       if (!res.ok) throw new Error("Failed");
@@ -158,7 +154,7 @@ export default function AdminPromptsQueuePage() {
     try {
       const res = await fetch(`${API_URL}/api/prompts/${id}`, {
         method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}` }
+        credentials: "include",
       });
       if (res.ok) {
         setPrompts(prev => prev.filter(p => p.id !== id));

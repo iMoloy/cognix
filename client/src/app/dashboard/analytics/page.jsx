@@ -25,7 +25,7 @@ export default function AnalyticsPage() {
       if (authLoading) return;
       
       // If no user or token after auth resolves, we can't fetch
-      if (!user || !token) {
+      if (!user) {
         setLoading(false);
         setError("You must be logged in to view analytics.");
         return;
@@ -42,9 +42,7 @@ export default function AnalyticsPage() {
         }
 
         const res = await fetch(url, {
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
+          credentials: "include",
         });
 
         if (res.ok) {

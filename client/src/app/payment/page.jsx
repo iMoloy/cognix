@@ -34,11 +34,9 @@ export default function PaymentPage() {
       try {
         const res = await fetch(`${apiUrl}/api/payments/create-intent`, {
           method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify({ price: 500 }), // $5.00
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ price: 500 }),
         });
         const data = await res.json();
         setClientSecret(data.clientSecret);
@@ -46,10 +44,10 @@ export default function PaymentPage() {
         console.error("Failed to fetch payment intent:", error);
       }
     };
-    if (token) {
+    if (user) {
       fetchClientSecret();
     }
-  }, [token, apiUrl]);
+  }, [user, apiUrl]);
 
   // Hack to move Stripe test badge to the left side
   useEffect(() => {
@@ -72,10 +70,8 @@ export default function PaymentPage() {
     try {
       const res = await fetch(`${apiUrl}/api/payments/success`, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: user?.email,
           transactionId,

@@ -37,9 +37,7 @@ export default function AllUsersPage() {
   const fetchUsers = async () => {
     try {
       const res = await fetch(`${API_URL}/api/users?page=${currentPage}&limit=${limit}`, {
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
+        credentials: "include",
       });
       if (res.ok) {
         const data = await res.json();
@@ -82,8 +80,8 @@ export default function AllUsersPage() {
 
   /* eslint-disable */
   useEffect(() => {
-    if (token) fetchUsers();
-  }, [token, currentPage]);
+    if (user) fetchUsers();
+  }, [user, currentPage]);
   /* eslint-enable */
 
   const handleRoleChange = async (userId, newRole) => {
@@ -94,9 +92,9 @@ export default function AllUsersPage() {
     try {
       const res = await fetch(`${API_URL}/api/users/role/${userId}`, {
         method: "PATCH",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({ role: newRole })
       });
@@ -116,9 +114,7 @@ export default function AllUsersPage() {
     try {
       const res = await fetch(`${API_URL}/api/users/${userId}`, {
         method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
+        credentials: "include",
       });
       
       if (res.ok) {

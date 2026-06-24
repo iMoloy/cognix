@@ -8,19 +8,24 @@ import PromptCard from "@/components/ui/PromptCard";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function DashboardOverviewPage() {
-  const { user, token } = useAuth();
+  const { user, loading } = useAuth();
   const [statsData, setStatsData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Wait until auth is resolved
+    if (loading) return;
+    
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+
     const fetchStats = async () => {
-      if (!user || !token) return;
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
         const res = await fetch(`${apiUrl}/api/users/dashboard-stats/${user.email}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          credentials: "include",
         });
         if (res.ok) {
           const data = await res.json();
@@ -33,7 +38,7 @@ export default function DashboardOverviewPage() {
       }
     };
     fetchStats();
-  }, [user, token]);
+  }, [user, loading]);
 
   if (isLoading) {
     return (

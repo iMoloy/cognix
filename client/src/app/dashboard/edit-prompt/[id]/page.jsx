@@ -98,7 +98,7 @@ export default function EditPromptPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user || !token) {
+    if (!user) {
       toast.error("You must be logged in.");
       return;
     }
@@ -130,10 +130,8 @@ export default function EditPromptPage() {
 
       const res = await fetch(`${API_URL}/api/prompts/${params.id}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
 

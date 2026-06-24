@@ -24,14 +24,16 @@ export default function AddPromptPage() {
   // Check if limit reached
   useEffect(() => {
     const checkLimit = async () => {
-      if (!user || !token) return;
-      const isPremium = user.subscription === "premium" || user.role === "admin";
-      if (isPremium) {
-        setCheckingLimit(false);
-        return;
-      }
-      try {
-        const res = await fetch(`${API_URL}/api/prompts/creator/${user._id}`);
+    if (!user) return;
+    const isPremium = user.subscription === "premium" || user.role === "admin";
+    if (isPremium) {
+      setCheckingLimit(false);
+      return;
+    }
+    try {
+      const res = await fetch(`${API_URL}/api/prompts/creator/${user._id}`, {
+        credentials: "include",
+      });
         if (res.ok) {
           const prompts = await res.json();
           if (prompts.length >= 3) {
@@ -92,7 +94,7 @@ export default function AddPromptPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user || !token) {
+    if (!user) {
       toast.error("You must be logged in.");
       return;
     }
@@ -129,10 +131,8 @@ export default function AddPromptPage() {
 
       const res = await fetch(`${API_URL}/api/prompts`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
 

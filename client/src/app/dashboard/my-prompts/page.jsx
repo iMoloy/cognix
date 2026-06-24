@@ -19,10 +19,10 @@ export default function MyPromptsPage() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
 
   const fetchMyPrompts = async () => {
-    if (!user?._id || !token) return;
+    if (!user?._id) return;
     try {
       const res = await fetch(`${API_URL}/api/prompts/creator/${user._id}`, {
-        headers: { "Authorization": `Bearer ${token}` }
+        credentials: "include",
       });
       if (res.ok) {
         const data = await res.json();
@@ -41,7 +41,7 @@ export default function MyPromptsPage() {
   /* eslint-disable */
   useEffect(() => {
     fetchMyPrompts();
-  }, [user, token]);
+  }, [user]);
   /* eslint-enable */
 
   const handleDelete = async (id) => {
@@ -49,7 +49,7 @@ export default function MyPromptsPage() {
     try {
       const res = await fetch(`${API_URL}/api/prompts/${id}`, {
         method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}` }
+        credentials: "include",
       });
       if (res.ok) {
         setPrompts(prev => prev.filter(p => p._id !== id));
