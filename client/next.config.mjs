@@ -12,6 +12,12 @@ const nextConfig = {
   turbopack: {
     root: workspaceRoot,
   },
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "**" },
+      { protocol: "http", hostname: "**" }
+    ],
+  },
   async rewrites() {
     return [
       {
