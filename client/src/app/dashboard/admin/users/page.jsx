@@ -167,8 +167,16 @@ export default function AllUsersPage() {
                 <tr key={user._id} className="transition-colors hover:bg-white/[0.02]">
                   <td className="whitespace-nowrap px-6 py-5">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-zinc-400">
-                        <User size={16} />
+                      <div className="flex h-8 w-8 overflow-hidden items-center justify-center rounded-full bg-zinc-800 text-zinc-400 shrink-0">
+                        {(user.image || user.photoURL) ? (
+                          <img 
+                            src={user.image || user.photoURL} 
+                            alt={user.name} 
+                            className="h-full w-full object-cover"
+                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                          />
+                        ) : null}
+                        <User size={16} style={{ display: (user.image || user.photoURL) ? 'none' : 'flex' }} />
                       </div>
                       <span className="font-bold text-white">{user.name}</span>
                     </div>
