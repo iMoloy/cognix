@@ -22,7 +22,7 @@ export default function AdminReportsPage() {
 
   // Reset pagination on search
   useEffect(() => {
-    setCurrentPage(1);
+    setTimeout(() => setCurrentPage(1), 0);
   }, [searchQuery]);
 
   useEffect(() => {

@@ -332,7 +332,7 @@ function MarketplaceContent() {
             )}
             {!isFetchingMore && metadata.currentPage >= metadata.totalPages && prompts.length > 0 && (
               <div className="mt-8 text-center text-sm text-zinc-500 pb-8">
-                You've reached the end of the list.
+                You&apos;ve reached the end of the list.
               </div>
             )}
           </div>

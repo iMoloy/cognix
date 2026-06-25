@@ -29,7 +29,7 @@ export default function AdminPromptsQueuePage() {
 
   // Reset pagination on filter or search change
   useEffect(() => {
-    setCurrentPage(1);
+    setTimeout(() => setCurrentPage(1), 0);
   }, [searchQuery, filter]);
 
   useEffect(() => {

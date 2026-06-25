@@ -12,5 +12,3 @@ const apiClient = axios.create({
 
 export default apiClient;
 
-export default apiClient;
-

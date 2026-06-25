@@ -17,7 +17,7 @@ export default function DashboardOverviewPage() {
     if (loading) return;
     
     if (!user) {
-      setIsLoading(false);
+      setTimeout(() => setIsLoading(false), 0);
       return;
     }
 

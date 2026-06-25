@@ -64,7 +64,7 @@ export default function HelpAndSupportPage() {
             How can we <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">help you?</span>
           </h1>
           <p className="mt-4 text-zinc-400 text-lg leading-relaxed max-w-xl">
-            Whether you need help with a purchase, have a question about becoming a creator, or just want to say hi, we're here for you.
+            Whether you need help with a purchase, have a question about becoming a creator, or just want to say hi, we&apos;re here for you.
           </p>
         </div>
       </motion.div>

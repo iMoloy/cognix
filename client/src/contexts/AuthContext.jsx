@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
 import { authClient } from "../lib/auth-client";
 
 const AuthContext = createContext(null);
@@ -33,21 +33,19 @@ if (typeof window !== "undefined") {
 
 export function AuthProvider({ children }) {
   const { data: sessionData, isPending } = authClient.useSession();
-  const [user, setUser] = useState(null);
+  const [profileOverride, setProfileOverride] = useState({});
 
-  useEffect(() => {
-    if (sessionData?.user) {
-      setUser({
-        ...sessionData.user,
-        photoURL: sessionData.user.image,
-        _id: sessionData.user.id,
-      });
-    } else {
-      setUser(null);
-    }
-  }, [sessionData]);
+  const user = useMemo(() => {
+    if (!sessionData?.user) return null;
+    return {
+      ...sessionData.user,
+      photoURL: sessionData.user.image,
+      _id: sessionData.user.id,
+      ...profileOverride,
+    };
+  }, [sessionData, profileOverride]);
 
-  const login = async ({ email, password }) => {
+  const login = useCallback(async ({ email, password }) => {
     const { data, error } = await authClient.signIn.email({
       email,
       password,
@@ -56,9 +54,9 @@ export function AuthProvider({ children }) {
       throw new Error(error.message || "Failed to log in");
     }
     return data;
-  };
+  }, []);
 
-  const register = async ({ name, email, photoURL, password }) => {
+  const register = useCallback(async ({ name, email, photoURL, password }) => {
     const { data, error } = await authClient.signUp.email({
       email,
       password,
@@ -71,9 +69,9 @@ export function AuthProvider({ children }) {
     }
     
     return data;
-  };
+  }, []);
 
-  const googleSignIn = async () => {
+  const googleSignIn = useCallback(async () => {
     const { data, error } = await authClient.signIn.social({
       provider: "google",
       callbackURL: `${window.location.origin}/dashboard`, // Redirect after successful login
@@ -85,10 +83,10 @@ export function AuthProvider({ children }) {
     }
     
     return data;
-  };
+  }, []);
 
-  const updateProfile = async (updatedData) => {
-    if (!user) return;
+  const updateProfile = useCallback(async (updatedData) => {
+    if (!sessionData?.user) return;
     
     const { error } = await authClient.updateUser({
       name: updatedData.name,
@@ -100,7 +98,7 @@ export function AuthProvider({ children }) {
     }
 
     try {
-      await fetch(`${BACKEND_URL}/api/users/${user.email}`, {
+      await fetch(`${BACKEND_URL}/api/users/${sessionData.user.email}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData),
@@ -109,18 +107,17 @@ export function AuthProvider({ children }) {
       console.error("Failed to update profile on backend", err);
     }
 
-    setUser((prev) => ({ ...prev, ...updatedData }));
-  };
+    setProfileOverride((prev) => ({ ...prev, ...updatedData }));
+  }, [sessionData]);
 
-  const upgradeToPremium = async () => {
-    if (user) {
-      setUser((prev) => ({ ...prev, subscription: "premium" }));
-    }
-  };
+  const upgradeToPremium = useCallback(async () => {
+    setProfileOverride((prev) => ({ ...prev, subscription: "premium" }));
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await authClient.signOut();
-  };
+    setProfileOverride({});
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -135,7 +132,7 @@ export function AuthProvider({ children }) {
       upgradeToPremium,
       logout,
     }),
-    [user, isPending],
+    [user, isPending, login, register, googleSignIn, updateProfile, upgradeToPremium, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
