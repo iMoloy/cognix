@@ -85,6 +85,7 @@ export const getAnalytics = async (req, res) => {
       const usersCollection = db.collection("users");
       const promptsCollection = db.collection("prompts");
       const reviewsCollection = db.collection("reviews");
+      const paymentsCollection = db.collection("payments");
 
       const totalUsers = await usersCollection.countDocuments();
       const totalPrompts = await promptsCollection.countDocuments();
@@ -96,34 +97,61 @@ export const getAnalytics = async (req, res) => {
       ]).toArray();
       const totalCopies = copiesAggregation[0]?.totalCopies || 0;
 
-      // AGGREGATION: Calculate global revenue
-      const revenueAggregation = await promptsCollection.aggregate([
-        { $group: {
-            _id: null,
-            totalRevenue: { $sum: { $multiply: ["$copies", "$price"] } }
-        }}
+      // AGGREGATION: Real Stripe Payments Revenue + Prompt Sales
+      const stripeRevenueAgg = await paymentsCollection.aggregate([
+        { $match: { status: "succeeded" } },
+        { $group: { _id: null, stripeTotal: { $sum: "$amount" } } }
       ]).toArray();
-      const totalRevenue = revenueAggregation[0]?.totalRevenue || 0;
+      const stripeTotal = (stripeRevenueAgg[0]?.stripeTotal || 0) / 100;
 
-      // AGGREGATION: Platform Activity (Prompts over time)
-      const activityAggregation = await promptsCollection.aggregate([
+      const promptSalesAgg = await promptsCollection.aggregate([
+        { $group: { _id: null, promptTotal: { $sum: { $multiply: [{ $ifNull: ["$copies", 0] }, { $ifNull: ["$price", 0] }] } } } }
+      ]).toArray();
+      const promptTotal = promptSalesAgg[0]?.promptTotal || 0;
+
+      const totalRevenue = parseFloat((stripeTotal + promptTotal).toFixed(2));
+
+      // AGGREGATION: Real Daily Platform Activity (Last 7 dates with activity)
+      const promptActivity = await promptsCollection.aggregate([
+        { $match: { createdAt: { $exists: true } } },
         { $group: {
             _id: { $dateToString: { format: "%Y-%m-%d", date: { $toDate: "$createdAt" } } },
             prompts: { $sum: 1 }
         }},
-        { $sort: { _id: 1 } },
+        { $sort: { _id: -1 } },
         { $limit: 7 }
       ]).toArray();
 
-      const platformActivityData = activityAggregation.map((item, index) => ({
+      const userActivity = await usersCollection.aggregate([
+        { $match: { createdAt: { $exists: true } } },
+        { $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: { $toDate: "$createdAt" } } },
+            users: { $sum: 1 }
+        }}
+      ]).toArray();
+
+      const reviewActivity = await reviewsCollection.aggregate([
+        { $match: { createdAt: { $exists: true } } },
+        { $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: { $toDate: "$createdAt" } } },
+            reviews: { $sum: 1 }
+        }}
+      ]).toArray();
+
+      // Create a map by date
+      const userMap = new Map(userActivity.map(u => [u._id, u.users]));
+      const reviewMap = new Map(reviewActivity.map(r => [r._id, r.reviews]));
+
+      // Merge into activity dataset ordered chronologically
+      let platformActivityData = promptActivity.reverse().map(item => ({
         name: item._id,
-        users: Math.floor(totalUsers / 7) + (index * 2), // Mocked relative to total
+        users: userMap.get(item._id) || 0,
         prompts: item.prompts,
-        reviews: Math.floor(item.prompts * 1.5)
+        reviews: reviewMap.get(item._id) || 0
       }));
 
       if (platformActivityData.length === 0) {
-        platformActivityData.push({ name: "Today", users: totalUsers, prompts: 0, reviews: 0 });
+        platformActivityData = [{ name: new Date().toISOString().split('T')[0], users: totalUsers, prompts: totalPrompts, reviews: totalReviews }];
       }
 
       return res.status(200).json({

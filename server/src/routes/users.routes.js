@@ -47,6 +47,8 @@ router.get("/top-creators", async (req, res) => {
       .limit(8)
       .toArray();
 
+    const followsCollection = db.collection("follows");
+
     // Map through and get their prompt count, total copies, avg rating from prompts collection
     const enhancedCreators = await Promise.all(creators.map(async (creator) => {
       const prompts = await db.collection("prompts").find({ creatorId: creator._id.toString() }).toArray();
@@ -56,6 +58,8 @@ router.get("/top-creators", async (req, res) => {
         ? (prompts.reduce((acc, p) => acc + parseFloat(p.rating || 0), 0) / promptsCount).toFixed(1) 
         : "0.0";
 
+      const followers = await followsCollection.countDocuments({ creatorId: creator._id.toString() });
+
       return {
         _id: creator._id,
         name: creator.name,
@@ -64,7 +68,8 @@ router.get("/top-creators", async (req, res) => {
         copies,
         rating,
         promptsCount,
-        specialties: ["Engineering", "Design", "Marketing"].sort(() => 0.5 - Math.random()).slice(0, 2)
+        followers,
+        specialties: ["Engineering", "Design", "Marketing"].slice(0, 2)
       };
     }));
 
@@ -77,10 +82,44 @@ router.get("/top-creators", async (req, res) => {
   }
 });
 
+// Toggle Follow Creator
+router.post("/follow", verifyToken, async (req, res) => {
+  try {
+    const followerEmail = req.decoded?.email;
+    const { creatorId } = req.body;
+
+    if (!followerEmail || !creatorId) {
+      return res.status(400).send({ message: "Missing follower email or creatorId" });
+    }
+
+    const db = getDatabase();
+    const followsCollection = db.collection("follows");
+
+    const existingFollow = await followsCollection.findOne({ followerEmail, creatorId });
+
+    if (existingFollow) {
+      await followsCollection.deleteOne({ followerEmail, creatorId });
+      const count = await followsCollection.countDocuments({ creatorId });
+      return res.send({ message: "Unfollowed creator", isFollowing: false, followersCount: count });
+    } else {
+      await followsCollection.insertOne({
+        followerEmail,
+        creatorId,
+        createdAt: new Date()
+      });
+      const count = await followsCollection.countDocuments({ creatorId });
+      return res.send({ message: "Following creator", isFollowing: true, followersCount: count });
+    }
+  } catch (error) {
+    res.status(500).send({ message: "Failed to toggle follow status", error });
+  }
+});
+
 // Get Creator by ID
 router.get("/creator/:id", async (req, res) => {
   try {
     const { id } = req.params;
+    const { userEmail } = req.query;
     if (!ObjectId.isValid(id)) {
       return res.status(400).send({ message: "Invalid creator ID" });
     }
@@ -99,6 +138,15 @@ router.get("/creator/:id", async (req, res) => {
       ? (prompts.reduce((acc, p) => acc + parseFloat(p.rating || 0), 0) / promptsCount).toFixed(1) 
       : "0.0";
 
+    const followsCollection = db.collection("follows");
+    const followersCount = await followsCollection.countDocuments({ creatorId: id });
+    
+    let isFollowing = false;
+    if (userEmail) {
+      const followDoc = await followsCollection.findOne({ followerEmail: userEmail, creatorId: id });
+      isFollowing = Boolean(followDoc);
+    }
+
     const enhancedCreator = {
       _id: creator._id,
       name: creator.name,
@@ -113,7 +161,8 @@ router.get("/creator/:id", async (req, res) => {
       copies,
       rating,
       promptsCount,
-      followers: Math.floor(Math.random() * 5000),
+      followers: followersCount,
+      isFollowing,
       prompts
     };
 

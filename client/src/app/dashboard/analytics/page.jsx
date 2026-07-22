@@ -5,9 +5,10 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Legend
 } from 'recharts';
-import { Users, FileText, Bookmark, Eye, TrendingUp, Loader2, Shield, MessageSquare, Copy } from "lucide-react";
+import { Users, FileText, Bookmark, Eye, TrendingUp, Loader2, Shield, MessageSquare, Copy, Download } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-toastify";
+import Button from "@/components/ui/Button";
 
 export default function AnalyticsPage() {
   const { user, token, loading: authLoading } = useAuth();
@@ -15,9 +16,48 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Use the actual user role instead of mock state
-  // Fallback to "creator" if user is "creator" or "admin", but here admin is separate.
   const activeRole = user?.role || "user";
+
+  const handleExportCSV = () => {
+    if (!data) return;
+
+    let csvRows = [];
+
+    if (activeRole === "creator") {
+      csvRows.push(["Metric", "Value"]);
+      csvRows.push(["Total Prompts", data.totalPrompts || 0]);
+      csvRows.push(["Total Copies", data.totalCopies || 0]);
+      csvRows.push(["Total Bookmarks", data.totalBookmarks || 0]);
+      csvRows.push(["Total Earnings ($)", data.totalEarnings || 0]);
+      csvRows.push([]);
+      csvRows.push(["Prompt Title", "Price ($)", "Copies", "Earnings ($)"]);
+      (data.earningsBreakdown || []).forEach(p => {
+        csvRows.push([`"${(p.title || "").replace(/"/g, '""')}"`, p.price || 0, p.copies || 0, (p.earnings || 0).toFixed(2)]);
+      });
+    } else {
+      csvRows.push(["Metric", "Value"]);
+      csvRows.push(["Total Users", data.totalUsers || 0]);
+      csvRows.push(["Total Prompts", data.totalPrompts || 0]);
+      csvRows.push(["Total Reviews", data.totalReviews || 0]);
+      csvRows.push(["Total Copies", data.totalCopies || 0]);
+      csvRows.push(["Total Revenue ($)", data.totalRevenue || 0]);
+      csvRows.push([]);
+      csvRows.push(["Date", "New Users", "New Prompts", "New Reviews"]);
+      (data.platformActivityData || []).forEach(row => {
+        csvRows.push([row.name, row.users, row.prompts, row.reviews]);
+      });
+    }
+
+    const csvContent = "data:text/csv;charset=utf-8," + csvRows.map(e => e.join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `analytics-report-${activeRole}-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Analytics report exported successfully!");
+  };
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -328,8 +368,14 @@ export default function AnalyticsPage() {
           <p className="mt-2 text-zinc-400">Analyze performance and track key metrics.</p>
         </div>
         
-        <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2">
-          <span className="text-sm font-bold text-emerald-400 capitalize">{activeRole} View Active</span>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button variant="secondary" onClick={handleExportCSV} className="text-xs bg-white/5 hover:bg-white/10 border-white/10">
+            <Download size={14} className="mr-2" /> Export CSV Report
+          </Button>
+
+          <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2">
+            <span className="text-sm font-bold text-emerald-400 capitalize">{activeRole} View Active</span>
+          </div>
         </div>
       </div>
 
