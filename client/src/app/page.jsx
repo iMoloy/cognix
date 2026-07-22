@@ -28,26 +28,43 @@ export default function Home() {
   const router = useRouter();
   const [livePrompts, setLivePrompts] = useState([]);
   const [loadingPrompts, setLoadingPrompts] = useState(true);
-  const [heroSearch, setHeroSearch] = useState("");
+  const [trendingTags, setTrendingTags] = useState(["Next.js", "React", "Midjourney", "SEO", "Python", "Copywriting", "FastAPI"]);
 
   const handleHeroSearch = (e) => {
     e.preventDefault();
     if (heroSearch.trim()) {
-      router.push(`/prompts?search=${encodeURIComponent(heroSearch)}`);
+      router.push(`/prompts?search=${encodeURIComponent(heroSearch.trim())}`);
     } else {
       router.push(`/prompts`);
     }
+  };
+
+  const handleTagClick = (tag) => {
+    setHeroSearch(tag);
+    router.push(`/prompts?search=${encodeURIComponent(tag)}`);
   };
 
   useEffect(() => {
     const fetchTopPrompts = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
-        // Fetch top 3 most copied prompts
-        const res = await fetch(`${apiUrl}/api/prompts?limit=3&sort=-copies`);
+        // Fetch top prompts to display and extract dynamic trending tags
+        const res = await fetch(`${apiUrl}/api/prompts?limit=12&sort=Most Copied`);
         if (res.ok) {
           const data = await res.json();
-          setLivePrompts(data.prompts || data || []);
+          const fetchedPrompts = data.prompts || (Array.isArray(data) ? data : []);
+          setLivePrompts(fetchedPrompts.slice(0, 3));
+
+          // Dynamically extract tags from MongoDB database prompts
+          const extractedTags = fetchedPrompts.flatMap(p => p.tags || []);
+          if (extractedTags.length > 0) {
+            const unique = Array.from(new Set(extractedTags.map(t => typeof t === "string" ? t.trim() : "")))
+              .filter(t => t.length > 1)
+              .slice(0, 8);
+            if (unique.length >= 4) {
+              setTrendingTags(unique);
+            }
+          }
         }
       } catch (err) {
         console.error("Failed to fetch top prompts", err);
@@ -128,10 +145,15 @@ export default function Home() {
               className="mt-4 flex flex-wrap items-center justify-center lg:justify-start gap-2"
             >
               <span className="text-xs text-zinc-500 font-medium mr-2">Trending:</span>
-              {["SaaS Copy", "Next.js", "Midjourney", "React", "SEO"].map((tag) => (
-                <span key={tag} className="cursor-pointer rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold tracking-wider text-zinc-400 transition-colors hover:bg-emerald-500/10 hover:text-emerald-400">
-                  {tag}
-                </span>
+              {trendingTags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => handleTagClick(tag)}
+                  className="cursor-pointer rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold tracking-wider text-zinc-400 transition-all hover:bg-emerald-500/20 hover:border-emerald-500/40 hover:text-emerald-400 active:scale-95 capitalize"
+                >
+                  #{tag}
+                </button>
               ))}
             </motion.div>
 
