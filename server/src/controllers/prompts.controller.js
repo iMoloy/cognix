@@ -20,6 +20,8 @@ export const getPrompts = async (req, res, next) => {
           $or: [
             { title: { $regex: search, $options: "i" } },
             { description: { $regex: search, $options: "i" } },
+            { tool: { $regex: search, $options: "i" } },
+            { category: { $regex: search, $options: "i" } },
             { tags: { $elemMatch: { $regex: search, $options: "i" } } },
           ]
         }

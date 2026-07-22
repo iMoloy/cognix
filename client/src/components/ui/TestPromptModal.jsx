@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Play, Loader2, Key } from "lucide-react";
 import Button from "@/components/ui/Button";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default function TestPromptModal({ isOpen, onClose, promptContent }) {
   const [apiKey, setApiKey] = useState("");
@@ -23,16 +22,23 @@ export default function TestPromptModal({ isOpen, onClose, promptContent }) {
     setIsTesting(true);
     setOutput("");
     try {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      
       const fullPrompt = `${promptContent}\n\nUser Input: ${inputData}`;
-      
-      const result = await model.generateContent(fullPrompt);
-      const response = await result.response;
-      const text = response.text();
-      
-      setOutput(text);
+
+      // We proxy through our Next.js server route to avoid browser CORS restrictions.
+      // Direct browser → generativelanguage.googleapis.com calls are blocked by CORS.
+      const res = await fetch("/api/ai-test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey, prompt: fullPrompt }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Failed to test prompt.");
+      }
+
+      setOutput(data.text);
     } catch (error) {
       console.error(error);
       setOutput(`Error: ${error.message || "Failed to test prompt."}`);
