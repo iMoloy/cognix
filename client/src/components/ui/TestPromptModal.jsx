@@ -8,7 +8,7 @@ import Button from "@/components/ui/Button";
 export default function TestPromptModal({ isOpen, onClose, promptContent }) {
   const [provider, setProvider] = useState("gemini");
   const [apiKey, setApiKey] = useState("");
-  const [model, setModel] = useState("gemini-2.0-flash");
+  const [model, setModel] = useState("gemini-3.5-flash");
   const [promptInstruction, setPromptInstruction] = useState(promptContent || "");
   const [inputData, setInputData] = useState("");
   const [output, setOutput] = useState("");
@@ -26,11 +26,11 @@ export default function TestPromptModal({ isOpen, onClose, promptContent }) {
   const handleProviderChange = (newProvider) => {
     setProvider(newProvider);
     if (newProvider === "openai") {
-      setModel("gpt-4o");
+      setModel("gpt-5.6-sol");
     } else if (newProvider === "anthropic") {
-      setModel("claude-3-5-sonnet-latest");
+      setModel("claude-sonnet-5");
     } else {
-      setModel("gemini-2.0-flash");
+      setModel("gemini-3.5-flash");
     }
   };
 
@@ -127,29 +127,36 @@ export default function TestPromptModal({ isOpen, onClose, promptContent }) {
                   list="ai-models-list"
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
-                  placeholder="Select or type model ID..."
+                  placeholder="Select or type model ID (e.g. gemini-3.5-flash)..."
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors focus:border-emerald-500/50"
                 />
                 <datalist id="ai-models-list">
                   {provider === "openai" && (
                     <>
-                      <option value="gpt-4o" label="GPT-4o (Flagship Recommended)" />
-                      <option value="gpt-4o-mini" label="GPT-4o Mini (Fast)" />
+                      <option value="gpt-5.6-sol" label="GPT-5.6 Sol (Flagship)" />
+                      <option value="gpt-5.6-terra" label="GPT-5.6 Terra (Balanced)" />
+                      <option value="gpt-5.6-luna" label="GPT-5.6 Luna (Fast)" />
+                      <option value="gpt-4o" label="GPT-4o" />
+                      <option value="gpt-4o-mini" label="GPT-4o Mini" />
                       <option value="o3-mini" label="o3-mini (Reasoning)" />
                     </>
                   )}
                   {provider === "anthropic" && (
                     <>
-                      <option value="claude-3-5-sonnet-latest" label="Claude 3.5 Sonnet (Recommended)" />
-                      <option value="claude-3-7-sonnet-latest" label="Claude 3.7 Sonnet (Latest)" />
-                      <option value="claude-3-5-haiku-latest" label="Claude 3.5 Haiku (Fast)" />
+                      <option value="claude-sonnet-5" label="Claude Sonnet 5 (Recommended)" />
+                      <option value="claude-opus-4-8" label="Claude Opus 4.8" />
+                      <option value="claude-3-7-sonnet-latest" label="Claude 3.7 Sonnet" />
+                      <option value="claude-3-5-sonnet-latest" label="Claude 3.5 Sonnet" />
+                      <option value="claude-3-5-haiku-latest" label="Claude 3.5 Haiku" />
                     </>
                   )}
                   {provider === "gemini" && (
                     <>
-                      <option value="gemini-2.0-flash" label="Gemini 2.0 Flash (Recommended)" />
-                      <option value="gemini-1.5-flash" label="Gemini 1.5 Flash (Active)" />
-                      <option value="gemini-2.0-flash-lite" label="Gemini 2.0 Flash-Lite (Fast)" />
+                      <option value="gemini-3.5-flash" label="Gemini 3.5 Flash (Recommended)" />
+                      <option value="gemini-3.6-flash" label="Gemini 3.6 Flash" />
+                      <option value="gemini-3.1-pro" label="Gemini 3.1 Pro" />
+                      <option value="gemini-3.5-flash-lite" label="Gemini 3.5 Flash-Lite" />
+                      <option value="gemini-2.0-flash" label="Gemini 2.0 Flash" />
                     </>
                   )}
                 </datalist>
