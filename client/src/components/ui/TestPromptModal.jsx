@@ -157,7 +157,7 @@ export default function TestPromptModal({ isOpen, onClose, promptContent }) {
                       <option value="gemini-2.0-pro-exp-02-05" label="Gemini 2.0 Pro Exp" />
                       <option value="gemini-1.5-flash" label="Gemini 1.5 Flash" />
                       <option value="gemini-1.5-flash-8b" label="Gemini 1.5 Flash 8B" />
-                      <option value="gemini-1.5-pro" label="Gemini 1.5 Pro" />
+                      <option value="gemini-1.5-pro-latest" label="Gemini 1.5 Pro (Latest)" />
                     </>
                   )}
                 </datalist>

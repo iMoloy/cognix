@@ -102,12 +102,13 @@ export async function POST(request) {
     const normalizeGeminiModel = (m) => {
       if (!m) return "gemini-2.0-flash";
       const cleanM = m.trim().toLowerCase();
+      if (cleanM === "gemini-1.5-pro") return "gemini-1.5-pro-latest";
       if (cleanM.includes("3.5") || cleanM.includes("2.5")) return "gemini-2.0-flash";
       return m.trim();
     };
 
     const targetModel = normalizeGeminiModel(body.model);
-    const geminiFallbackModels = [...new Set([targetModel, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"])];
+    const geminiFallbackModels = [...new Set([targetModel, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro-latest"])];
 
     let lastGeminiError = null;
 
