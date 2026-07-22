@@ -18,6 +18,107 @@ export default function AnalyticsPage() {
 
   const activeRole = user?.role || "user";
 
+  // Creator Payout System State
+  const [payoutMethod, setPayoutMethod] = useState({ method: "bkash", details: "" });
+  const [isEditingMethod, setIsEditingMethod] = useState(false);
+  const [myPayoutRequests, setMyPayoutRequests] = useState([]);
+  const [isSubmittingPayout, setIsSubmittingPayout] = useState(false);
+
+  const fetchPayoutDetails = async () => {
+    if (!user || activeRole !== "creator") return;
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
+    try {
+      const [methodRes, reqsRes] = await Promise.all([
+        fetch(`${API_URL}/api/payments/payout-method`, { credentials: "include" }),
+        fetch(`${API_URL}/api/payments/my-payout-requests`, { credentials: "include" })
+      ]);
+      if (methodRes.ok) {
+        const mData = await methodRes.json();
+        if (mData.payoutMethod) {
+          setPayoutMethod(mData.payoutMethod);
+        }
+      }
+      if (reqsRes.ok) {
+        const rData = await reqsRes.json();
+        setMyPayoutRequests(rData);
+      }
+    } catch (err) {
+      console.error("Failed to fetch payout details", err);
+    }
+  };
+
+  useEffect(() => {
+    if (user && activeRole === "creator") {
+      fetchPayoutDetails();
+    }
+  }, [user, activeRole]);
+
+  const handleSavePayoutMethod = async (e) => {
+    e.preventDefault();
+    if (!payoutMethod.details.trim()) {
+      toast.error("Please enter your payout details (e.g. Account Number or Email).");
+      return;
+    }
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
+    try {
+      const res = await fetch(`${API_URL}/api/payments/payout-method`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payoutMethod)
+      });
+      if (res.ok) {
+        toast.success("Payout method saved successfully!");
+        setIsEditingMethod(false);
+      } else {
+        toast.error("Failed to save payout method.");
+      }
+    } catch (err) {
+      toast.error("Error saving payout method.");
+    }
+  };
+
+  const handleRequestPayout = async () => {
+    if (!payoutMethod.details.trim()) {
+      toast.error("Please set up your payout method first!");
+      setIsEditingMethod(true);
+      return;
+    }
+
+    const availableEarnings = data?.totalEarnings || 0;
+    if (availableEarnings <= 0) {
+      toast.error("You have no earnings available to withdraw.");
+      return;
+    }
+
+    setIsSubmittingPayout(true);
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
+    try {
+      const res = await fetch(`${API_URL}/api/payments/request-payout`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: availableEarnings,
+          method: payoutMethod.method,
+          details: payoutMethod.details
+        })
+      });
+
+      const resData = await res.json();
+      if (res.ok) {
+        toast.success("Payout request submitted successfully!");
+        fetchPayoutDetails();
+      } else {
+        toast.error(resData.message || "Failed to submit payout request.");
+      }
+    } catch (err) {
+      toast.error("Error submitting payout request.");
+    } finally {
+      setIsSubmittingPayout(false);
+    }
+  };
+
   const handleExportCSV = () => {
     if (!data) return;
 
@@ -230,16 +331,119 @@ export default function AnalyticsPage() {
           </div>
         )}
 
-        {/* Payout Info Banner */}
-        <div className="mt-6 flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400 font-black text-sm">!</div>
-          <div>
-            <p className="text-sm font-bold text-amber-300">How payouts work</p>
-            <p className="mt-1 text-xs leading-relaxed text-zinc-400">
-              Earnings are calculated as <strong className="text-white">copies × prompt price × 70%</strong> (your share). The platform retains 30%. Payouts are processed monthly to your registered payout method. To set up or change your payout details, contact <span className="text-emerald-400">support@cognix.com</span>.
-            </p>
+        {/* Payout Method & Action Panel */}
+        <div className="mt-6 flex flex-col md:flex-row gap-4 items-start justify-between rounded-xl border border-white/5 bg-black/30 p-5">
+          <div className="space-y-1">
+            <h4 className="text-sm font-bold text-white">Your Payout Method</h4>
+            {payoutMethod.details ? (
+              <p className="text-xs text-zinc-400">
+                <span className="font-bold text-emerald-400 uppercase mr-2">{payoutMethod.method}</span> 
+                <span className="font-mono">{payoutMethod.details}</span>
+              </p>
+            ) : (
+              <p className="text-xs text-amber-400">No payout method configured yet.</p>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Button 
+              variant="secondary" 
+              onClick={() => setIsEditingMethod(!isEditingMethod)}
+              className="text-xs py-2 px-4 bg-white/5 hover:bg-white/10"
+            >
+              {isEditingMethod ? "Cancel" : payoutMethod.details ? "Edit Payout Method" : "Set Payout Method"}
+            </Button>
+
+            <Button
+              onClick={handleRequestPayout}
+              disabled={isSubmittingPayout || (data?.totalEarnings || 0) <= 0}
+              className="text-xs py-2 px-5"
+            >
+              {isSubmittingPayout ? (
+                <><Loader2 size={14} className="mr-2 animate-spin" /> Submitting...</>
+              ) : (
+                <>Request Payout (${(data?.totalEarnings || 0).toFixed(2)})</>
+              )}
+            </Button>
           </div>
         </div>
+
+        {/* Payout Method Edit Form */}
+        {isEditingMethod && (
+          <form onSubmit={handleSavePayoutMethod} className="mt-4 p-4 rounded-xl border border-white/10 bg-zinc-950/80 space-y-4">
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider">Configure Payout Method</h4>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="text-xs text-zinc-400 mb-1 block">Select Method</label>
+                <select
+                  value={payoutMethod.method}
+                  onChange={(e) => setPayoutMethod(prev => ({ ...prev, method: e.target.value }))}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/50"
+                >
+                  <option value="bkash" className="bg-zinc-900">bKash (Personal/Agent)</option>
+                  <option value="nagad" className="bg-zinc-900">Nagad</option>
+                  <option value="bank" className="bg-zinc-900">Bank Transfer (SWIFT / Local)</option>
+                  <option value="paypal" className="bg-zinc-900">PayPal</option>
+                  <option value="wise" className="bg-zinc-900">Wise (TransferWise)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs text-zinc-400 mb-1 block">Account Number / Email / Details</label>
+                <input
+                  type="text"
+                  value={payoutMethod.details}
+                  onChange={(e) => setPayoutMethod(prev => ({ ...prev, details: e.target.value }))}
+                  placeholder="e.g. 01700000000 or email@domain.com"
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/50"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button type="submit" size="sm">Save Method</Button>
+            </div>
+          </form>
+        )}
+
+        {/* Payout Requests History */}
+        {myPayoutRequests.length > 0 && (
+          <div className="mt-6 border-t border-white/5 pt-6">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-4">Your Withdrawal Requests</h4>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-white/5 text-zinc-500">
+                    <th className="pb-2 font-bold">Amount</th>
+                    <th className="pb-2 font-bold">Method</th>
+                    <th className="pb-2 font-bold">Details</th>
+                    <th className="pb-2 font-bold">Status</th>
+                    <th className="pb-2 font-bold">Requested Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {myPayoutRequests.map((req) => (
+                    <tr key={req._id}>
+                      <td className="py-3 font-bold text-white">${(req.amount || 0).toFixed(2)}</td>
+                      <td className="py-3 font-bold uppercase text-emerald-400">{req.method}</td>
+                      <td className="py-3 text-zinc-300 font-mono">{req.details}</td>
+                      <td className="py-3">
+                        {req.status === "paid" ? (
+                          <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 font-bold text-emerald-400 border border-emerald-500/20">Paid</span>
+                        ) : req.status === "rejected" ? (
+                          <span className="rounded-full bg-rose-500/10 px-2 py-0.5 font-bold text-rose-400 border border-rose-500/20">Rejected</span>
+                        ) : (
+                          <span className="rounded-full bg-amber-500/10 px-2 py-0.5 font-bold text-amber-400 border border-amber-500/20">Pending</span>
+                        )}
+                      </td>
+                      <td className="py-3 text-zinc-500">{new Date(req.createdAt).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Creator Charts */}

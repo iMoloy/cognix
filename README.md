@@ -1,7 +1,5 @@
 <div align="center">
 
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:0a1628,100:0f2a1e&height=180&section=header&text=Cognix&fontSize=50&fontColor=ffffff&fontAlignY=38&desc=AI%20Prompt%20Sharing%20%26%20Marketplace%20Platform&descAlignY=58&descSize=17&descColor=4ade80&animation=fadeIn" width="100%" alt="Cognix banner" />
-
   [![Live App](https://img.shields.io/badge/🌐%20Live%20App-cognix--client.vercel.app-4ade80?style=for-the-badge&logo=vercel&logoColor=white)](https://cognix-client.vercel.app)
   [![GitHub](https://img.shields.io/badge/GitHub-iMoloy%2Fcognix-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/iMoloy/cognix)
 
@@ -49,11 +47,21 @@
 ## ✨ Core Features
 
 ### 🔍 Search & Discovery
-- **Global Dynamic Search** — Real-time search across Hero, Marketplace, Top Creators, and Admin Dashboards
+- **Global Dynamic Search** — Real-time search across title, description, AI tool, and categories
 - **Category & Engine Filters** — Filter by AI engine (ChatGPT, Claude, Gemini, Midjourney) and domain category
 - **Difficulty Filter** — Beginner / Intermediate / Pro with URL parameter sync
 - **Trending Algorithm** — MongoDB aggregation combining copies + ratings for ranking
 - **Infinite Scroll** — Smooth feed browsing without page-based pagination
+
+### 💸 Creator Earnings & Payout System
+- **Dynamic Revenue Share** — Creators earn 70% share from prompt copies & sales
+- **Multi-Method Payouts** — Configure Bank Transfer, PayPal, Wise, bKash, or Nagad details
+- **Withdrawal Requests** — Submit payout requests directly from Creator Analytics
+- **Admin Payout Management** — Admins can review, approve ("Mark as Paid"), or reject creator payout requests
+
+### 🤖 AI Prompt Test Runner
+- **Server-side Gemini Proxy** — Bypass CORS and test prompts dynamically with any Gemini model (default: `gemini-3.5-flash`)
+- **Dynamic Model Selection** — Support for `gemini-3.5-flash`, `gemini-3.5-pro`, `gemini-2.5-flash`, etc.
 
 ### 🛡️ Security & Auth
 - **Better Auth** — Google OAuth with automatic account linking and JWT-based role control
@@ -65,10 +73,11 @@
 - **Pro Builder Subscription** — Stripe Elements checkout for premium tier upgrade
 - **Transaction Logs** — Admin-level paginated Stripe payment history
 
-### 📊 Dashboards
+### 📊 Dashboards & Analytics
 - **User Dashboard** — Live stats: Unlocked Prompts, Library, Spend, Activity
-- **Admin Analytics** — Global users, prompts, copies, reviews, and revenue
+- **Admin & Creator Analytics** — Real-time DB metrics for users, prompts, copies, reviews, and revenue + 1-click CSV report export
 - **Community Moderation** — Report queue with Warn Creator, dismiss, and remove actions
+- **Creator Follow System** — Real database `follows` collection tracking creator audience
 
 ### ✨ Additional
 - **PDF Export** — Download prompt details as PDF

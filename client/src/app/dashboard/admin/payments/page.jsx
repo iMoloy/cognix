@@ -11,7 +11,9 @@ export default function AllPaymentsPage() {
   const router = useRouter();
   
   const [payments, setPayments] = useState([]);
+  const [payoutRequests, setPayoutRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState(null);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,27 +27,58 @@ export default function AllPaymentsPage() {
     }
   }, [user, authLoading, router]);
 
-  useEffect(() => {
-    const fetchAllPayments = async () => {
-      if (!user || user?.role !== "admin") return;
-      
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
-        const res = await fetch(`${apiUrl}/api/payments/all`, {
-          credentials: "include",
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setPayments(data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch all payments", err);
-      } finally {
-        setLoading(false);
+  const fetchPayoutData = async () => {
+    if (!user || user?.role !== "admin") return;
+    
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
+      const [paymentsRes, payoutsRes] = await Promise.all([
+        fetch(`${apiUrl}/api/payments/all`, { credentials: "include" }),
+        fetch(`${apiUrl}/api/payments/payout-requests`, { credentials: "include" })
+      ]);
+
+      if (paymentsRes.ok) {
+        const data = await paymentsRes.json();
+        setPayments(data);
       }
-    };
-    fetchAllPayments();
+      if (payoutsRes.ok) {
+        const payoutData = await payoutsRes.json();
+        setPayoutRequests(payoutData);
+      }
+    } catch (err) {
+      console.error("Failed to fetch payments/payouts", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPayoutData();
   }, [user]);
+
+  const handleUpdateStatus = async (id, status) => {
+    setProcessingId(id);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cognix-6lqn.onrender.com";
+      const res = await fetch(`${apiUrl}/api/payments/payout-requests/${id}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      });
+
+      if (res.ok) {
+        toast.success(`Payout request marked as ${status}`);
+        fetchPayoutData();
+      } else {
+        toast.error("Failed to update payout status");
+      }
+    } catch (err) {
+      toast.error("Error updating payout status");
+    } finally {
+      setProcessingId(null);
+    }
+  };
 
   if (authLoading || !user || user.role !== "admin") {
     return (
@@ -197,6 +230,88 @@ export default function AllPaymentsPage() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Creator Payout Requests Section */}
+      <div className="pt-6">
+        <h2 className="text-2xl font-extrabold tracking-tight text-white mb-2">Creator Payout Requests</h2>
+        <p className="text-zinc-400 text-sm mb-6">Manage withdrawal requests submitted by prompt creators.</p>
+
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/40 shadow-2xl backdrop-blur-xl">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-zinc-400">
+              <thead className="border-b border-white/5 bg-white/[0.02] text-xs uppercase text-zinc-500">
+                <tr>
+                  <th className="px-6 py-4 font-bold">Creator</th>
+                  <th className="px-6 py-4 font-bold">Payout Method & Details</th>
+                  <th className="px-6 py-4 font-bold">Requested Amount</th>
+                  <th className="px-6 py-4 font-bold">Status</th>
+                  <th className="px-6 py-4 font-bold">Date</th>
+                  <th className="px-6 py-4 text-right font-bold">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {payoutRequests.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="py-8 text-center text-sm text-zinc-500">
+                      No payout requests received yet.
+                    </td>
+                  </tr>
+                ) : (
+                  payoutRequests.map((req) => (
+                    <tr key={req._id} className="transition-colors hover:bg-white/[0.02]">
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-white">{req.userName}</div>
+                        <div className="text-xs text-zinc-500">{req.email}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="inline-block font-bold text-xs uppercase text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 mr-2">
+                          {req.method}
+                        </span>
+                        <span className="text-xs text-zinc-300 font-mono">{req.details}</span>
+                      </td>
+                      <td className="px-6 py-4 font-bold text-white text-base">
+                        ${(req.amount || 0).toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4">
+                        {req.status === "paid" ? (
+                          <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/20">Paid</span>
+                        ) : req.status === "rejected" ? (
+                          <span className="rounded-full bg-rose-500/10 px-2.5 py-1 text-xs font-bold text-rose-400 border border-rose-500/20">Rejected</span>
+                        ) : (
+                          <span className="rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-bold text-amber-400 border border-amber-500/20">Pending</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-xs text-zinc-500">
+                        {new Date(req.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        {req.status === "pending" && (
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              disabled={processingId === req._id}
+                              onClick={() => handleUpdateStatus(req._id, "paid")}
+                              className="rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 px-3 py-1 text-xs font-bold transition-colors"
+                            >
+                              Mark as Paid
+                            </button>
+                            <button
+                              disabled={processingId === req._id}
+                              onClick={() => handleUpdateStatus(req._id, "rejected")}
+                              className="rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/30 px-3 py-1 text-xs font-bold transition-colors"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );
