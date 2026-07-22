@@ -8,20 +8,47 @@ export const getAnalytics = async (req, res) => {
     // If creatorId is provided, fetch stats for that specific creator
     if (creatorId) {
       const promptsCollection = db.collection("prompts");
-      
-      // AGGREGATION: Get total prompts and copies
+      // AGGREGATION: Get total prompts, copies, and estimated earnings
       const statsAggregation = await promptsCollection.aggregate([
         { $match: { creatorId: creatorId } },
         { $group: {
             _id: null,
             totalPrompts: { $sum: 1 },
-            totalCopies: { $sum: "$copies" }
+            totalCopies: { $sum: "$copies" },
+            totalEarnings: { $sum: { $multiply: [{ $ifNull: ["$copies", 0] }, { $ifNull: ["$price", 0] }] } }
         }}
       ]).toArray();
 
       const totalPrompts = statsAggregation[0]?.totalPrompts || 0;
       const totalCopies = statsAggregation[0]?.totalCopies || 0;
-      const totalBookmarks = Math.floor(totalCopies * 0.3); // Keeping mock for bookmarks as there's no collection yet
+      // Get creator's prompt IDs to count actual bookmarks
+      const creatorPrompts = await promptsCollection.find({ creatorId }, { projection: { _id: 1 } }).toArray();
+      const creatorPromptIds = creatorPrompts.map(p => p._id.toString());
+      
+      const bookmarksCollection = db.collection("bookmarks");
+      const totalBookmarks = await bookmarksCollection.countDocuments({ promptId: { $in: creatorPromptIds } });
+
+      // Creator earnings: 70% of their prompt sales (copies × price), platform takes 30%
+      const CREATOR_REVENUE_SHARE = 0.7;
+      const rawEarnings = statsAggregation[0]?.totalEarnings || 0;
+      const totalEarnings = parseFloat((rawEarnings * CREATOR_REVENUE_SHARE).toFixed(2));
+
+      // Per-prompt earnings breakdown (top 5 by earnings)
+      const earningsBreakdown = await promptsCollection.aggregate([
+        { $match: { creatorId: creatorId } },
+        { $project: {
+            title: 1,
+            copies: { $ifNull: ["$copies", 0] },
+            price: { $ifNull: ["$price", 0] },
+            earnings: { $multiply: [
+              { $ifNull: ["$copies", 0] },
+              { $ifNull: ["$price", 0] },
+              CREATOR_REVENUE_SHARE
+            ]}
+        }},
+        { $sort: { earnings: -1 } },
+        { $limit: 5 }
+      ]).toArray();
 
       // AGGREGATION: Prompt Growth by Date (Last 7 days mock or real)
       const growthAggregation = await promptsCollection.aggregate([
@@ -48,6 +75,8 @@ export const getAnalytics = async (req, res) => {
         totalPrompts,
         totalCopies,
         totalBookmarks,
+        totalEarnings,
+        earningsBreakdown,
         promptGrowthData
       });
 

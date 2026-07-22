@@ -127,6 +127,79 @@ export default function AnalyticsPage() {
           </div>
           <p className="mt-4 text-3xl font-black text-white">{data.totalBookmarks || 0}</p>
         </div>
+
+        {/* Earnings Card */}
+        <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 to-cyan-500/5 p-6 backdrop-blur-xl relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent pointer-events-none" />
+          <div className="flex items-center justify-between relative">
+            <h3 className="text-sm font-bold text-emerald-300">Total Earnings</h3>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 text-lg font-black">
+              $
+            </div>
+          </div>
+          <p className="mt-4 text-3xl font-black text-emerald-400 relative">
+            ${(data.totalEarnings || 0).toFixed(2)}
+          </p>
+          <p className="mt-1 text-[11px] text-emerald-500/70 relative">70% revenue share</p>
+        </div>
+      </div>
+
+      {/* Earnings Breakdown Table */}
+      <div className="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur-xl">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+            <TrendingUp size={18} className="text-emerald-400" /> Earnings by Prompt
+          </h3>
+          <span className="text-xs text-zinc-500 bg-white/5 rounded-lg px-3 py-1">Top 5 performers</span>
+        </div>
+
+        {(!data.earningsBreakdown || data.earningsBreakdown.length === 0) ? (
+          <p className="text-zinc-500 text-sm italic py-4">No prompt earnings data yet. Add premium prompts to start earning.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/5">
+                  <th className="text-left text-xs font-bold uppercase tracking-wider text-zinc-500 pb-3">Prompt</th>
+                  <th className="text-right text-xs font-bold uppercase tracking-wider text-zinc-500 pb-3">Price</th>
+                  <th className="text-right text-xs font-bold uppercase tracking-wider text-zinc-500 pb-3">Copies</th>
+                  <th className="text-right text-xs font-bold uppercase tracking-wider text-zinc-500 pb-3">Your Earnings</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {data.earningsBreakdown.map((item) => (
+                  <tr key={item._id} className="group hover:bg-white/[0.02] transition-colors">
+                    <td className="py-4 pr-4">
+                      <p className="font-semibold text-white truncate max-w-[200px]" title={item.title}>
+                        {item.title}
+                      </p>
+                    </td>
+                    <td className="py-4 text-right text-zinc-400">
+                      {item.price > 0 ? `$${item.price}` : <span className="text-xs text-zinc-600">Free</span>}
+                    </td>
+                    <td className="py-4 text-right text-zinc-400">{item.copies}</td>
+                    <td className="py-4 text-right">
+                      <span className={`font-bold ${item.earnings > 0 ? "text-emerald-400" : "text-zinc-600"}`}>
+                        ${(item.earnings || 0).toFixed(2)}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Payout Info Banner */}
+        <div className="mt-6 flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400 font-black text-sm">!</div>
+          <div>
+            <p className="text-sm font-bold text-amber-300">How payouts work</p>
+            <p className="mt-1 text-xs leading-relaxed text-zinc-400">
+              Earnings are calculated as <strong className="text-white">copies × prompt price × 70%</strong> (your share). The platform retains 30%. Payouts are processed monthly to your registered payout method. To set up or change your payout details, contact <span className="text-emerald-400">support@cognix.com</span>.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Creator Charts */}

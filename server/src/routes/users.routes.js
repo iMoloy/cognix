@@ -234,7 +234,7 @@ router.patch("/:email", async (req, res) => {
 // Toggle Bookmark Prompt (Logged in user)
 router.post("/bookmark", verifyToken, async (req, res) => {
   try {
-    const email = req.decoded?.email; // from verifyToken middleware
+    const email = req.decoded?.email;
     const { promptId } = req.body;
     
     if (!email || !promptId) {
@@ -243,28 +243,32 @@ router.post("/bookmark", verifyToken, async (req, res) => {
 
     const db = getDatabase();
     const usersCollection = db.collection("users");
-    const user = await usersCollection.findOne({ email });
+    const bookmarksCollection = db.collection("bookmarks");
 
+    const user = await usersCollection.findOne({ email });
     if (!user) return res.status(404).send({ message: "User not found" });
 
     const bookmarks = user.bookmarks || [];
     const isBookmarked = bookmarks.includes(promptId);
 
-    let updateDoc;
-    let message = "";
     if (isBookmarked) {
-      // Remove bookmark
-      updateDoc = { $pull: { bookmarks: promptId } };
-      message = "Bookmark removed";
+      // Remove from user array
+      await usersCollection.updateOne({ email }, { $pull: { bookmarks: promptId } });
+      // Remove from bookmarks collection
+      await bookmarksCollection.deleteOne({ email, promptId });
+      res.send({ message: "Bookmark removed", isBookmarked: false });
     } else {
-      // Add bookmark
-      updateDoc = { $push: { bookmarks: promptId } };
-      message = "Prompt bookmarked";
+      // Add to user array
+      await usersCollection.updateOne({ email }, { $push: { bookmarks: promptId } });
+      // Add to bookmarks collection
+      await bookmarksCollection.insertOne({
+        email,
+        userId: user._id.toString(),
+        promptId,
+        createdAt: new Date(),
+      });
+      res.send({ message: "Prompt bookmarked", isBookmarked: true });
     }
-
-    await usersCollection.updateOne({ email }, updateDoc);
-    
-    res.send({ message, isBookmarked: !isBookmarked });
   } catch (error) {
     res.status(500).send({ message: "Failed to toggle bookmark", error });
   }
