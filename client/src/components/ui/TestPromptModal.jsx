@@ -133,31 +133,23 @@ export default function TestPromptModal({ isOpen, onClose, promptContent }) {
                 <datalist id="ai-models-list">
                   {provider === "openai" && (
                     <>
-                      <option value="gpt-4o" label="GPT-4o (Flagship)" />
+                      <option value="gpt-4o" label="GPT-4o (Flagship Recommended)" />
                       <option value="gpt-4o-mini" label="GPT-4o Mini (Fast)" />
                       <option value="o3-mini" label="o3-mini (Reasoning)" />
-                      <option value="o1" label="o1 (Reasoning Flagship)" />
-                      <option value="o1-mini" label="o1-mini (Reasoning Fast)" />
-                      <option value="gpt-4-turbo" label="GPT-4 Turbo" />
-                      <option value="gpt-3.5-turbo" label="GPT-3.5 Turbo" />
                     </>
                   )}
                   {provider === "anthropic" && (
                     <>
+                      <option value="claude-3-5-sonnet-latest" label="Claude 3.5 Sonnet (Recommended)" />
                       <option value="claude-3-7-sonnet-latest" label="Claude 3.7 Sonnet (Latest)" />
-                      <option value="claude-3-5-sonnet-latest" label="Claude 3.5 Sonnet (Standard)" />
                       <option value="claude-3-5-haiku-latest" label="Claude 3.5 Haiku (Fast)" />
-                      <option value="claude-3-opus-latest" label="Claude 3 Opus (Deep)" />
                     </>
                   )}
                   {provider === "gemini" && (
                     <>
                       <option value="gemini-2.0-flash" label="Gemini 2.0 Flash (Recommended)" />
-                      <option value="gemini-2.0-flash-lite" label="Gemini 2.0 Flash-Lite" />
-                      <option value="gemini-2.0-pro-exp-02-05" label="Gemini 2.0 Pro Exp" />
-                      <option value="gemini-1.5-flash" label="Gemini 1.5 Flash" />
-                      <option value="gemini-1.5-flash-8b" label="Gemini 1.5 Flash 8B" />
-                      <option value="gemini-1.5-pro-latest" label="Gemini 1.5 Pro (Latest)" />
+                      <option value="gemini-1.5-flash" label="Gemini 1.5 Flash (Active)" />
+                      <option value="gemini-2.0-flash-lite" label="Gemini 2.0 Flash-Lite (Fast)" />
                     </>
                   )}
                 </datalist>

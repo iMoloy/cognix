@@ -4,11 +4,10 @@ import { NextResponse } from "next/server";
  * POST /api/ai-test
  *
  * Multi-provider server proxy for testing AI prompts.
- * Supports: Gemini, OpenAI (ChatGPT), Anthropic (Claude).
- * Includes auto-fallback for high demand / rate-limited Gemini models.
- *
- * Body: { provider?: string, apiKey: string, model?: string, prompt: string }
- * Returns: { text: string } or { error: string }
+ * Strictly uses verified active models:
+ * - Gemini: gemini-2.0-flash, gemini-1.5-flash, gemini-2.0-flash-lite
+ * - OpenAI: gpt-4o, gpt-4o-mini, o3-mini
+ * - Anthropic: claude-3-5-sonnet-latest, claude-3-7-sonnet-latest, claude-3-5-haiku-latest
  */
 export async function POST(request) {
   try {
@@ -35,11 +34,19 @@ export async function POST(request) {
 
     // 1. OPENAI (ChatGPT)
     if (selectedProvider === "openai") {
-      const requestedModel = body.model?.trim() || "gpt-4o";
-      const openaiFallbackModels = [...new Set([requestedModel, "gpt-4o", "gpt-4o-mini"])];
+      const sanitizeOpenAIModel = (m) => {
+        if (!m) return "gpt-4o";
+        const clean = m.trim().toLowerCase();
+        if (clean.includes("o3")) return "o3-mini";
+        if (clean.includes("mini")) return "gpt-4o-mini";
+        return "gpt-4o";
+      };
+
+      const targetModel = sanitizeOpenAIModel(body.model);
+      const openaiModels = [...new Set([targetModel, "gpt-4o", "gpt-4o-mini"])];
       let lastOpenAIError = null;
 
-      for (const model of openaiFallbackModels) {
+      for (const model of openaiModels) {
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
           headers: {
@@ -59,7 +66,7 @@ export async function POST(request) {
         }
 
         lastOpenAIError = data?.error?.message || `OpenAI API error for ${model} (Status ${response.status})`;
-        if (response.status === 401) break; // Don't retry invalid API key
+        if (response.status === 401) break;
       }
 
       return NextResponse.json({ error: lastOpenAIError }, { status: 400 });
@@ -67,11 +74,19 @@ export async function POST(request) {
 
     // 2. ANTHROPIC (Claude)
     if (selectedProvider === "anthropic" || selectedProvider === "claude") {
-      const requestedModel = body.model?.trim() || "claude-3-5-sonnet-latest";
-      const claudeFallbackModels = [...new Set([requestedModel, "claude-3-5-sonnet-latest", "claude-3-5-haiku-latest"])];
+      const sanitizeClaudeModel = (m) => {
+        if (!m) return "claude-3-5-sonnet-latest";
+        const clean = m.trim().toLowerCase();
+        if (clean.includes("3-7") || clean.includes("3.7")) return "claude-3-7-sonnet-latest";
+        if (clean.includes("haiku")) return "claude-3-5-haiku-latest";
+        return "claude-3-5-sonnet-latest";
+      };
+
+      const targetModel = sanitizeClaudeModel(body.model);
+      const claudeModels = [...new Set([targetModel, "claude-3-5-sonnet-latest", "claude-3-5-haiku-latest"])];
       let lastClaudeError = null;
 
-      for (const model of claudeFallbackModels) {
+      for (const model of claudeModels) {
         const response = await fetch("https://api.anthropic.com/v1/messages", {
           method: "POST",
           headers: {
@@ -99,20 +114,21 @@ export async function POST(request) {
     }
 
     // 3. GEMINI (Google - Default)
-    const normalizeGeminiModel = (m) => {
+    // Strictly sanitize to active supported models: gemini-2.0-flash, gemini-1.5-flash, gemini-2.0-flash-lite
+    const sanitizeGeminiModel = (m) => {
       if (!m) return "gemini-2.0-flash";
       const cleanM = m.trim().toLowerCase();
-      if (cleanM === "gemini-1.5-pro") return "gemini-1.5-pro-latest";
-      if (cleanM.includes("3.5") || cleanM.includes("2.5")) return "gemini-2.0-flash";
-      return m.trim();
+      if (cleanM.includes("lite")) return "gemini-2.0-flash-lite";
+      if (cleanM.includes("1.5")) return "gemini-1.5-flash";
+      return "gemini-2.0-flash";
     };
 
-    const targetModel = normalizeGeminiModel(body.model);
-    const geminiFallbackModels = [...new Set([targetModel, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro-latest"])];
+    const targetModel = sanitizeGeminiModel(body.model);
+    const geminiModels = [...new Set([targetModel, "gemini-2.0-flash", "gemini-1.5-flash"])];
 
     let lastGeminiError = null;
 
-    for (const currentModel of geminiFallbackModels) {
+    for (const currentModel of geminiModels) {
       const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${cleanKey}`;
 
       const response = await fetch(geminiUrl, {
@@ -136,7 +152,7 @@ export async function POST(request) {
 
       lastGeminiError = data?.error?.message || `Gemini API error for ${currentModel} (Status ${response.status})`;
       if (response.status === 400 && data?.error?.message?.includes("API key not valid")) {
-        break; // Stop retrying if key is invalid
+        break;
       }
     }
 
