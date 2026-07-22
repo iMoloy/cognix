@@ -7,12 +7,13 @@ import { NextResponse } from "next/server";
  * The browser cannot call generativelanguage.googleapis.com directly (CORS).
  * This route handler runs on the server, so it can make the request without CORS issues.
  *
- * Body: { apiKey: string, prompt: string }
+ * Body: { apiKey: string, prompt: string, model?: string }
  * Returns: { text: string } or { error: string }
  */
 export async function POST(request) {
   try {
-    const { apiKey, prompt } = await request.json();
+    const body = await request.json();
+    const { apiKey, prompt } = body;
 
     if (!apiKey || typeof apiKey !== "string" || !apiKey.trim()) {
       return NextResponse.json(
@@ -28,8 +29,11 @@ export async function POST(request) {
       );
     }
 
-    const geminiUrl =
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+    const model = (typeof body?.model === "string" && body.model.trim())
+      ? body.model.trim()
+      : "gemini-3.5-flash";
+
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     const response = await fetch(`${geminiUrl}?key=${apiKey.trim()}`, {
       method: "POST",

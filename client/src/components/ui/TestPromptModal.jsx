@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 
 export default function TestPromptModal({ isOpen, onClose, promptContent }) {
   const [apiKey, setApiKey] = useState("");
+  const [model, setModel] = useState("gemini-3.5-flash");
   const [inputData, setInputData] = useState("");
   const [output, setOutput] = useState("");
   const [isTesting, setIsTesting] = useState(false);
@@ -29,7 +30,7 @@ export default function TestPromptModal({ isOpen, onClose, promptContent }) {
       const res = await fetch("/api/ai-test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ apiKey, prompt: fullPrompt }),
+        body: JSON.stringify({ apiKey, model, prompt: fullPrompt }),
       });
 
       const data = await res.json();
@@ -93,6 +94,28 @@ export default function TestPromptModal({ isOpen, onClose, promptContent }) {
                 className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors focus:border-emerald-500/50"
               />
               <p className="text-[10px] text-zinc-500">Your key is never stored and only used locally for this test request.</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Model</label>
+              <input
+                type="text"
+                list="gemini-models"
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                placeholder="e.g. gemini-2.0-flash"
+                className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors focus:border-emerald-500/50"
+              />
+              <datalist id="gemini-models">
+                <option value="gemini-3.5-flash" />
+                <option value="gemini-3.5-pro" />
+                <option value="gemini-2.5-flash" />
+                <option value="gemini-2.5-pro" />
+                <option value="gemini-2.0-flash" />
+                <option value="gemini-2.0-flash-lite" />
+                <option value="gemini-1.5-pro" />
+              </datalist>
+              <p className="text-[10px] text-zinc-500">Enter any valid Gemini model ID, or pick from the suggestions.</p>
             </div>
 
             <div className="space-y-2">
