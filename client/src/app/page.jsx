@@ -28,6 +28,7 @@ export default function Home() {
   const router = useRouter();
   const [livePrompts, setLivePrompts] = useState([]);
   const [loadingPrompts, setLoadingPrompts] = useState(true);
+  const [heroSearch, setHeroSearch] = useState("");
   const [trendingTags, setTrendingTags] = useState(["Next.js", "React", "Midjourney", "SEO", "Python", "Copywriting", "FastAPI"]);
 
   const handleHeroSearch = (e) => {
