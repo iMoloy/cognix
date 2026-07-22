@@ -1,36 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Play, Loader2, Key } from "lucide-react";
+import { X, Play, Loader2, Key, TerminalSquare } from "lucide-react";
 import Button from "@/components/ui/Button";
 
 export default function TestPromptModal({ isOpen, onClose, promptContent }) {
+  const [provider, setProvider] = useState("gemini");
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState("gemini-3.5-flash");
+  const [promptInstruction, setPromptInstruction] = useState(promptContent || "");
   const [inputData, setInputData] = useState("");
   const [output, setOutput] = useState("");
   const [isTesting, setIsTesting] = useState(false);
+
+  // Sync prompt instruction whenever modal opens or promptContent changes
+  useEffect(() => {
+    if (promptContent) {
+      const cleanText = promptContent.replace(/<[^>]*>?/gm, '');
+      setPromptInstruction(cleanText);
+    }
+  }, [promptContent, isOpen]);
+
+  // Update default model when provider changes
+  const handleProviderChange = (newProvider) => {
+    setProvider(newProvider);
+    if (newProvider === "openai") {
+      setModel("gpt-4o");
+    } else if (newProvider === "anthropic") {
+      setModel("claude-3-7-sonnet-latest");
+    } else {
+      setModel("gemini-3.5-flash");
+    }
+  };
 
   if (!isOpen) return null;
 
   const handleTest = async () => {
     if (!apiKey) {
-      alert("Please enter a valid Gemini API Key.");
+      alert(`Please enter a valid ${provider.toUpperCase()} API Key.`);
       return;
     }
     
     setIsTesting(true);
     setOutput("");
     try {
-      const fullPrompt = `${promptContent}\n\nUser Input: ${inputData}`;
+      const fullPrompt = inputData.trim() 
+        ? `${promptInstruction}\n\nUser Input / Variables:\n${inputData}`
+        : promptInstruction;
 
-      // We proxy through our Next.js server route to avoid browser CORS restrictions.
-      // Direct browser → generativelanguage.googleapis.com calls are blocked by CORS.
       const res = await fetch("/api/ai-test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ apiKey, model, prompt: fullPrompt }),
+        body: JSON.stringify({ provider, apiKey, model, prompt: fullPrompt }),
       });
 
       const data = await res.json();
@@ -70,7 +92,7 @@ export default function TestPromptModal({ isOpen, onClose, promptContent }) {
           {/* Header */}
           <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] px-6 py-4 shrink-0">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Play size={18} className="text-emerald-400" /> Test Prompt with Gemini
+              <Play size={18} className="text-emerald-400" /> Test Prompt Runner
             </h2>
             <button 
               onClick={onClose}
@@ -82,49 +104,100 @@ export default function TestPromptModal({ isOpen, onClose, promptContent }) {
 
           {/* Body */}
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* AI Provider */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">AI Provider Engine</label>
+                <select
+                  value={provider}
+                  onChange={(e) => handleProviderChange(e.target.value)}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none transition-colors focus:border-emerald-500/50"
+                >
+                  <option value="gemini" className="bg-zinc-900">Google Gemini</option>
+                  <option value="openai" className="bg-zinc-900">OpenAI (ChatGPT)</option>
+                  <option value="anthropic" className="bg-zinc-900">Anthropic (Claude)</option>
+                </select>
+              </div>
+
+              {/* AI Model */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Model Name</label>
+                <input
+                  type="text"
+                  list="ai-models-list"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  placeholder="e.g. gpt-4o or gemini-3.5-flash"
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors focus:border-emerald-500/50"
+                />
+                <datalist id="ai-models-list">
+                  {provider === "openai" && (
+                    <>
+                      <option value="gpt-4o" />
+                      <option value="gpt-4o-mini" />
+                      <option value="o3-mini" />
+                      <option value="o1-preview" />
+                      <option value="gpt-4-turbo" />
+                    </>
+                  )}
+                  {provider === "anthropic" && (
+                    <>
+                      <option value="claude-3-7-sonnet-latest" />
+                      <option value="claude-3-5-sonnet-latest" />
+                      <option value="claude-3-5-haiku-latest" />
+                    </>
+                  )}
+                  {provider === "gemini" && (
+                    <>
+                      <option value="gemini-3.5-flash" />
+                      <option value="gemini-3.5-pro" />
+                      <option value="gemini-2.5-flash" />
+                      <option value="gemini-2.5-pro" />
+                      <option value="gemini-2.0-flash" />
+                      <option value="gemini-2.0-flash-lite" />
+                    </>
+                  )}
+                </datalist>
+              </div>
+            </div>
+
+            {/* API Key */}
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-2">
-                <Key size={14} className="text-amber-400" /> Your Gemini API Key
+                <Key size={14} className="text-amber-400" /> 
+                {provider === "openai" ? "Your OpenAI API Key" : provider === "anthropic" ? "Your Anthropic API Key" : "Your Gemini API Key"}
               </label>
               <input 
                 type="password" 
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder="AIzaSy..."
-                className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors focus:border-emerald-500/50"
+                placeholder={provider === "openai" ? "sk-proj-..." : provider === "anthropic" ? "sk-ant-..." : "AIzaSy..."}
+                className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors focus:border-emerald-500/50 font-mono"
               />
-              <p className="text-[10px] text-zinc-500">Your key is never stored and only used locally for this test request.</p>
+              <p className="text-[10px] text-zinc-500">Your API key is processed securely server-side and never saved.</p>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Model</label>
-              <input
-                type="text"
-                list="gemini-models"
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                placeholder="e.g. gemini-2.0-flash"
-                className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors focus:border-emerald-500/50"
-              />
-              <datalist id="gemini-models">
-                <option value="gemini-3.5-flash" />
-                <option value="gemini-3.5-pro" />
-                <option value="gemini-2.5-flash" />
-                <option value="gemini-2.5-pro" />
-                <option value="gemini-2.0-flash" />
-                <option value="gemini-2.0-flash-lite" />
-                <option value="gemini-1.5-pro" />
-              </datalist>
-              <p className="text-[10px] text-zinc-500">Enter any valid Gemini model ID, or pick from the suggestions.</p>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Test Input Data (Variables)</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                <TerminalSquare size={14} /> Prompt Instruction (Auto-filled)
+              </label>
               <textarea 
-                rows={3}
+                rows={4}
+                value={promptInstruction}
+                onChange={(e) => setPromptInstruction(e.target.value)}
+                placeholder="Prompt payload instruction..."
+                className="w-full rounded-xl border border-emerald-500/20 bg-black/50 p-4 text-xs font-mono text-zinc-200 outline-none transition-colors focus:border-emerald-500/50 resize-y"
+              />
+              <p className="text-[10px] text-zinc-500">Auto-filled from prompt details. You can edit this instruction before running.</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Optional Input Variables / Context</label>
+              <textarea 
+                rows={2}
                 value={inputData}
                 onChange={(e) => setInputData(e.target.value)}
-                placeholder="Enter any context or variables the prompt expects..."
+                placeholder="Enter any custom variables or context for this test run..."
                 className="w-full rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-white placeholder-zinc-600 outline-none transition-colors focus:border-emerald-500/50 resize-none"
               />
             </div>
