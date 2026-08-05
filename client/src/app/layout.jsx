@@ -3,6 +3,7 @@ import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import FloatingPremiumButton from "@/components/ui/FloatingPremiumButton";
 import FloatingSupportButton from "@/components/ui/FloatingSupportButton";
+import FloatingEnhancerButton from "@/components/ui/FloatingEnhancerButton";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -43,6 +44,7 @@ export default function RootLayout({ children }) {
           <Footer />
           <FloatingPremiumButton />
           <FloatingSupportButton />
+          <FloatingEnhancerButton />
           <ToastContainer theme="dark" position="bottom-right" />
         </AuthProvider>
       </body>
